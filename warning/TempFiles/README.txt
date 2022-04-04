@@ -1,0 +1,1 @@
+Folder này chứa file tạm sinh ra trong phiên (do quét real time), cuối phiên tự clear all

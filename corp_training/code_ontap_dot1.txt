@@ -1,0 +1,25 @@
+# Ôn tập lần 1
+
+import numpy as np
+import pandas as pd
+
+file_path = join(dirname(realpath(__file__)),'Ontap1.xlsx')
+
+# Bai 1:
+taikhoan = pd.read_excel(file_path,sheet_name='Bai1',usecols=['taikhoan'],squeeze=True).tolist()
+khachhang = pd.read_excel(file_path,sheet_name='Bai1',usecols=['khachhang'],squeeze=True).tolist()
+taikhoan_vip = pd.read_excel(file_path,sheet_name='Bai1',usecols=['taikhoan_vip'],squeeze=True)
+taikhoan_vip = taikhoan_vip[~taikhoan_vip.isnull()].tolist()
+
+# Bai 2:
+maroom = pd.read_excel(file_path,sheet_name='Bai2',usecols=['Mã room'],squeeze=True).tolist()
+stock = pd.read_excel(file_path,sheet_name='Bai2',usecols=['Stock'],squeeze=True).tolist()
+code = pd.read_excel(file_path,sheet_name='Bai2',usecols=['Code'],squeeze=True).tolist()
+trading_value = pd.read_excel(file_path,sheet_name='Bai2',usecols=['Trading Value'],squeeze=True).tolist()
+
+# Bai 3:
+id_code = pd.read_excel(file_path,sheet_name='Bai3',usecols=['ID'],squeeze=True).tolist()
+moigioi = pd.read_excel(file_path,sheet_name='Bai3',usecols=['Tên MG'],squeeze=True).tolist()
+chinhanh = pd.read_excel(file_path,sheet_name='Bai3',usecols=['Mã CN'],squeeze=True).tolist()
+vitri = pd.read_excel(file_path,sheet_name='Bai3',usecols=['Vị trí'],squeeze=True).tolist()
+phiGD = pd.read_excel(file_path,sheet_name='Bai3',usecols=['Phí GD'],squeeze=True).tolist()

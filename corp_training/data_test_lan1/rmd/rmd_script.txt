@@ -1,0 +1,13 @@
+import numpy as np
+import pandas as pd
+
+file_path = join(dirname(realpath(__file__)), 'data_test_lan1', 'rmd', 'rmd_data.xlsx')
+
+custody = pd.read_excel(file_path,sheet_name='data',usecols=['custody'],squeeze=True).tolist()
+name = pd.read_excel(file_path,sheet_name='data',usecols=['name'],squeeze=True).tolist()
+branch = pd.read_excel(file_path,sheet_name='data',usecols=['branch'],squeeze=True).tolist()
+total_loans = pd.read_excel(file_path,sheet_name='data',usecols=['total_loans'],squeeze=True).tolist()
+RMR0035 = pd.read_excel(file_path,sheet_name='data',usecols=['RMR0035'],squeeze=True).tolist()
+RMR0062 = pd.read_excel(file_path,sheet_name='data',usecols=['RMR0062'],squeeze=True).tolist()
+RMR0015 = pd.read_excel(file_path,sheet_name='data',usecols=['RMR0015'],squeeze=True).tolist()
+DL1 = pd.read_excel(file_path,sheet_name='data',usecols=['DL1'],squeeze=True).tolist()

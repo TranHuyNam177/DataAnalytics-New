@@ -1,0 +1,11 @@
+import numpy as np
+import pandas as pd
+
+file_path = join(dirname(realpath(__file__)), 'data_test_lan1', 'brokerage', 'brokerage_data.xlsx')
+
+id = pd.read_excel(file_path,sheet_name='data',usecols=['id'],squeeze=True,converters={'id':str}).tolist()
+name = pd.read_excel(file_path,sheet_name='data',usecols=['name'],squeeze=True).tolist()
+manager = pd.read_excel(file_path,sheet_name='data',usecols=['manager'],squeeze=True).tolist()
+id_manager = pd.read_excel(file_path,sheet_name='data',usecols=['id_manager'],squeeze=True,converters={'id_manager':str}).tolist()
+target_fee = pd.read_excel(file_path,sheet_name='data',usecols=['target_fee'],squeeze=True).tolist()
+fee = pd.read_excel(file_path,sheet_name='data',usecols=['fee'],squeeze=True).tolist()

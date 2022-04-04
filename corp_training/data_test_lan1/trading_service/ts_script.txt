@@ -1,0 +1,12 @@
+import numpy as np
+import pandas as pd
+
+file_path = join(dirname(realpath(__file__)), 'data_test_lan1', 'trading_service', 'ts_data.xlsx')
+
+taikhoan = pd.read_excel(file_path,sheet_name='data',usecols=['taikhoan'],squeeze=True).tolist()
+tenkhachhang = pd.read_excel(file_path,sheet_name='data',usecols=['tenkhachhang'],squeeze=True).tolist()
+branch = pd.read_excel(file_path,sheet_name='data',usecols=['branch'],squeeze=True).tolist()
+phiDG = pd.read_excel(file_path,sheet_name='data',usecols=['phiDG'],squeeze=True).tolist()
+tongphitrungbinh = pd.read_excel(file_path,sheet_name='data',usecols=['tongphitrungbinh'],squeeze=True).tolist()
+tonglaitrungbinh = pd.read_excel(file_path,sheet_name='data',usecols=['tonglaitrungbinh'],squeeze=True).tolist()
+taisanrongbinhquan = pd.read_excel(file_path,sheet_name='data',usecols=['taisanrongbinhquan'],squeeze=True).tolist()

@@ -1,0 +1,20 @@
+<<<<<<< HEAD
+.venv/
+.vscode/
+.idea/
+.git/
+=======
+/dependency/tesseract/
+credit_rating/result/
+.venv
+.vscode
+.idea
+.git
+>>>>>>> parent of 81510d4c (2022-04-04)
+*.png
+*.jpg
+*.xlsx
+*.xls
+*.csv
+*.pptx
+*.pdf

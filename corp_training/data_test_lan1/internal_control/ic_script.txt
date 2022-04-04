@@ -1,0 +1,15 @@
+import numpy as np
+import pandas as pd
+
+file_path = join(dirname(realpath(__file__)), 'data_test_lan1', 'internal_control', 'ic_data.xlsx')
+
+sohieulenh = pd.read_excel(file_path,sheet_name='data',usecols=['sohieulenh'],squeeze=True,converters={'sohieulenh':str}).tolist()
+sotaikhoan = pd.read_excel(file_path,sheet_name='data',usecols=['sotaikhoan'],squeeze=True).tolist()
+loailenh = pd.read_excel(file_path,sheet_name='data',usecols=['loailenh'],squeeze=True).tolist()
+machungkhoan = pd.read_excel(file_path,sheet_name='data',usecols=['machungkhoan'],squeeze=True).tolist()
+khoiluong = pd.read_excel(file_path,sheet_name='data',usecols=['khoiluong'],squeeze=True).tolist()
+gia = pd.read_excel(file_path,sheet_name='data',usecols=['gia'],squeeze=True).tolist()
+nguoithuchien = pd.read_excel(file_path,sheet_name='data',usecols=['nguoithuchien'],squeeze=True,converters={'nguoithuchien':str}).tolist()
+nguoiduyet = pd.read_excel(file_path,sheet_name='data',usecols=['nguoiduyet'],squeeze=True,converters={'nguoiduyet':str}).tolist()
+cchn_nguoithuchien = pd.read_excel(file_path,sheet_name='data',usecols=['cchn_nguoithuchien'],squeeze=True).tolist()
+cchn_nguoiduyet = pd.read_excel(file_path,sheet_name='data',usecols=['cchn_nguoiduyet'],squeeze=True).tolist()
