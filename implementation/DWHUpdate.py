@@ -9,7 +9,7 @@ def DWH_CoSo_Update_Today():
 @TaskMonitor
 def DWH_CoSo_Update_BackDate():
     from datawarehouse.DWH_CoSo import UPDATEBACKDATE
-    from request import dt
+    import datetime as dt
     hour = dt.datetime.now().hour
     if 22 <= hour <= 24 or 0 <= hour <= 5:
         days = 5
@@ -19,11 +19,11 @@ def DWH_CoSo_Update_BackDate():
         UPDATEBACKDATE(day)
 
 # không dùng @TaskMonitor vì hàm này đã có sẵn một lớp Monitor rồi
-def DWHCoSo_BankCurrentBalance(bank):
-    from datawarehouse.DWH_CoSo import BankCurrentBalance
-    from request import dt
+def DWHCoSo_InternetBanking(bank):
+    from datawarehouse.DWH_CoSo import InternetBanking
+    import datetime as dt
     today = dt.datetime.today()
-    BankCurrentBalance.run(bank,today-dt.timedelta(days=1),today-dt.timedelta(days=1))
+    InternetBanking.run(bank,today-dt.timedelta(days=1),today-dt.timedelta(days=1))
 
 @TaskMonitor
 def DWH_PhaiSinh_Update_Today():
@@ -33,7 +33,7 @@ def DWH_PhaiSinh_Update_Today():
 @TaskMonitor
 def DWH_PhaiSinh_Update_BackDate():
     from datawarehouse.DWH_PhaiSinh import UPDATEBACKDATE
-    from request import dt
+    import datetime as dt
     hour = dt.datetime.now().hour
     if 22 <= hour <= 24 or 0 <= hour <= 5:
         days = 5
@@ -50,7 +50,7 @@ def DWH_ThiTruong_Update_DanhSachMa():
 @TaskMonitor
 def DWHThiTruongUpdate_DuLieuGiaoDichNgay():
     from datawarehouse.DWH_ThiTruong.DuLieuGiaoDichNgay import update as Update_DuLieuGiaoDichNgay
-    from request import dt
+    import datetime as dt
     today = dt.datetime.now()
     Update_DuLieuGiaoDichNgay(today,today)
 

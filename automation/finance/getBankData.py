@@ -1,3 +1,8 @@
+import os
+import time
+
+import win32security
+
 from automation.finance import *
 
 class Base:
@@ -45,15 +50,26 @@ class Base:
         else:
             raise ValueError('Invalid Bank Name')
 
+        outlook = Dispatch('outlook.application')
+        # Dọn dẹp folder mail
+        mapi = outlook.GetNamespace("MAPI")
+        inbox = mapi.Folders.Item(1).Folders['Inbox'].Folders['CAPTCHA']
+        email_ids = []
+        for i in range(len(inbox.Items)):
+            if f're: captcha required: {self.bank.lower()}' in inbox.Items[i].Subject.lower():
+                email_ids.append(inbox.Items[i].EntryID)
+        folder_id = inbox.StoreID
+        for email_id in email_ids:
+            mapi.GetItemFromID(email_id,folder_id).Delete()
+
         # Lấy CAPTCHA từ IB
         imgPATH = join(dirname(__file__),'CAPTCHA',f'{self.bank}.png')
         captcha_element.screenshot(imgPATH)
         # Decode image sang UTF-8
         base64Img = base64.b64encode(open(imgPATH,'rb').read()).decode('utf-8')
         # Gửi CAPTCHA qua bank
-        outlook = Dispatch('outlook.application')
         mail = outlook.CreateItem(0)
-        mail.To = 'hiepdang@phs.vn; duynguyen@phs.vn'
+        mail.To = 'hiepdang@phs.vn'
         mail.Subject = f"CAPTCHA Required: {self.bank}"
         mail.attachments.Add(imgPATH)
         html = f"""
@@ -74,25 +90,17 @@ class Base:
         mail.HTMLBody = html
         mail.Send()
         # Chờ phản hồi để nhận CAPTCHA
-        mapi = Dispatch('outlook.application').GetNamespace("MAPI")
-        now = dt.datetime.now()
         while True:
-            for subFolder in ['DataAnalytics','HiepDang']: # Tùy vào người gửi là ai sẽ phân vào sub-folder mail khác nhau
-                inbox = mapi.Folders.Item(1).Folders['Inbox'].Folders[subFolder]
-                messages = inbox.Items
-                messages = messages.Restrict(f"[Subject] = 'CAPTCHA Required: {self.bank}'")
-                messages = messages.Restrict(f"[ReceivedTime] >= '" + now.strftime('%Y-%m-%d %H:%M %p') + "'")
-                messages.Sort("[ReceivedTime]",Descending=True) # to ensure to read newest to oldest
-                for message in messages:
+            inbox = mapi.Folders.Item(1).Folders['Inbox'].Folders['CAPTCHA']
+            messages = inbox.Items
+            for message in messages:
+                if f're: captcha required: {self.bank.lower()}' in message.Subject.lower():
                     subBody = message.Body.split()[0]
                     regex = re.compile(regexPattern)
                     match = regex.search(subBody)
                     if match:
-                        message.Delete()
                         return match.group()
-
             time.sleep(5)  # 5s quét 1 lần
-
 
 # có CAPTCHA
 class BIDV(Base):
@@ -107,41 +115,42 @@ class BIDV(Base):
         super().__init__('BIDV')
         self.fromDate = dt.datetime(fromDate.year,fromDate.month,fromDate.day)
         self.toDate = dt.datetime(toDate.year,toDate.month,toDate.day)
-        self.driver, self.wait = self.__Login__()
+        self.driver = None
+        self.wait = None
 
     def __repr__(self):
         return f'<BankObject_BIDV>'
 
-    def __Login__(self):
+    def Login(self):
 
-        driver = webdriver.Chrome(executable_path=self.PATH)
-        driver.maximize_window()
-        driver.get(self.URL)
-        wait = WebDriverWait(driver,30,ignored_exceptions=self.ignored_exceptions)
+        self.driver = webdriver.Chrome(executable_path=self.PATH)
+        self.driver.maximize_window()
+        self.driver.get(self.URL)
+        self.wait = WebDriverWait(self.driver,30,ignored_exceptions=self.ignored_exceptions)
 
         def GO(CAPTCHA):
             """
             Procedure login với CAPTCHA cho trước
             """
             # Input CAPTCHA
-            captchaInput = driver.find_element(By.ID,'captcha')
+            captchaInput = self.driver.find_element(By.ID,'captcha')
             captchaInput.clear()
             captchaInput.send_keys(CAPTCHA)
             # Input Username
-            userInput = driver.find_element(By.ID,'username')
+            userInput = self.driver.find_element(By.ID,'username')
             userInput.clear()
             userInput.send_keys(self.user)
             # Input Password
-            userInput = driver.find_element(By.ID,'password')
+            userInput = self.driver.find_element(By.ID,'password')
             userInput.clear()
             userInput.send_keys(self.password)
             # Click "Đăng nhập"
-            loginButton = driver.find_element(By.ID,'btLogin')
+            loginButton = self.driver.find_element(By.ID,'btLogin')
             loginButton.click()
 
         # CAPTCHA
         while True:
-            captchaElement = wait.until(EC.presence_of_element_located((By.ID,'idImageCap')))
+            captchaElement = self.wait.until(EC.presence_of_element_located((By.ID,'idImageCap')))
             imgPATH = join(dirname(__file__),'CAPTCHA',f'{self.bank}.png')
             captchaElement.screenshot(imgPATH) # download CAPTCHA về dưới dạng .png
             predictedCAPTCHA = pytesseract.image_to_string(imgPATH).replace('\n','').replace(' ','')
@@ -151,19 +160,19 @@ class BIDV(Base):
             condition3 = not re.findall('[ACGJTZWSIacgijqzws145789]',predictedCAPTCHA)
             if condition1 and condition2 and condition3: # Cases do not need refresh
                 break
-            driver.find_element(By.CLASS_NAME,'btnRefresh').click() # Cases need refresh
+            self.driver.find_element(By.CLASS_NAME,'btnRefresh').click() # Cases need refresh
             time.sleep(0.5)
 
         GO(predictedCAPTCHA)
 
         # Check xem CAPTCHA đúng chưa, nếu chưa đúng -> gửi mail đọc CAPTCHA bằng tay
-        errorMessages = driver.find_elements(By.CLASS_NAME,'errorMessage')
+        errorMessages = self.driver.find_elements(By.CLASS_NAME,'errorMessage')
         if errorMessages:  # Nếu chưa đúng
-            captchaElement = wait.until(EC.presence_of_element_located((By.ID,'idImageCap')))
+            captchaElement = self.wait.until(EC.presence_of_element_located((By.ID,'idImageCap')))
             manualCAPTCHA = self.__GetCaptchaFromMail__(captchaElement)
             GO(manualCAPTCHA)
 
-        return driver, wait
+        return self
 
 
     def TienGuiThanhToan(self):
@@ -181,6 +190,7 @@ class BIDV(Base):
         xpath = f'//*[@class="change"]'
         Account = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
         Account.click()
+        time.sleep(0.5) # chờ animation
         # Click "Lịch sử giao dịch"
         xpath = f'//*[@data-action="btDetailTransaction"]'
         Button = self.wait.until(EC.visibility_of_element_located((By.XPATH,xpath)))
@@ -209,12 +219,13 @@ class BIDV(Base):
                 value = accountInput.get_attribute('value')
                 print(value)
                 account = re.search('[0-9]{14}',value).group()
-                time.sleep(0.5) # chờ load dữ liệu
+                time.sleep(0.5) # chờ pop up (nếu có)
                 # Đóng pop up nếu có
                 xpath = '//*[@data-bb-handler="ok"]'
                 popupButtons = self.driver.find_elements(By.XPATH,xpath)
                 if popupButtons:
                     popupButtons[0].click()
+                time.sleep(1)
                 # Lấy số dư
                 balanceString = self.wait.until(EC.presence_of_element_located((By.ID,'lbSoDuCuoiKy'))).text
                 balance = float(balanceString.replace(',',''))
@@ -223,13 +234,12 @@ class BIDV(Base):
                 if i == accountNumber:
                     break
 
-        self.driver.quit()
         balanceTable = pd.DataFrame(
             data=records,
             columns=['Date','Bank','AccountNumber','Balance','Currency']
         )
 
-        return balanceTable
+        return self, balanceTable
 
 
     def TienGuiKyHan(self):
@@ -240,22 +250,69 @@ class BIDV(Base):
         self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Vấn tin'))).click()
         # Click "Tiền gửi thanh toán"
         self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Tiền gửi có kỳ hạn'))).click()
-
-        # Lấy số lượng tài khoản
-        Accounts = self.wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME,'change')))
-        accountNumber = len(Accounts)
-        # Click vào tài khoản đầu tiên
-        xpath = f'//*[@class="change"]'
-        Account = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
-        Account.click()
-        # Click "Lịch sử giao dịch"
-        xpath = f'//*[@data-action="btDetailTransaction"]'
-        Button = self.wait.until(EC.visibility_of_element_located((By.XPATH,xpath)))
-        Button.click()
-        # Chọn tab "Thời gian"
-        self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Thời gian'))).click()
-        # Lấy dữ liệu từng tài khoản
+        # Dọn dẹp folder trước khi download
+        for file in listdir(self.downloadFolder):
+            if 'EBK_BC_TIENGOICOKYHAN' in file:
+                os.remove(join(self.downloadFolder,file))
+        # Click download
+        self.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'export'))).click()
+        time.sleep(1) # chờ file download xong
+        # Đọc file download để lấy danh sách tài khoản
+        for file in listdir(self.downloadFolder):
+            if 'EBK_BC_TIENGOICOKYHAN' in file:
+                downloadFile = file
+                break
+        accountNumbers = pd.read_excel(
+            join(self.downloadFolder,downloadFile),
+            skiprows=7,
+            usecols='C',
+            skipfooter=1,
+            dtype='object',
+            squeeze=True,
+        )
+        # Click từng tài khoản
         records = []
+        for accountNumber in accountNumbers:
+            xpath = f'//*[text()="{accountNumber}"]'
+            accountElement = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            accountElement.click()
+            time.sleep(0.5) # chờ animation
+            # Lãi suất
+            xpath = f'//*[@aria-expanded="true"]/*[@class="information"]/div/div[2]/div[4]/p' # dòng 2 cột 4
+            irateString, _ = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).text.split()
+            irate = float(irateString) / 100
+            # Kỳ hạn
+            xpath = f'//*[@aria-expanded="true"]/*[@class="information"]/div/div[2]/div[2]/p' # dòng 2 cột 2
+            termString, _ = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).text.split()
+            term = float(termString) # số tháng
+            # Ngày phát hành
+            xpath = f'//*[@aria-expanded="true"]/*[@class="information"]/div/div[2]/div[1]/p' # dòng 2 cột 1
+            issueDateString = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).text
+            issueDate = dt.datetime.strptime(issueDateString,'%d/%m/%Y')
+            # Ngày đáo hạn
+            xpath = f'//*[@aria-expanded="true"]/*[@class="information"]/div/div[4]/div[2]/p' # dòng 4 cột 2
+            expireDateString = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).text
+            expireDate = dt.datetime.strptime(expireDateString,'%d/%m/%Y')
+            # Số dư & currency
+            xpath = f'//*[@aria-expanded="true"]/*[@class="information"]/div/div[3]/div[3]/p' # dòng 3 cột 3
+            balanceString, currency = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).text.split()
+            balance = float(balanceString.replace(',',''))
+            # Số ngày
+            termDays = (expireDate - issueDate).days
+            # Lãi
+            interestAmount = irate / 360 * termDays * balance
+            # Click để collapse dòng
+            accountElement.click()
+            # Append
+            record = ('BIDV',accountNumber,termDays,term,irate,issueDate,expireDate,balance,interestAmount)
+            records.append(record)
+
+        balanceTable = pd.DataFrame(
+            data=records,
+            columns=['Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount']
+        )
+
+        return self, balanceTable
 
 # không CAPTCHA
 class VTB(Base):
@@ -270,32 +327,33 @@ class VTB(Base):
         super().__init__('VTB')
         self.fromDate = dt.datetime(fromDate.year,fromDate.month,fromDate.day)
         self.toDate = dt.datetime(toDate.year,toDate.month,toDate.day)
-        self.driver, self.wait = self.__Login__()
+        self.driver = None
+        self.wait = None
 
     def __repr__(self):
         return f'<BankObject_VTB>'
 
-    def __Login__(self):
+    def Login(self):
 
-        driver = webdriver.Chrome(executable_path=self.PATH)
-        driver.maximize_window()
-        driver.get(self.URL)
-        wait = WebDriverWait(driver,30,ignored_exceptions=self.ignored_exceptions)
+        self.driver = webdriver.Chrome(executable_path=self.PATH)
+        self.driver.maximize_window()
+        self.driver.get(self.URL)
+        self.wait = WebDriverWait(self.driver,30,ignored_exceptions=self.ignored_exceptions)
 
         # Username
-        userInput = wait.until(EC.presence_of_element_located((By.XPATH,'//*[@placeholder="Tên đăng nhập"]')))
+        userInput = self.wait.until(EC.presence_of_element_located((By.XPATH,'//*[@placeholder="Tên đăng nhập"]')))
         userInput.clear()
         userInput.send_keys(self.user)
         # Password
-        passwordInput = wait.until(EC.presence_of_element_located((By.XPATH,'//*[@placeholder="Mật khẩu"]')))
+        passwordInput = self.wait.until(EC.presence_of_element_located((By.XPATH,'//*[@placeholder="Mật khẩu"]')))
         passwordInput.clear()
         passwordInput.send_keys(self.password)
         # Click đăng nhập
-        loginButton = wait.until(EC.presence_of_element_located((By.XPATH,'//*[@type="submit"]')))
+        loginButton = self.wait.until(EC.presence_of_element_located((By.XPATH,'//*[@type="submit"]')))
         loginButton.click()
         time.sleep(1)
 
-        return driver, wait
+        return self
 
     def TienGuiThanhToan(self):
 
@@ -326,7 +384,7 @@ class VTB(Base):
             fromDateInput,toDateInput = self.wait.until(EC.visibility_of_all_elements_located((By.CLASS_NAME,'ant-picker-input')))
             for d in pd.date_range(self.fromDate,self.toDate):
                 # Điền ngày
-                sendDate(fromDateInput,d-dt.timedelta(days=15))
+                sendDate(fromDateInput,d-dt.timedelta(days=5)) # set days lớn quá dễ bị VTB log out
                 sendDate(toDateInput,d)
                 while True:
                     try:
@@ -342,10 +400,18 @@ class VTB(Base):
             self.driver.back()
             self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Xem thêm'))).click()
 
-        self.driver.quit()
         balanceTable = pd.DataFrame(
             data = records,
             columns=['Date','Bank','AccountNumber','Balance','Currency']
+        )
+
+        return self, balanceTable
+
+    def TipenGuiKyHan(self):
+
+        balanceTable = pd.DataFrame(
+            # data=records,
+            columns=['Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount']
         )
 
         return balanceTable
@@ -363,17 +429,18 @@ class IVB(Base):
         super().__init__('IVB')
         self.fromDate = dt.datetime(fromDate.year,fromDate.month,fromDate.day)
         self.toDate = dt.datetime(toDate.year,toDate.month,toDate.day)
-        self.driver, self.wait = self.__Login__()
+        self.driver = None
+        self.wait = None
 
     def __repr__(self):
         return f'<BankObject_IVB>'
 
-    def __Login__(self):
+    def Login(self):
 
-        driver = webdriver.Chrome(executable_path=self.PATH)
-        driver.maximize_window()
-        driver.get(self.URL)
-        wait = WebDriverWait(driver,30,ignored_exceptions=self.ignored_exceptions)
+        self.driver = webdriver.Chrome(executable_path=self.PATH)
+        self.driver.maximize_window()
+        self.driver.get(self.URL)
+        self.wait = WebDriverWait(driver,30,ignored_exceptions=self.ignored_exceptions)
 
         # Username
         xpath = '//*[@placeholder="Tên truy cập"]'
@@ -400,7 +467,7 @@ class IVB(Base):
         if possibleButtons:
             possibleButtons[0].click()
 
-        return driver, wait
+        return self
 
     def TienGuiThanhToan(self):
 
@@ -432,7 +499,7 @@ class IVB(Base):
                 # Từ ngày
                 fromDateInput = self.driver.find_element(By.ID,'beginDate')
                 fromDateInput.clear()
-                fromDateInput.send_keys((d-dt.timedelta(days=15)).strftime('%d/%m/%Y'))
+                fromDateInput.send_keys((d-dt.timedelta(days=10)).strftime('%d/%m/%Y'))
                 # Đến ngày
                 toDateInput = self.driver.find_element(By.ID,'endDate')
                 toDateInput.clear()
@@ -448,10 +515,18 @@ class IVB(Base):
                     balance = 0
                 records.append((d,'IVB',account,balance,currency))
 
-        self.driver.quit()
         balanceTable = pd.DataFrame(
             records,
             columns=['Date','Bank','AccountNumber','Balance','Currency']
+        )
+
+        return balanceTable
+
+    def TipenGuiKyHan(self):
+
+        balanceTable = pd.DataFrame(
+            # data=records,
+            columns=['Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount']
         )
 
         return balanceTable
@@ -469,12 +544,12 @@ class VCB(Base):
         super().__init__('VCB')
         self.fromDate = dt.datetime(fromDate.year,fromDate.month,fromDate.day)
         self.toDate = dt.datetime(toDate.year,toDate.month,toDate.day)
-        self.driver, self.wait = self.__Login__()
+        self.driver, self.wait = self.Login()
 
     def __repr__(self):
         return f'<BankObject_VCB>'
 
-    def __Login__(self):
+    def Login(self):
 
         driver = webdriver.Chrome(executable_path=self.PATH)
         driver.maximize_window()
@@ -563,15 +638,18 @@ class VCB(Base):
                 # Điền ngày
                 startDateInput = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'startDate')))
                 self.driver.execute_script(f'window.scrollTo(0,500)')
-                sendDate(startDateInput,d-dt.timedelta(days=15)) # VCB rất dễ lỗi ko hiện dữ liệu khi startDate = endDate
+                sendDate(startDateInput,d-dt.timedelta(days=10)) # VCB rất dễ lỗi ko hiện dữ liệu khi startDate = endDate
                 endDateInput = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'endDate')))
                 sendDate(endDateInput,d)
                 # Click "Xem sao kê"
                 self.wait.until(EC.presence_of_element_located((By.ID,'TransByDate'))).click()
                 time.sleep(1) # chờ load xong để tránh rủi ro đang hiện số cũ
                 # Số dư cuối kỳ
-                ID = 'ctl00_Content_TransactionDetail_EndBalance'
-                balanceString = self.wait.until(EC.visibility_of_element_located((By.ID,ID))).text
+                while True:
+                    ID = 'ctl00_Content_TransactionDetail_EndBalance'
+                    balanceString = self.wait.until(EC.presence_of_element_located((By.ID,ID))).text
+                    if balanceString:
+                        break
                 balance = float(balanceString.replace(',',''))
                 records.append((d,'VCB',account,balance,currency))
 
@@ -596,12 +674,12 @@ class EIB(Base):
         super().__init__('EIB')
         self.fromDate = dt.datetime(fromDate.year,fromDate.month,fromDate.day)
         self.toDate = dt.datetime(toDate.year,toDate.month,toDate.day)
-        self.driver, self.wait = self.__Login__()
+        self.driver, self.wait = self.Login()
 
     def __repr__(self):
         return f'<BankObject_EIB>'
 
-    def __Login__(self):
+    def Login(self):
 
         driver = webdriver.Chrome(executable_path=self.PATH)
         driver.maximize_window()
@@ -651,7 +729,7 @@ class EIB(Base):
                 fromDateInput,toDateInput = self.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
                 # Từ ngày
                 fromDateInput.clear()
-                fromDateInput.send_keys((d-dt.timedelta(days=15)).strftime('%d/%m/%Y'))
+                fromDateInput.send_keys((d-dt.timedelta(days=10)).strftime('%d/%m/%Y'))
                 # Đến ngày
                 toDateInput.clear()
                 toDateInput.send_keys(d.strftime('%d/%m/%Y'))
@@ -665,8 +743,8 @@ class EIB(Base):
                     except (ElementClickInterceptedException,):
                         pass
                 # Lấy số dư
-                xpath = '//*[@class="form-control text-right ng-untouched ng-pristine"]'
-                _, Balance = self.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+                xpath = '//*[contains(text(),"Số dư cuối kỳ")]/parent::node()/div/input'
+                Balance = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
                 balanceString, currency = Balance.get_attribute('value').split()
                 balance = float(balanceString.replace(',',''))
                 if balance: # if balance != 0
@@ -703,12 +781,12 @@ class OCB(Base):
         super().__init__('OCB')
         self.fromDate = dt.datetime(fromDate.year,fromDate.month,fromDate.day)
         self.toDate = dt.datetime(toDate.year,toDate.month,toDate.day)
-        self.driver, self.wait = self.__Login__()
+        self.driver, self.wait = self.Login()
 
     def __repr__(self):
         return f'<BankObject_OCB>'
 
-    def __Login__(self):
+    def Login(self):
 
         driver = webdriver.Chrome(executable_path=self.PATH)
         driver.maximize_window()
@@ -771,7 +849,7 @@ class OCB(Base):
                 # Từ ngày
                 fromDateInput = self.wait.until(EC.presence_of_element_located((By.NAME,'dateFromInput')))
                 fromDateInput.clear()
-                fromDateInput.send_keys((d-dt.timedelta(days=15)).strftime('%d.%m.%Y'))
+                fromDateInput.send_keys((d-dt.timedelta(days=10)).strftime('%d.%m.%Y'))
                 # Đến ngày
                 toDateInput = self.wait.until(EC.presence_of_element_located((By.NAME,'dateToInput')))
                 toDateInput.clear()

@@ -52,22 +52,34 @@ def GetDataMonitor(func):
     return wrapper
 
 
-
-
+@GetDataMonitor
 def run(bank,fromDate,toDate):
 
-    @GetDataMonitor
-    def getData(bank,fromDate,toDate):
-        bankObject = eval(f'getBankData.{bank}')
-        return bankObject(fromDate,toDate).TienGuiThanhToan()
+    if bank == 'BIDV':
+        bankObject = getBankData.BIDV(fromDate,toDate).Login()
+    elif bank == 'EIB':
+        bankObject = getBankData.EIB(fromDate,toDate).Login()
+    elif bank == 'IVB':
+        bankObject = getBankData.IVB(fromDate,toDate).Login()
+    elif bank == 'VTB':
+        bankObject = getBankData.VTB(fromDate,toDate).Login()
+    elif bank == 'VCB':
+        bankObject = getBankData.VCB(fromDate,toDate).Login()
+    elif bank == 'OCB':
+        bankObject = getBankData.OCB(fromDate,toDate).Login()
+    else:
+        raise ValueError(f'Invalid bank name: {bank}')
 
-    for _ in range(2): # chạy tối đa 2 lần
-        try:
-            balanceTable = getData(bank,fromDate,toDate)
-            INSERT(connect_DWH_CoSo,'BankCurrentBalance',balanceTable)
-            checkCols = ['BankCurrentBalance','Date','AccountNumber','Currency']
-            DROP_DUPLICATES(connect_DWH_CoSo,*checkCols)  # xóa dòng trùng nhau
-            break
-        except (Exception,):
-            pass
+    zipObject = zip(
+        [bankObject.TienGuiThanhToan,bankObject.TienGuiKyHan],
+        ['BankCurrentBalance','BankDepositBalance'],
+        [['BankCurrentBalance','Date','AccountNumber','Currency'],
+         ['Bank','AccountNumber','IssueDate','ExpireDate']]
+    )
+    for func, dwhTable, checkCols in zipObject:
+        bankObject, balanceTable = func()
+        INSERT(connect_DWH_CoSo,dwhTable,balanceTable)
+        DROP_DUPLICATES(connect_DWH_CoSo,*checkCols)  # xóa dòng trùng nhau
+
+    bankObject.quit()
 
