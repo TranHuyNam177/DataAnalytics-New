@@ -14,7 +14,7 @@ def GetDataMonitor(func):
         mail = outlook.CreateItem(0)
         mail.To = 'hiepdang@phs.vn'
         try:
-            table = func(*args)
+            func(*args)
             mail.Subject = f"BankCurrentBalance.{bank} for {run_date} Run Successfully"
             body = f"""
                 <html>
@@ -47,7 +47,6 @@ def GetDataMonitor(func):
             mail.HTMLBody = body
             mail.Send()
             raise BankFailedException(f"{bank} failed on {run_date}")
-        return table
 
     return wrapper
 
@@ -73,13 +72,15 @@ def run(bank,fromDate,toDate):
     zipObject = zip(
         [bankObject.TienGuiThanhToan,bankObject.TienGuiKyHan],
         ['BankCurrentBalance','BankDepositBalance'],
-        [['BankCurrentBalance','Date','AccountNumber','Currency'],
-         ['Bank','AccountNumber','IssueDate','ExpireDate']]
+        [['Date','Bank','AccountNumber','Currency'],['Date','Bank','AccountNumber','IssueDate','ExpireDate','Currency']]
     )
     for func, dwhTable, checkCols in zipObject:
+        print(func.__name__)
         bankObject, balanceTable = func()
         INSERT(connect_DWH_CoSo,dwhTable,balanceTable)
-        DROP_DUPLICATES(connect_DWH_CoSo,*checkCols)  # xóa dòng trùng nhau
+        DROP_DUPLICATES(connect_DWH_CoSo,dwhTable,*checkCols)  # xóa dòng trùng nhau
 
-    bankObject.quit()
+    del bankObject # destroy the object to close opening Chrome driver (call __del__ magic method)
+
+
 

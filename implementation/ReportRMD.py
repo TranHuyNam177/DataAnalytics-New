@@ -4,7 +4,7 @@ from request.stock import *
 @TaskMonitor
 def RMD_BaoCaoGiaHoaVonDanhMuc():
     from automation.risk_management import BaoCaoGiaHoaVonDanhMuc
-    BaoCaoGiaHoaVonDanhMuc.run()
+    BaoCaoGiaHoaVonDanhMuc.run(dt.datetime(2022,4,27))
 
 @TaskMonitor
 def RMD_TinChungKhoan():

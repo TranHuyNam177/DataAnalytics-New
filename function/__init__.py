@@ -87,11 +87,10 @@ def bdate(date: str,bdays: int = 0) -> str:
     result_date = given_date
 
     d = 0
-    while abs(d)<abs(bdays):
+    while abs(d) < abs(bdays):
         d += step
         result_date += dt.timedelta(days=step)
-        while result_date.weekday() in holidays.WEEKEND \
-                or result_date in holidays.VN():
+        while result_date.weekday() in holidays.WEEKEND or result_date in holidays.VN():
             result_date += dt.timedelta(days=step)
 
     result_date = result_date.strftime('%Y-%m-%d')

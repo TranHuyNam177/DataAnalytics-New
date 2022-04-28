@@ -1,7 +1,3 @@
-import time
-
-import pandas as pd
-
 from request.stock import *
 
 class NoNewsFound(Exception):
@@ -27,9 +23,7 @@ class vsd:
         This function returns a DataFrame and export an excel file containing
         news update published in 'https://vsd.vn/vi/alo/-f-_bsBS4BBXga52z2eexg'
         (tin từ tổ chức phát hành).
-    
         :param num_hours: number of hours in the past that's in our concern
-    
         :return: summary report of news update
         """
 
@@ -45,9 +39,9 @@ class vsd:
             'chứng nhận đăng ký chứng khoán lần đầu',
             'chứng nhận đăng ký chứng quyền lần đầu'
         ]
-        bmk_time = btime(now.strftime('%Y-%m-%d %H:%M:%S'),-num_hours)
+        bmk_time = btime(now.strftime('%Y-%m-%d %H:%M:%S'), -num_hours)
         frames = []
-        while fromtime>=dt.datetime.strptime(bmk_time,'%Y-%m-%d %H:%M:%S'):
+        while fromtime >= dt.datetime.strptime(bmk_time, '%Y-%m-%d %H:%M:%S'):
             news_time = []
             news_headlines = []
             news_urls = []
@@ -90,7 +84,7 @@ class vsd:
             time.sleep(1)
             button_row = driver_wait.until(EC.presence_of_element_located((By.ID,'d_number_of_page')))
             button_elems = button_row.find_elements_by_xpath(".//*")
-            nextpage_button =button_elems[-3]
+            nextpage_button = button_elems[-3]
             nextpage_button.click()
 
             # Check time
@@ -129,9 +123,7 @@ class vsd:
         This function returns a DataFrame and export an excel file containing
         news update published in 'https://www.vsd.vn/vi/alc/4'
         (tin từ thành viên lưu ký).
-    
         :param num_hours: number of hours in the past that's in our concern
-    
         :return: summary report of news update
         """
 
@@ -192,15 +184,10 @@ class vsd:
             frames.append(frame)
 
             # Turn Page
-            nextpage_button = driver_wait.until(EC.presence_of_all_elements_located(
-                (By.XPATH,"//*[@id='d_number_of_page']/button")
-            ))[-2]
+            nextpage_button = driver_wait.until(EC.presence_of_all_elements_located((By.XPATH,"//*[@id='d_number_of_page']/button")))[-2]
             nextpage_button.click()
-
             # Check time
-            last_tag = driver_wait.until(EC.presence_of_all_elements_located(
-                (By.XPATH,'//*[@id="d_list_news"]/ul/li')
-            ))[-1]
+            last_tag = driver_wait.until(EC.presence_of_all_elements_located((By.XPATH,'//*[@id="d_list_news"]/ul/li')))[-1]
             fromtime = last_tag.find_element_by_tag_name('div').text
             fromtime = dt.datetime.strptime(fromtime[-21:],'%d/%m/%Y - %H:%M:%S')
 
@@ -251,9 +238,7 @@ class hnx:
         news update published in
         'https://www.hnx.vn/thong-tin-cong-bo-ny-hnx.html' (tin từ sở) and
         'https://www.hnx.vn/vi-vn/thong-tin-cong-bo-up-hnx.html' (tin từ sở)
-    
         :param num_hours: number of hours in the past that's in our concern
-    
         :return: summary report of news update
         """
 
@@ -432,38 +417,39 @@ class hnx:
 
 class hose:
 
-    def __init__(self):
-
-        self.PATH = join(dirname(dirname(realpath(__file__))),'dependency','chromedriver')
-
-        self.ignored_exceptions = (
-            ValueError,
-            IndexError,
-            NoSuchElementException,
-            StaleElementReferenceException,
-            TimeoutException,
-            ElementNotInteractableException
-        )
-
-    def tinTCNY(self,num_hours: int = 48):
+    @staticmethod
+    def tinTCNY(num_hours:int=48):
 
         """
         This function returns a DataFrame and export an excel file containing
         news update published in
         'https://www.hsx.vn/Modules/Cms/Web/NewsByCat/dca0933e-a578-4eaf-8b29-beb4575052c5?fid=6d1f1d5e9e6c4fb593077d461e5155e7'
         (tin về hoạt động của tổ chức niêm yết)
-    
         :param num_hours: number of hours in the past that's in our concern
-    
         :return: summary report of news update
         """
 
+        def f(s):
+            if s.endswith('SA'):
+                s = s.rstrip(' SA')
+                return dt.datetime.strptime(s, '%d/%m/%Y %H:%M:%S')
+            if s.endswith('CH'):
+                s = s.rstrip(' CH')
+                return dt.datetime.strptime(s, '%d/%m/%Y %H:%M:%S') + dt.timedelta(hours=12)
+
+        def f1(full_list):
+            if len(full_list) == 1:
+                result = f'=HYPERLINK("{full_list[0]}","Link")'
+            elif len(full_list) > 1:
+                result = ''
+                result += f'=HYPERLINK("{full_list[0]}","Link")'
+                for i in range(1, len(full_list)):
+                    result += f'&" "&HYPERLINK("{full_list[i]}","Link")'
+            else:
+                result = None
+            return result
+
         start_time = time.time()
-        url = 'https://www.hsx.vn/Modules/Cms/Web/NewsByCat/dca0933e-a578-4eaf-8b29-beb4575052c5?fid=6d1f1d5e9e6c4fb593077d461e5155e7'
-        driver = webdriver.Chrome(executable_path=self.PATH)
-        driver.get(url)
-        driver.maximize_window()
-        wait = WebDriverWait(driver,5,ignored_exceptions=self.ignored_exceptions)
         now = dt.datetime.now()
         from_time = now
         keywords = [
@@ -474,193 +460,186 @@ class hose:
         ]
         excl_keywords = ['bổ sung']
         frames = []
-        bmk_time = btime(now.strftime('%Y-%m-%d %H:%M:%S'),-num_hours)
-        while from_time>=dt.datetime.strptime(bmk_time,'%Y-%m-%d %H:%M:%S'):
-            time.sleep(3)
-            headline_tags = wait.until(EC.presence_of_all_elements_located((By.XPATH,'*//td[3]//*')))[1:]
-            while len(headline_tags)==0: # xử lý khi bị ra trang trắng
-                driver.refresh()
-                time.sleep(5)
-                headline_tags = wait.until(EC.presence_of_all_elements_located((By.XPATH,'*//td[3]//*')))[1:]
-            headline_text = [t.text for t in headline_tags]
-            time_tags = wait.until(EC.presence_of_all_elements_located((By.XPATH,'*//td[2]')))[2:]
-            time_text = [t.text for t in time_tags]
-            def f(s):
-                if s.endswith('SA'):
-                    s = s.rstrip(' SA')
-                    return dt.datetime.strptime(s,'%d/%m/%Y %H:%M:%S')
-                if s.endswith('CH'):
-                    s = s.rstrip(' CH')
-                    return dt.datetime.strptime(s,'%d/%m/%Y %H:%M:%S')+dt.timedelta(hours=12)
-            time_text = [f(t) for t in time_text]
-            for num in range(len(headline_text)):
-                sub_object = headline_tags[num]
-                sub_title = headline_text[num]
-                sub_time = time_text[num]
-                sub_content = []
-                sub_pdfs = []
-                check_1 = [word in sub_title for word in keywords]
-                check_2 = [word not in sub_title for word in excl_keywords]
-                if any(check_1) and all(check_2):
-                    # open popup windows
-                    time.sleep(1)
-                    sub_object.click()
-                    content = wait.until(EC.visibility_of_element_located(
-                        (By.XPATH,'/html/body/div[7]/div/div/div/div/div/div[2]/div[2]')
-                    )).text
-                    sub_content = [content]
-                    time.sleep(1)
-                    year_text = str(from_time.year)
-                    pdf_elements = wait.until(EC.presence_of_all_elements_located(
-                        (By.PARTIAL_LINK_TEXT,year_text)
-                    ))
-                    pdf_files = [t.get_attribute('href') for t in pdf_elements]
-                    def f1(full_list):
-                        if len(full_list)==1:
-                            result = f'=HYPERLINK("{full_list[0]}","Link")'
-                        elif len(full_list)>1:
-                            result = ''
-                            result += f'=HYPERLINK("{full_list[0]}","Link")'
-                            for i in range(1,len(full_list)):
-                                result += f'&" "&HYPERLINK("{full_list[i]}","Link")'
-                        else:
-                            result = None
-                        return result
-                    sub_pdfs.append(f1(pdf_files))
-                    # close popup windows
-                    wait.until(EC.presence_of_element_located((By.XPATH,'//*[@title="Close"]'))).click()
-                    time.sleep(1)
+        bmk_time = btime(now.strftime('%Y-%m-%d %H:%M:%S'), -num_hours)
+        page = 1
+        while from_time >= dt.datetime.strptime(bmk_time, '%Y-%m-%d %H:%M:%S'):
+            pageFieldValue2 = now.strftime("%d.%m.%Y")
+            pageFieldValue4 = 'dca0933e-a578-4eaf-8b29-beb4575052c5'
+            web_url = 'https://www.hsx.vn/Modules/CMS/Web/ArticleInCategory/dca0933e-a578-4eaf-8b29-beb4575052c5'
+            f_url = f'{web_url}?exclude=00000000-0000-0000-0000-000000000000&lim=True&pageFieldName1=FromDate&' \
+                    f'pageFieldValue1={pageFieldValue2[0:2]}.10.2021&pageFieldOperator1=eq&pageFieldName2=ToDate&' \
+                    f'pageFieldValue2={pageFieldValue2}&pageFieldOperator2=eq&pageFieldName3=TokenCode&' \
+                    f'pageFieldValue3=&pageFieldOperator3=eq&pageFieldName4=CategoryId&' \
+                    f'pageFieldValue4={pageFieldValue4}&pageFieldOperator4=eq&pageCriteriaLength=4&' \
+                    f'_search=false&nd=1649990058235&rows=30&page={page}&sidx=id&sord=desc'
 
-                # report and merge to parent table
-                frame = pd.DataFrame({
-                    'Thời gian':sub_time,
-                    'Tiêu đề':sub_title,
-                    'Nội dung':sub_content,
-                    'File đính kèm':sub_pdfs
-                })
-                frames.append(frame)
+            with requests.Session() as session:
+                retry = requests.packages.urllib3.util.retry.Retry(connect=5, backoff_factor=1)
+                adapter = requests.adapters.HTTPAdapter(max_retries=retry)
+                session.mount('https://',adapter)
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36'
+                }
+                html = session.get(f_url,headers=headers,timeout=10).content
+                soup = BeautifulSoup(html,'html5lib')
+                news = json.loads(soup.text)
 
-            from_time = time_text[-1]
+                def get_content_from_row(n):
+                    ID,timeString,rawTitle = news['rows'][n]['cell']
+                    title = BeautifulSoup(rawTitle,'html5lib').find('span').text
+                    articleTime = f(timeString)
+                    return ID,articleTime,title
 
-            # Next Page:
-            wait.until(EC.presence_of_all_elements_located((By.XPATH,'//*[@id="DbGridPager_2"]/a')))[-2].click()
+                get_cell = [d.get('cell') for d in news['rows']]
+                for row in range(len(get_cell)):
+                    sub_pdfs = []
+                    id_url,t,sub_title = get_content_from_row(row)
+                    check_1 = [word in sub_title for word in keywords]
+                    check_2 = [word not in sub_title for word in excl_keywords]
+                    if any(check_1) and all(check_2):
+                        nxt_rq = f'https://www.hsx.vn/Modules/Cms/Web/LoadArticle?id={id_url}&objectType=1'
+                        html = session.get(nxt_rq,headers=headers,timeout=10).content
+                        soup = BeautifulSoup(html,'lxml')
+                        get_content = soup.find_all('p')
+                        paragraph = '\n'.join([con.text.replace('\xa0',' ') for con in get_content])
+                        urls = soup.find_all(href=True)
+                        get_pdf = ['https://www.hsx.vn'+pdf.get('href') for pdf in urls]
+                        sub_pdfs += [f1(get_pdf)]
+                        print(t,sub_title,paragraph,sub_pdfs)
+                        # report and merge to parent table
+                        frame = pd.DataFrame(
+                            {
+                                'Thời gian': [t],
+                                'Tiêu đề': [sub_title],
+                                'Nội dung': paragraph,
+                                'Link': sub_pdfs
+                            },
+                            index=[0],
+                        )
+                        frames.append(frame)
+                    format_time = t
+                if format_time < dt.datetime.strptime(bmk_time,'%Y-%m-%d %H:%M:%S'):
+                    break
+            page += 1
 
-        output_table = pd.concat(frames,ignore_index=True)
-        driver.quit()
-        if output_table.empty is True:
+        if frames:
+            output_table = pd.concat(frames,ignore_index=True)
+            # select out tickers from headline
+            output_table.insert(
+                1,
+                'Mã cổ phiếu',
+                output_table['Tiêu đề'].str.split(': ').str.get(0)
+            )
+            output_table = output_table.drop_duplicates(subset=['Thời gian','Mã cổ phiếu','Tiêu đề'])
+        else:
             raise NoNewsFound(f'Không có tin trong {num_hours} giờ vừa qua')
 
-        # select out tickers from headline
-        output_table.insert(
-            1,
-            'Mã cổ phiếu',
-            output_table['Tiêu đề'].str.split(': ').str.get(0)
-        )
         print(f'Finished ::: Total execution time: {int(time.time()-start_time)}s\n')
 
         return output_table
 
-
-    def tinCW(self,num_hours: int = 48):
+    @staticmethod
+    def tinCW(num_hours:int=48):
 
         """
         This function returns a DataFrame and export an excel file containing
         news update published in
         'https://www.hsx.vn/Modules/Cms/Web/NewsByCat/95cd3266-e6d1-42a3-beb5-20ed010aea4a?fid=f91940eef3384bcdbe96ee9aa3eefa04'
         (tin chứng quyền).
-    
         :param num_hours: number of hours in the past that's in our concern
-    
         :return: summary report of news update
         """
+
+        def f(s):
+            if s.endswith('SA'):
+                s = s.rstrip(' SA')
+                return dt.datetime.strptime(s, '%d/%m/%Y %H:%M:%S')
+            if s.endswith('CH'):
+                s = s.rstrip(' CH')
+                return dt.datetime.strptime(s, '%d/%m/%Y %H:%M:%S') + dt.timedelta(hours=12)
+
+        def f1(full_list):
+            if len(full_list) == 1:
+                result = f'=HYPERLINK("{full_list[0]}","Link")'
+            elif len(full_list) > 1:
+                result = ''
+                result += f'=HYPERLINK("{full_list[0]}","Link")'
+                for i in range(1, len(full_list)):
+                    result += f'&" "&HYPERLINK("{full_list[i]}","Link")'
+            else:
+                result = None
+            return result
 
         start_time = time.time()
         now = dt.datetime.now()
         from_time = now
-        url = 'https://www.hsx.vn/Modules/Cms/Web/NewsByCat/95cd3266-e6d1-42a3-beb5-20ed010aea4a?fid=f91940eef3384bcdbe96ee9aa3eefa04'
-        driver = webdriver.Chrome(executable_path=self.PATH)
-        driver.get(url)
-        driver_wait =  WebDriverWait(driver,5,ignored_exceptions=self.ignored_exceptions)
-        driver.maximize_window()
         keywords = ['chấp thuận niêm yết chứng quyền']
         frames = []
-        bmk_time = btime(now.strftime('%Y-%m-%d %H:%M:%S'),-num_hours)
-        while from_time>=dt.datetime.strptime(bmk_time,'%Y-%m-%d %H:%M:%S'):
-            time.sleep(3)
-            headline_tags = driver_wait.until(EC.presence_of_all_elements_located(
-                (By.XPATH,'*//td[3]/*')
-            ))[1:]
-            headline_text = []
-            headline_url = []
-            for t in headline_tags:
-                headline_text += [t.text]
-                headline_url += [t.get_attribute('href')]
-            time_tags = driver_wait.until(EC.presence_of_all_elements_located((By.XPATH,'*//td[2]')))[2:]
-            time_text = [t.text for t in time_tags]
-            def f(s):
-                if s.endswith('SA'):
-                    s = s.rstrip(' SA')
-                    return dt.datetime.strptime(s,'%d/%m/%Y %H:%M:%S')
-                if s.endswith('CH'):
-                    s = s.rstrip(' CH')
-                    return dt.datetime.strptime(s,'%d/%m/%Y %H:%M:%S') + dt.timedelta(hours=12)
-            time_text = [f(t) for t in time_text]
-            for num in range(len(headline_text)):
-                sub_title = headline_text[num]
-                sub_url = headline_url[num]
-                sub_time = time_text[num]
-                sub_content = []
-                sub_pdfs = []
-                check = [word in sub_title for word in keywords]
-                if any(check):
-                    sub_driver = webdriver.Chrome(executable_path=self.PATH)
-                    sub_driver.get(sub_url)
-                    sub_driver_wait = WebDriverWait(sub_driver,5,ignored_exceptions=self.ignored_exceptions)
-                    time.sleep(1)
-                    content = sub_driver_wait.until(EC.presence_of_element_located(
-                        (By.XPATH,'//*[@id="body"]//*//div[2]/p')
-                    )).text
-                    pdf_elements = sub_driver_wait.until(EC.presence_of_all_elements_located(
-                        (By.XPATH,'*//td[2]/a')
-                    ))
-                    pdf_files = [t.get_attribute('href') for t in pdf_elements]
-                    def f1(full_list):
-                        if len(full_list) == 1:
-                            result = f'=HYPERLINK("{full_list[0]}","Link")'
-                        elif len(full_list) > 1:
-                            result = ''
-                            result += f'=HYPERLINK("{full_list[0]}","Link")'
-                            for i in range(1,len(full_list)):
-                                result += f'&" "&HYPERLINK("{full_list[i]}","Link")'
-                        else:
-                            result = None
-                        return result
+        bmk_time = btime(now.strftime('%Y-%m-%d %H:%M:%S'), -num_hours)
+        page = 1
+        while from_time >= dt.datetime.strptime(bmk_time, '%Y-%m-%d %H:%M:%S'):
+            pageFieldValue2 = now.strftime("%d.%m.%Y")
+            pageFieldValue4 = '95cd3266-e6d1-42a3-beb5-20ed010aea4a'
+            web_url = 'https://www.hsx.vn/Modules/CMS/Web/ArticleInCategory/95cd3266-e6d1-42a3-beb5-20ed010aea4a'
+            f_url = f'{web_url}?exclude=00000000-0000-0000-0000-000000000000&lim=True&pageFieldName1=FromDate&' \
+                    f'pageFieldValue1={pageFieldValue2[0:2]}.10.2021&pageFieldOperator1=eq&pageFieldName2=ToDate&' \
+                    f'pageFieldValue2={pageFieldValue2}&pageFieldOperator2=eq&pageFieldName3=TokenCode&' \
+                    f'pageFieldValue3=&pageFieldOperator3=eq&pageFieldName4=CategoryId&' \
+                    f'pageFieldValue4={pageFieldValue4}&pageFieldOperator4=eq&pageCriteriaLength=4&_search=false&' \
+                    f'nd=1650593946103&rows=30&page={page}&sidx=id&sord=desc'
 
-                    sub_content.append(content)
-                    sub_pdfs.append(f1(pdf_files))
-                    sub_driver.quit()
+            with requests.Session() as session:
+                retry = requests.packages.urllib3.util.retry.Retry(connect=5, backoff_factor=1)
+                adapter = requests.adapters.HTTPAdapter(max_retries=retry)
+                session.mount('https://',adapter)
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36'
+                }
+                html = session.get(f_url,headers=headers,timeout=10).content
+                soup = BeautifulSoup(html,'html5lib')
+                news = json.loads(soup.text)
 
-                # report and merge to parent table
-                frame = pd.DataFrame({
-                    'Thời gian':sub_time,
-                    'Tiêu đề':sub_title,
-                    'Nội dung':sub_content,
-                    'File đính kèm':sub_pdfs,
-                    'Link':f'=HYPERLINK("{sub_url}","Link")'
-                })
-                frames.append(frame)
+                def get_content_from_row(n):
+                    ID, timeString, rawTitle = news['rows'][n]['cell']
+                    title = BeautifulSoup(rawTitle,'html5lib').find('a',href=True).text
+                    articleTime = f(timeString)
+                    return ID,articleTime,title
 
-            from_time = time_text[-1]
+                get_cell = [d.get('cell') for d in news['rows']]
+                for row in range(len(get_cell)):
+                    sub_pdfs = []
+                    id_url,t,sub_title = get_content_from_row(row)
+                    check = [word in sub_title for word in keywords]
 
-            # Next Page:
-            driver_wait.until(EC.visibility_of_all_elements_located(
-                (By.XPATH,'//*[@id="DbGridPager_2"]/a')
-            ))[-2].click()
+                    if any(check):
+                        sub_url = f'https://www.hsx.vn/Modules/Cms/Web/ViewArticle/{id_url}'
+                        nxt_rq = f'https://www.hsx.vn/Modules/Cms/Web/LoadArticle?id={id_url}&objectType=1'
+                        html = session.get(nxt_rq,headers=headers,timeout=10).content
+                        soup = BeautifulSoup(html,'html5lib')
+                        get_content = soup.find_all('p')
+                        paragraph = '\n'.join([con.text.replace('\xa0',' ') for con in get_content])
+                        pdf_elements = soup.find_all(href=True)
+                        pdf_files = ['https://www.hsx.vn' + pdf.get('href') for pdf in pdf_elements]
+                        sub_pdfs.append(f1(pdf_files))
+                        print(t,sub_title,paragraph,sub_pdfs,sub_url)
+                        # report and merge to parent table
+                        frame = pd.DataFrame({
+                            'Thời gian': [t],
+                            'Tiêu đề': [sub_title],
+                            'Nội dung': paragraph,
+                            'File đính kèm': sub_pdfs,
+                            'Link': f'=HYPERLINK("{sub_url}","Link")'
+                        })
+                        frames.append(frame)
+                    format_time = t
+                if format_time < dt.datetime.strptime(bmk_time, '%Y-%m-%d %H:%M:%S'):
+                    break
 
-        output_table = pd.concat(frames,ignore_index=True)
-        driver.quit()
-
-        if output_table.empty is True:
+            page += 1
+        if frames:
+            output_table = pd.concat(frames, ignore_index=True)
+            output_table = output_table.drop_duplicates(subset=['Thời gian','Tiêu đề'])
+        else:
             raise NoNewsFound(f'Không có tin trong {num_hours} giờ vừa qua')
 
         print(f'Finished ::: Total execution time: {int(time.time()-start_time)}s\n')
@@ -670,4 +649,3 @@ class hose:
 vsd = vsd()
 hnx = hnx()
 hose = hose()
-

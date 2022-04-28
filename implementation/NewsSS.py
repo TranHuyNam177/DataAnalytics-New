@@ -60,9 +60,6 @@ def NewsSS(num_hours:int=48):
         try:
             hose_tinTCNY = newsts.hose.tinTCNY(num_hours)
             break
-        except newsts.hose.ignored_exceptions:
-            hose_tinTCNY = pd.DataFrame()
-            continue
         except newsts.NoNewsFound:
             hose_tinTCNY = pd.DataFrame()
             break
@@ -71,9 +68,6 @@ def NewsSS(num_hours:int=48):
         try:
             hose_tinCW = newsts.hose.tinCW(num_hours)
             break
-        except newsts.hose.ignored_exceptions:
-            hose_tinCW = pd.DataFrame()
-            continue
         except newsts.NoNewsFound:
             hose_tinCW = pd.DataFrame()
             break

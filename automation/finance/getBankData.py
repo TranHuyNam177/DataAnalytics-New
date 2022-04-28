@@ -1,9 +1,6 @@
-import os
-import time
-
-import win32security
-
+import breakeven_price.monte_carlo
 from automation.finance import *
+import cv2
 
 class Base:
 
@@ -121,6 +118,10 @@ class BIDV(Base):
     def __repr__(self):
         return f'<BankObject_BIDV>'
 
+    def __del__(self):
+        self.driver.quit()
+        print('Destructor: Chrome Driver has quit')
+
     def Login(self):
 
         self.driver = webdriver.Chrome(executable_path=self.PATH)
@@ -151,14 +152,17 @@ class BIDV(Base):
         # CAPTCHA
         while True:
             captchaElement = self.wait.until(EC.presence_of_element_located((By.ID,'idImageCap')))
-            imgPATH = join(dirname(__file__),'CAPTCHA',f'{self.bank}.png')
+            imgPATH = join(realpath(dirname(__file__)),'CAPTCHA',f'{self.bank}.png')
             captchaElement.screenshot(imgPATH) # download CAPTCHA về dưới dạng .png
+            image = cv2.imread(imgPATH)
+            crop = image[5:35,5:90,:]
+            cv2.imwrite(imgPATH,crop)
             predictedCAPTCHA = pytesseract.image_to_string(imgPATH).replace('\n','').replace(' ','')
             print(predictedCAPTCHA)
             condition1 = len(predictedCAPTCHA) == 6
             condition2 = not re.findall('[^a-zA-Z0-9]',predictedCAPTCHA)
             condition3 = not re.findall('[ACGJTZWSIacgijqzws145789]',predictedCAPTCHA)
-            if condition1 and condition2 and condition3: # Cases do not need refresh
+            if condition1 and condition2: #and condition3: # Cases do not need refresh
                 break
             self.driver.find_element(By.CLASS_NAME,'btnRefresh').click() # Cases need refresh
             time.sleep(0.5)
@@ -174,21 +178,24 @@ class BIDV(Base):
 
         return self
 
-
     def TienGuiThanhToan(self):
 
+        # Dọn dẹp folder trước khi download
+        for file in listdir(self.downloadFolder):
+            if 'EBK_BC_LICHSUGIAODICH' in file:
+                os.remove(join(self.downloadFolder,file))
         # Click Menu bar
         self.wait.until(EC.presence_of_element_located((By.ID,'menu-toggle-22'))).click()
         # Click "Tài khoản"
-        self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Vấn tin'))).click()
+        self.wait.until(EC.visibility_of_element_located((By.LINK_TEXT,'Vấn tin'))).click()
         # Click "Tiền gửi thanh toán"
-        self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Tiền gửi thanh toán'))).click()
+        self.wait.until(EC.visibility_of_element_located((By.LINK_TEXT,'Tiền gửi thanh toán'))).click()
         # Lấy số lượng tài khoản
         Accounts = self.wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME,'change')))
         accountNumber = len(Accounts)
         # Click vào tài khoản đầu tiên
         xpath = f'//*[@class="change"]'
-        Account = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        Account = self.wait.until(EC.visibility_of_element_located((By.XPATH,xpath)))
         Account.click()
         time.sleep(0.5) # chờ animation
         # Click "Lịch sử giao dịch"
@@ -225,11 +232,24 @@ class BIDV(Base):
                 popupButtons = self.driver.find_elements(By.XPATH,xpath)
                 if popupButtons:
                     popupButtons[0].click()
-                time.sleep(1)
-                # Lấy số dư
-                balanceString = self.wait.until(EC.presence_of_element_located((By.ID,'lbSoDuCuoiKy'))).text
+                # Download file excel
+                self.wait.until(EC.presence_of_element_located((By.ID,'btnExportExcel01'))).click()
+                # Đọc file, record data
+                while True:
+                    checkFunc = lambda x: 'EBK_BC_LICHSUGIAODICH' in x and 'download' not in x
+                    downloadFile = first(listdir(self.downloadFolder),checkFunc)
+                    if downloadFile: # download xong -> có file
+                        break
+                    time.sleep(1) # chưa download xong -> đợi thêm 1s nữa
+
+                downloadData = pd.read_excel(join(self.downloadFolder,downloadFile))
+                rowLocMask = downloadData.eq('Dư cuối ngày').any(axis=1)
+                colLocMask = downloadData.eq('Số dư').any(axis=0)
+                balanceString = downloadData.loc[rowLocMask,colLocMask].squeeze()
                 balance = float(balanceString.replace(',',''))
                 records.append((d,'BIDV',account,balance,'VND'))
+                # Xóa file
+                os.remove(join(self.downloadFolder,downloadFile))
                 i += 1
                 if i == accountNumber:
                     break
@@ -241,27 +261,29 @@ class BIDV(Base):
 
         return self, balanceTable
 
-
     def TienGuiKyHan(self):
 
+        # Dọn dẹp folder trước khi download
+        for file in listdir(self.downloadFolder):
+            if 'EBK_BC_TIENGOICOKYHAN' in file:
+                os.remove(join(self.downloadFolder,file))
         # Click Menu bar
         self.wait.until(EC.presence_of_element_located((By.ID,'menu-toggle-22'))).click()
         # Click "Tài khoản"
         self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Vấn tin'))).click()
         # Click "Tiền gửi thanh toán"
         self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Tiền gửi có kỳ hạn'))).click()
-        # Dọn dẹp folder trước khi download
-        for file in listdir(self.downloadFolder):
-            if 'EBK_BC_TIENGOICOKYHAN' in file:
-                os.remove(join(self.downloadFolder,file))
         # Click download
         self.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'export'))).click()
         time.sleep(1) # chờ file download xong
         # Đọc file download để lấy danh sách tài khoản
-        for file in listdir(self.downloadFolder):
-            if 'EBK_BC_TIENGOICOKYHAN' in file:
-                downloadFile = file
+        while True:
+            checkFunc = lambda x:'EBK_BC_TIENGOICOKYHAN' in x and 'download' not in x
+            downloadFile = first(listdir(self.downloadFolder),checkFunc)
+            if downloadFile:  # download xong -> có file
                 break
+            time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
+
         accountNumbers = pd.read_excel(
             join(self.downloadFolder,downloadFile),
             skiprows=7,
@@ -270,6 +292,9 @@ class BIDV(Base):
             dtype='object',
             squeeze=True,
         )
+        # Xóa file
+        os.remove(join(self.downloadFolder,downloadFile))
+
         # Click từng tài khoản
         records = []
         for accountNumber in accountNumbers:
@@ -277,6 +302,8 @@ class BIDV(Base):
             accountElement = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
             accountElement.click()
             time.sleep(0.5) # chờ animation
+            # Ngày
+            d = dt.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0)
             # Lãi suất
             xpath = f'//*[@aria-expanded="true"]/*[@class="information"]/div/div[2]/div[4]/p' # dòng 2 cột 4
             irateString, _ = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).text.split()
@@ -304,12 +331,12 @@ class BIDV(Base):
             # Click để collapse dòng
             accountElement.click()
             # Append
-            record = ('BIDV',accountNumber,termDays,term,irate,issueDate,expireDate,balance,interestAmount)
+            record = (d,'BIDV',accountNumber,termDays,term,irate,issueDate,expireDate,balance,interestAmount,currency)
             records.append(record)
 
         balanceTable = pd.DataFrame(
             data=records,
-            columns=['Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount']
+            columns=['Date','Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount','Currency']
         )
 
         return self, balanceTable
@@ -332,6 +359,10 @@ class VTB(Base):
 
     def __repr__(self):
         return f'<BankObject_VTB>'
+
+    def __del__(self):
+        self.driver.quit()
+        print('Destructor: Chrome Driver has quit')
 
     def Login(self):
 
@@ -357,18 +388,27 @@ class VTB(Base):
 
     def TienGuiThanhToan(self):
 
+        # Dọn dẹp folder trước khi download
+        for file in listdir(self.downloadFolder):
+            if 'lich-su-giao-dich' in file:
+                os.remove(join(self.downloadFolder,file))
+        # Bắt đầu từ trang chủ
+        xpath = '//*[@src="/public/img/logo.png"]'
+        _, MainMenu = self.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+        MainMenu.click()
         # Click menu "Tài khoản"
         self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Tài khoản'))).click()
         # Click sub-menu "Danh sách tài khoản"
         self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Danh sách tài khoản'))).click()
         # table Element
-        tableElement = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'MuiTableBody-root')))
+        tableElement, _, _ = self.wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME,'MuiTableBody-root')))
         tableElement.find_element(By.LINK_TEXT,'Xem thêm').click()
 
         # Create function to clear input box and send dates as string
         def sendDate(element,d):
             action = ActionChains(self.driver)
             action.click(element)
+            time.sleep(0.5)
             action.key_down(Keys.CONTROL,element)
             action.send_keys_to_element(element,'a')
             action.key_up(Keys.CONTROL,element)
@@ -392,10 +432,36 @@ class VTB(Base):
                         break
                     except (Exception,):
                         pass
-                # Lấy số dư
-                rawResult = self.wait.until(EC.presence_of_all_elements_located((By.XPATH,'//*[@class="f-price"]/p/b')))[1].text
-                closingBalance,currency = rawResult.split()
-                records.append((d,'VTB',x,float(closingBalance.replace(',','')),currency))
+                # time.sleep(1) # chờ load data
+                # Download file
+                while True:
+                    try:
+                        xpath = '//*[@src="/public/img/icon/icon-download.svg"]'
+                        self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+                        self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Xuất Excel'))).click()
+                        break
+                    except (Exception,):
+                        pass
+
+                # Đọc file, record data
+                while True:
+                    checkFunc = lambda x: 'lich-su-giao-dich' in x and 'download' not in x
+                    downloadFile = first(listdir(self.downloadFolder),checkFunc)
+                    if downloadFile: # download xong -> có file
+                        break
+                    time.sleep(1) # chưa download xong -> đợi thêm 1s nữa
+
+                downloadData = pd.read_excel(join(self.downloadFolder,downloadFile))
+                # Số tài khoản
+                rowMask = downloadData.eq('Số tài khoản/ Account No.:').any(axis=1)
+                balanceString = downloadData.loc[rowMask,downloadData.columns[2]].squeeze()
+                balance = float(balanceString)
+                # Currency
+                rowMask = downloadData.eq('Loại tiền tệ/Currency:').any(axis=1)
+                currency = downloadData.loc[rowMask,downloadData.columns[2]].squeeze()
+                records.append((d,'VTB',x,balance,currency))
+                # Xóa file
+                os.remove(join(self.downloadFolder,downloadFile))
 
             self.driver.back()
             self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Xem thêm'))).click()
@@ -407,14 +473,53 @@ class VTB(Base):
 
         return self, balanceTable
 
-    def TipenGuiKyHan(self):
+    def TienGuiKyHan(self,):
 
-        balanceTable = pd.DataFrame(
-            # data=records,
-            columns=['Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount']
+        # Dọn dẹp folder trước khi download
+        for file in listdir(self.downloadFolder):
+            if 'danh-sach-tai-khoan-tien-gui' in file:
+                os.remove(join(self.downloadFolder,file))
+        # Bắt đầu từ trang chủ
+        xpath = '//*[@src="/public/img/logo.png"]'
+        _, MainMenu = self.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+        MainMenu.click()
+        # Click menu "Tài khoản"
+        self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Tài khoản'))).click()
+        # Click sub-menu "Danh sách tài khoản"
+        self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Danh sách tài khoản'))).click()
+        # Download File
+        xpath = '//*[@src="/public/img/icon/icon-download.svg"]'
+        _, downloadElement, _ = self.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+        xpath = '//*[text()="Xuất Excel"]'
+        downloadElement.click()
+        _, exportElement, _ = self.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+        exportElement.click()
+        # Đọc file download
+        while True:
+            checkFunc = lambda x:'danh-sach-tai-khoan-tien-gui' in x and 'download' not in x
+            downloadFile = first(listdir(self.downloadFolder),checkFunc)
+            if downloadFile:  # download xong -> có file
+                break
+            time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
+        downloadTable = pd.read_excel(
+            join(self.downloadFolder,downloadFile),
+            names=['AccountNumber','TermMonths','InterestRate','Currency','IssueDate','ExpireDate','Balance','InterestAmount'],
+            skiprows=16,
+            skipfooter=1,
+            usecols='B,D:I,L',
+            dtype={'AccountNumber':object,'Balance':np.float64,'InterestAmount':np.float64}
         )
+        downloadTable[['IssueDate','ExpireDate']] = downloadTable[['IssueDate','ExpireDate']].applymap(lambda x: dt.datetime.strptime(x,'%d-%m-%Y'))
+        downloadTable['TermMonths']  = np.int64(downloadTable['TermMonths'].str.replace('D','').str.split('M').str.get(0))
+        downloadTable['TermDays'] = (downloadTable['ExpireDate'] - downloadTable['IssueDate']).dt.days
+        downloadTable['InterestRate'] /= 100
+        downloadTable['Date'] = dt.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0)
+        downloadTable['Bank'] = 'VTB'
 
-        return balanceTable
+        cols = ['Date','Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount','Currency']
+        balanceTable = downloadTable[cols]
+
+        return self, balanceTable
 
 # có CAPTCHA
 class IVB(Base):
@@ -435,35 +540,39 @@ class IVB(Base):
     def __repr__(self):
         return f'<BankObject_IVB>'
 
+    def __del__(self):
+        self.driver.quit()
+        print('Destructor: Chrome Driver has quit')
+
     def Login(self):
 
         self.driver = webdriver.Chrome(executable_path=self.PATH)
         self.driver.maximize_window()
         self.driver.get(self.URL)
-        self.wait = WebDriverWait(driver,30,ignored_exceptions=self.ignored_exceptions)
+        self.wait = WebDriverWait(self.driver,30,ignored_exceptions=self.ignored_exceptions)
 
         # Username
         xpath = '//*[@placeholder="Tên truy cập"]'
-        userInput = wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        userInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
         userInput.clear()
         userInput.send_keys(self.user)
         # Password
         xpath = '//*[@placeholder="Mật khẩu"]'
-        passwordInput = wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        passwordInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
         passwordInput.clear()
         passwordInput.send_keys(self.password)
         # CAPTCHA
-        captcha_element = wait.until(EC.presence_of_element_located((By.ID,'safecode')))
+        captcha_element = self.wait.until(EC.presence_of_element_located((By.ID,'safecode')))
         CAPTCHA = self.__GetCaptchaFromMail__(captcha_element)
         xpath = '//*[@placeholder="Mã xác thực"]'
-        captchaInput = wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        captchaInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
         captchaInput.clear()
         captchaInput.send_keys(CAPTCHA)
         # Click Đăng nhập
-        wait.until(EC.presence_of_element_located((By.XPATH,'//*[@onclick="logon()"]'))).click()
+        self.wait.until(EC.presence_of_element_located((By.XPATH,'//*[@onclick="logon()"]'))).click()
         # Nếu xuất hiện màn hình xác nhận
         xpath = '//*[@onclick="forceSubmit()"]'
-        possibleButtons = driver.find_elements(By.XPATH,xpath)
+        possibleButtons = self.driver.find_elements(By.XPATH,xpath)
         if possibleButtons:
             possibleButtons[0].click()
 
@@ -471,6 +580,13 @@ class IVB(Base):
 
     def TienGuiThanhToan(self):
 
+        # Dọn dẹp folder trước khi download
+        for file in listdir(self.downloadFolder):
+            if 'AccountTransacionHistory' in file:
+                os.remove(join(self.downloadFolder,file))
+        # Bắt đầu từ trang chủ
+        self.driver.switch_to.default_content()
+        self.wait.until(EC.presence_of_element_located((By.XPATH,'//*[@class="logoimg"]'))).click()
         # Click tab "Tài khoản"
         xpath = '//*[@data-menu-id="1"]'
         self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
@@ -499,37 +615,98 @@ class IVB(Base):
                 # Từ ngày
                 fromDateInput = self.driver.find_element(By.ID,'beginDate')
                 fromDateInput.clear()
-                fromDateInput.send_keys((d-dt.timedelta(days=10)).strftime('%d/%m/%Y'))
+                fromDateInput.send_keys((d-dt.timedelta(days=5)).strftime('%d/%m/%Y'))
                 # Đến ngày
                 toDateInput = self.driver.find_element(By.ID,'endDate')
                 toDateInput.clear()
                 toDateInput.send_keys(d.strftime('%d/%m/%Y'))
                 # Click "Truy vấn"
                 self.driver.find_element(By.ID,'btnQuery').click()
-                # Lấy số dư (cuối kỳ)
-                valueStrings = [e.text for e in self.driver.find_elements(By.XPATH,'//*[@class="result_head"]')]
-                balanceString = first(valueStrings, lambda x: 'Số dư cuối kỳ' in x)
-                try:
-                    balance = float(balanceString.split()[-1].replace(',',''))
-                except (ValueError,): # catch lỗi web không hiện số khi ko có dữ liệu
-                    balance = 0
+                # Click "In sao kê Excel"
+                self.driver.execute_script(f'window.scrollTo(0,100000)')
+                xpath = """//*[@onclick="downloadReport('excel');"]"""
+                self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+                # Đọc file download
+                while True:
+                    checkFunc = lambda x:'AccountTransacionHistory' in x and 'download' not in x
+                    downloadFile = first(listdir(self.downloadFolder),checkFunc)
+                    if downloadFile:  # download xong -> có file
+                        break
+                    time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
+                downloadTable = pd.read_excel(
+                    join(self.downloadFolder,downloadFile),
+                    usecols='B:D',
+                    skiprows=2,
+                )
+                rowMask = downloadTable.eq('Số dư cuối kỳ').any(axis=1)
+                balanceString = downloadTable.loc[rowMask,downloadTable.columns[-1]].squeeze().replace(',','')
+                balance = float(balanceString)
                 records.append((d,'IVB',account,balance,currency))
+                # Xóa file download
+                os.remove(join(self.downloadFolder,downloadFile))
+                self.driver.execute_script(f'window.scrollTo(0,0)')
 
         balanceTable = pd.DataFrame(
             records,
             columns=['Date','Bank','AccountNumber','Balance','Currency']
         )
 
-        return balanceTable
+        return self, balanceTable
 
-    def TipenGuiKyHan(self):
+    def TienGuiKyHan(self):
+
+        # Bắt đầu từ trang chủ
+        self.driver.switch_to.default_content()
+        self.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'logoimg'))).click()
+        # Click tab "Tài khoản"
+        xpath = '//*[@data-menu-id="1"]'
+        self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        # Click subtab "Thông tin tài khoản"
+        self.wait.until(EC.visibility_of_element_located((By.ID,'1_1'))).click()
+        # Click "Tài khoản tiền gửi có kỳ hạn"
+        while True:
+            self.driver.switch_to.frame('mainframe')
+            xpath = '//*[@id="sa_layer_pan"]/span'
+            self.wait.until(EC.visibility_of_element_located((By.XPATH,xpath))).click()
+            # Lấy thông tin
+            records = []
+            rowElements = self.driver.find_elements(By.XPATH,'//*[@id="SAccount"]/tbody/tr')[:-1] # bỏ dòng Tổng
+            if rowElements[0].text != '':
+                break
+        for element in rowElements:
+            elementString = element.text
+            # Date
+            d = dt.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0)
+            # Số tài khoản
+            account = re.search('^[0-9]{7}-[0-9]{3}',elementString).group()
+            # Ngày hiệu lực, Ngày đáo hạn
+            issueDateText, expireDateText = re.findall('[0-9]{2}.[0-9]{2}.[0-9]{4}',elementString)
+            issueDate = dt.datetime.strptime(issueDateText,'%d/%m/%Y')
+            expireDate = dt.datetime.strptime(expireDateText,'%d/%m/%Y')
+            # Term Days
+            termDays = (expireDate - issueDate).days
+            # Term Months
+            termString = re.search('[0-9]* Tháng',elementString).group().replace(' Tháng','')
+            term = float(termString) # Số tháng
+            # Lãi suất
+            iText = elementString.split(issueDateText)[0].split()[-1]
+            iRate = round(float(iText)/100,5)
+            # Balance
+            balanceString = re.search('[0-9]+ VND',element.text.replace(',','')).group()
+            balanceString, _ = balanceString.split()
+            balance = float(balanceString)
+            # Currency
+            currency = re.search('VND|USD',element.text).group()
+            # Lãi
+            interest = float(re.findall('[0-9]+',element.text.replace(',',''))[-1])
+            records.append((d,'IVB',account,termDays,term,iRate,issueDate,expireDate,balance,interest,currency))
 
         balanceTable = pd.DataFrame(
-            # data=records,
-            columns=['Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount']
+            data=records,
+            columns=['Date','Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount','Currency']
         )
 
-        return balanceTable
+        return self, balanceTable
 
 # có CAPTCHA
 class VCB(Base):
@@ -544,17 +721,22 @@ class VCB(Base):
         super().__init__('VCB')
         self.fromDate = dt.datetime(fromDate.year,fromDate.month,fromDate.day)
         self.toDate = dt.datetime(toDate.year,toDate.month,toDate.day)
-        self.driver, self.wait = self.Login()
+        self.driver = None
+        self.wait = None
 
     def __repr__(self):
         return f'<BankObject_VCB>'
 
+    def __del__(self):
+        self.driver.quit()
+        print('Destructor: Chrome Driver has quit')
+
     def Login(self):
 
-        driver = webdriver.Chrome(executable_path=self.PATH)
-        driver.maximize_window()
-        driver.get(self.URL)
-        wait = WebDriverWait(driver,30,ignored_exceptions=self.ignored_exceptions)
+        self.driver = webdriver.Chrome(executable_path=self.PATH)
+        self.driver.maximize_window()
+        self.driver.get(self.URL)
+        self.wait = WebDriverWait(self.driver,30,ignored_exceptions=self.ignored_exceptions)
 
         def GO(CAPTCHA):
             """
@@ -562,27 +744,27 @@ class VCB(Base):
             """
             # Nhập CAPTCHA
             xpath = '//*[@placeholder="Nhập số bên"]'
-            captchaInput = wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            captchaInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
             captchaInput.clear()
             captchaInput.send_keys(CAPTCHA)
             # Username
             xpath = '//*[@placeholder="Tên truy cập"]'
-            userInput = wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            userInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
             userInput.clear()
             userInput.send_keys(self.user)
             # Password
             xpath = '//*[@placeholder="Mật khẩu"]'
-            passwordInput = wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            passwordInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
             passwordInput.clear()
             passwordInput.send_keys(self.password)
             # Click 'Đăng nhập'
             xpath = '//*[@value="Đăng nhập"]'
-            wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+            self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
 
         # CAPTCHA
         while True:
             xpath = '//*[@alt="Chuỗi bảo mật"]'
-            CAPTCHA = wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            CAPTCHA = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
             imgPATH = join(dirname(__file__),'CAPTCHA',f'{self.bank}.png')
             CAPTCHA.screenshot(imgPATH)  # download CAPTCHA về dưới dạng .png
             predictedCAPTCHA = pytesseract.image_to_string(imgPATH).replace('\n','')
@@ -592,24 +774,31 @@ class VCB(Base):
             condition3 = not re.findall('[048AGIOZRS]',predictedCAPTCHA)
             if condition1 and condition2 and condition3: # case không cần refresh
                 break
-            driver.refresh() # case cần refresh
+            self.driver.refresh() # case cần refresh
 
         GO(predictedCAPTCHA)
 
         # Check xem CAPTCHA đúng chưa, nếu chưa đúng -> gửi mail đọc CAPTCHA bằng tay
-        errorMessages = driver.find_elements(By.ID,'ctl00_Content_Login_CaptchaValidator')
+        errorMessages = self.driver.find_elements(By.ID,'ctl00_Content_Login_CaptchaValidator')
         if errorMessages: # Nếu chưa đúng
             xpath = '//*[@alt="Chuỗi bảo mật"]'
-            captchaElement = wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            captchaElement = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
             imgPATH = join(dirname(__file__),'CAPTCHA',f'{self.bank}.png')
             captchaElement.screenshot(imgPATH)  # download CAPTCHA về dưới dạng .png
             manualCAPTCHA = self.__GetCaptchaFromMail__(captchaElement)
             GO(manualCAPTCHA)
 
-        return driver, wait
+        return self
 
     def TienGuiThanhToan(self):
 
+        # Dọn dẹp folder trước khi download
+        for file in listdir(self.downloadFolder):
+            if 'Vietcombank_Account_Statement' in file:
+                os.remove(join(self.downloadFolder,file))
+        # Bắt đầu từ trang chủ
+        _, homeButton = self.wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME,'icon-home')))
+        homeButton.click()
         # Lấy danh sách đường dẫn vào tài khoản thanh toán
         xpath = '//*[@id="dstkdd-tbody"]//td/a'
         accountElems = self.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
@@ -632,34 +821,101 @@ class VCB(Base):
         for URL in URLs:
             self.driver.get(URL)
             time.sleep(1) # chờ để hiện số tài khoản (bắt buộc)
-            account = self.wait.until(EC.presence_of_element_located((By.ID,'Lbl_STK_Title'))).text
-            currency = self.wait.until(EC.visibility_of_element_located((By.ID,'Lbl_SDKD'))).text.split()[-1]
             for d in pd.date_range(self.fromDate,self.toDate):
                 # Điền ngày
                 startDateInput = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'startDate')))
                 self.driver.execute_script(f'window.scrollTo(0,500)')
-                sendDate(startDateInput,d-dt.timedelta(days=10)) # VCB rất dễ lỗi ko hiện dữ liệu khi startDate = endDate
+                sendDate(startDateInput,d)
                 endDateInput = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'endDate')))
                 sendDate(endDateInput,d)
                 # Click "Xem sao kê"
-                self.wait.until(EC.presence_of_element_located((By.ID,'TransByDate'))).click()
-                time.sleep(1) # chờ load xong để tránh rủi ro đang hiện số cũ
-                # Số dư cuối kỳ
-                while True:
-                    ID = 'ctl00_Content_TransactionDetail_EndBalance'
-                    balanceString = self.wait.until(EC.presence_of_element_located((By.ID,ID))).text
-                    if balanceString:
+                self.wait.until(EC.visibility_of_element_located((By.ID,'TransByDate'))).click()
+                # Click "Xuất file"
+                exportButton = self.wait.until(EC.visibility_of_element_located((By.ID,'ctl00_Content_TransactionDetail_ExportButton')))
+                while True: # do nút button bị cover bởi một layer loading
+                    try:
+                        exportButton.click()
                         break
-                balance = float(balanceString.replace(',',''))
-                records.append((d,'VCB',account,balance,currency))
+                    except (ElementClickInterceptedException,):
+                        time.sleep(0.5)
 
-        self.driver.quit()
+                # Đọc file download
+                while True:
+                    checkFunc = lambda x: 'Vietcombank_Account_Statement' in x and 'download' not in x
+                    downloadFile = first(listdir(self.downloadFolder),checkFunc)
+                    if downloadFile:  # download xong -> có file
+                        renameFile = downloadFile.replace('xls','csv')
+                        os.rename(join(self.downloadFolder,downloadFile),join(self.downloadFolder,renameFile))
+                        downloadFile = renameFile
+                        break
+                    time.sleep(0.5)  # chưa download xong -> đợi thêm 1s nữa
+
+                with open(join(self.downloadFolder,downloadFile),'rb') as f:
+                    htmlString = f.read()
+
+                soup = BeautifulSoup(htmlString,'html5lib')
+                account = soup.find(text='Số tài khoản:').find_next().text
+                balance = float(soup.find(text='Số dư cuối kỳ').find_next().text.replace(',',''))
+                currency = soup.find(text='Loại tiền:').find_next().text
+                records.append((d,'VCB',account,balance,currency))
+                # delete download file
+                os.remove(join(self.downloadFolder,downloadFile))
+
         balanceTable = pd.DataFrame(
             records,
             columns=['Date','Bank','AccountNumber','Balance','Currency']
         )
 
-        return balanceTable
+        return self, balanceTable
+
+    def TienGuiKyHan(self):
+
+        # Bắt đầu từ trang chủ
+        _, homeButton = self.wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME,'icon-home')))
+        homeButton.click()
+        # Lấy danh sách đường dẫn vào tài khoản tiền gửi có kỳ hạn
+        xpath = '//*[@id="dstkfd-tbody"]//td/a'
+        accountElems = self.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+        URLs = [e.get_attribute('href') for e in accountElems]
+
+        records = []
+        for URL in URLs:
+            self.driver.get(URL)
+            time.sleep(1)  # chờ để hiện số tài khoản (bắt buộc)
+            # Ngày
+            d = dt.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0)
+            # Tài khoản
+            xpath = '//*[@id="Lbl_STK_Title" and text()!=""]'
+            account = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).text
+            # Ngày hiệu lực
+            xpath = '//*[@id="Lbl_NMS" and text()!=""]'
+            issueDateText = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).text
+            issueDate = dt.datetime.strptime(issueDateText,'%d/%m/%Y')
+            # Ngày đáo hạn
+            xpath = '//*[@id="Lbl_NDH" and text()!=""]'
+            expireDateText = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).text
+            expireDate = dt.datetime.strptime(expireDateText,'%d/%m/%Y')
+            # Term Days
+            termDays = (expireDate - issueDate).days
+            # Term Months
+            xpath = '//*[@id="Lbl_KH" and text()!=""]'
+            termMonths = float(self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).text.replace(' tháng',''))
+            # Interest rate
+            xpath = '//*[@id="Lbl_LSFD" and text()!=""]'
+            iRate = float(self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).text.replace('% /năm','')) / 100
+            # Số dư, currency
+            xpath = '//*[@id="Lbl_SDS" and text()!=""]'
+            balanceString, currency = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).text.split()
+            balance = float(balanceString.replace(',',''))
+            records.append((d,'VCB',account,termDays,termMonths,iRate,issueDate,expireDate,balance,iRate,currency))
+
+        balanceTable = pd.DataFrame(
+            data=records,
+            columns=['Date','Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount','Currency']
+        )
+
+        return self, balanceTable
+
 
 # không CAPTCHA
 class EIB(Base):
@@ -674,35 +930,44 @@ class EIB(Base):
         super().__init__('EIB')
         self.fromDate = dt.datetime(fromDate.year,fromDate.month,fromDate.day)
         self.toDate = dt.datetime(toDate.year,toDate.month,toDate.day)
-        self.driver, self.wait = self.Login()
+        self.driver = None
+        self.wait = None
 
     def __repr__(self):
         return f'<BankObject_EIB>'
 
+    def __del__(self):
+        self.driver.quit()
+        print('Destructor: Chrome Driver has quit')
+
     def Login(self):
 
-        driver = webdriver.Chrome(executable_path=self.PATH)
-        driver.maximize_window()
-        driver.get(self.URL)
-        wait = WebDriverWait(driver,30,ignored_exceptions=self.ignored_exceptions)
+        self.driver = webdriver.Chrome(executable_path=self.PATH)
+        self.driver.maximize_window()
+        self.driver.get(self.URL)
+        self.wait = WebDriverWait(self.driver,30,ignored_exceptions=self.ignored_exceptions)
 
         # Tên đâng nhập
         xpath = '//*[@placeholder="Tên đăng nhập"]'
-        userInput = wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        userInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
         userInput.clear()
         userInput.send_keys(self.user)
         # Mật khẩu
         xpath = '//*[@placeholder="Mật khẩu"]'
-        passwordInput = wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        passwordInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
         passwordInput.clear()
         passwordInput.send_keys(self.password)
         # Click "Đăng nhập"
-        wait.until(EC.presence_of_element_located((By.CLASS_NAME,'btn-primary'))).click()
+        self.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'btn-primary'))).click()
 
-        return driver, wait
+        return self
 
     def TienGuiThanhToan(self):
 
+        # Dọn dẹp folder trước khi download
+        for file in listdir(self.downloadFolder):
+            if 'LichSuTaiKhoan' in file:
+                os.remove(join(self.downloadFolder,file))
         # Click Menu Tài khoản --> Tiền gửi thanh toán
         action = ActionChains(self.driver)
         xpath = '//*[@class="navigation-menu"]/li[2]/a'
@@ -714,11 +979,15 @@ class EIB(Base):
         action.perform()
         # Lấy danh sách tài khoản
         xpath = '//tbody/tr/th/a'
-        accountElems = self.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+        accountElems = self.wait.until(EC.visibility_of_all_elements_located((By.XPATH,xpath)))
         accounts = [e.text for e in accountElems]
+        # Lấy danh sách currency
+        xpath = '//*[text()="VND" or text()="USD"]'
+        currencyElems = self.wait.until(EC.visibility_of_all_elements_located((By.XPATH,xpath)))
+        currencies = [e.text for e in currencyElems]
         # Lấy số dư tài khoản
         records = []
-        for account in accounts:
+        for account, currency in zip(accounts,currencies):
             Account = self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,account)))
             Account.click()
             # Click Xem lịch sử tài khoản
@@ -742,23 +1011,41 @@ class EIB(Base):
                         break
                     except (ElementClickInterceptedException,):
                         pass
-                # Lấy số dư
-                xpath = '//*[contains(text(),"Số dư cuối kỳ")]/parent::node()/div/input'
-                Balance = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
-                balanceString, currency = Balance.get_attribute('value').split()
-                balance = float(balanceString.replace(',',''))
-                if balance: # if balance != 0
-                    records.append((d,'EIB',account,balance,currency))
-                else:
+                # Check xem có giao dịch không, vì không có giao dịch sẽ ko có file download
+                flags = self.driver.find_elements(By.XPATH,'//*[text()=" Không tìm thấy thông tin. "]')
+                if flags:
                     records.append((d,'EIB',account,np.nan,currency))
+                    continue
+                # Download file
+                while True:
+                    try:
+                        self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Tải Excel'))).click()
+                        break
+                    except (ElementClickInterceptedException,StaleElementReferenceException):
+                        pass
+                # Đọc file download
+                while True:
+                    checkFunc = lambda x:'LichSuTaiKhoan' in x and 'download' not in x
+                    downloadFile = first(listdir(self.downloadFolder),checkFunc)
+                    if downloadFile:  # download xong -> có file
+                        break
+                    time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
+
+                downloadData = pd.read_excel(join(self.downloadFolder,downloadFile))
+                # Số dư cuối kỳ
+                rowMask = downloadData.eq('Số dư cuối kỳ / Current Balance ').any(axis=1)
+                balance = float(downloadData.loc[rowMask,downloadData.columns[-2]].squeeze())
+                records.append((d,'EIB',account,balance,currency))
+                # Xóa file
+                os.remove(join(self.downloadFolder,downloadFile))
 
             self.driver.back()
 
-        self.driver.quit()
         balanceTable = pd.DataFrame(
             records,
             columns=['Date','Bank','AccountNumber','Balance','Currency']
         )
+
         # Xử lý lỗi EIB: Ngày nào ko có giao dịch thì số dư cuối kỳ = 0, bằng cách: forward fill
         for account in balanceTable['AccountNumber'].unique():
             mask = balanceTable['AccountNumber']==account
@@ -766,7 +1053,21 @@ class EIB(Base):
         # Xử lý những thằng thật sự bằng 0
         balanceTable = balanceTable.fillna(0)
 
-        return balanceTable
+        return self, balanceTable
+
+    def TienGuiKyHan(self):
+
+        """
+        Chưa có tài khoản tiền gửi tại EIB ở thời điểm hiện tại -> chưa viết được
+        """
+
+        records = [(None,)*11]
+        balanceTable = pd.DataFrame(
+            data=records,
+            columns=['Date','Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount','Currency']
+        )
+
+        return self, balanceTable
 
 # không CAPTCHA
 class OCB(Base):
@@ -781,42 +1082,51 @@ class OCB(Base):
         super().__init__('OCB')
         self.fromDate = dt.datetime(fromDate.year,fromDate.month,fromDate.day)
         self.toDate = dt.datetime(toDate.year,toDate.month,toDate.day)
-        self.driver, self.wait = self.Login()
+        self.driver = None
+        self.wait = None
 
     def __repr__(self):
         return f'<BankObject_OCB>'
 
+    def __del__(self):
+        self.driver.quit()
+        print('Destructor: Chrome Driver has quit')
+
     def Login(self):
 
-        driver = webdriver.Chrome(executable_path=self.PATH)
-        driver.maximize_window()
-        driver.get(self.URL)
-        wait = WebDriverWait(driver,30,ignored_exceptions=self.ignored_exceptions)
+        self.driver = webdriver.Chrome(executable_path=self.PATH)
+        self.driver.maximize_window()
+        self.driver.get(self.URL)
+        self.wait = WebDriverWait(self.driver,30,ignored_exceptions=self.ignored_exceptions)
 
         # Trong trường hợp có pop-up window
-        exitPopup = wait.until(EC.presence_of_element_located((By.CLASS_NAME,'x-button-popup-login')))
+        exitPopup = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'x-button-popup-login')))
         if exitPopup.is_displayed():  # có pop-up window
             exitPopup.click()
         # Tên đâng nhập
         xpath = '//*[@placeholder="Tên đăng nhập"]'
-        userInput = wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        userInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
         userInput.clear()
         userInput.send_keys(self.user)
         # Click "Tiếp tục"
-        wait.until(EC.presence_of_element_located((By.ID,'loginSubmitButton'))).click()
+        self.wait.until(EC.presence_of_element_located((By.ID,'loginSubmitButton'))).click()
         # Mật khẩu
         xpath = '//*[@placeholder="Mật khẩu"]'
-        passwordInput = wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        passwordInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
         passwordInput.clear()
         passwordInput.send_keys(self.password)
         # Click "Đăng nhập"
-        wait.until(EC.presence_of_element_located((By.ID,'loginSubmitButton'))).click()
+        self.wait.until(EC.presence_of_element_located((By.ID,'loginSubmitButton'))).click()
 
-        return driver, wait
+        return self
 
     def TienGuiThanhToan(self):
 
-        # Click main menu
+        # Dọn dẹp folder trước khi download
+        for file in listdir(self.downloadFolder):
+            if 'TransactionHistory' in file:
+                os.remove(join(self.downloadFolder,file))
+        # Bắt đầu từ main menu
         self.wait.until(EC.presence_of_element_located((By.ID,'main-menu-icon'))).click()
         # Click Thông tin tài khoản --> Sao kê tài khoản
         xpath = '//*[@class="ahref"]/*[@class="accounts-icon"]'
@@ -824,7 +1134,7 @@ class OCB(Base):
         accountButton.click()
         xpath = '//*[@id="side-nav"]/ul/li[2]/div[3]/span'
         self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
-        time.sleep(5) # chờ chuyển trang
+        time.sleep(10) # chờ chuyển trang
         # Lấy danh sách tài khoản
         i = 0
         records = []
@@ -841,6 +1151,7 @@ class OCB(Base):
             # Click "Tìm kiếm nâng cao"
             xpath = '//*[@ng-click="toggleAdvancedSearch()"]'
             self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+            time.sleep(1)
             # Tick chọn tính năng khoảng thời gian
             xpath = '//*[@class="bd-radio-option__marker"]'
             _, rangeButton = self.wait.until(EC.visibility_of_all_elements_located((By.XPATH,xpath)))
@@ -855,37 +1166,118 @@ class OCB(Base):
                 toDateInput.clear()
                 toDateInput.send_keys(d.strftime('%d.%m.%Y'))
                 # Lấy số dư cuối kỳ
-                while True:
-                    while True: # click đến khi được thì thôi
-                        try:
-                            searchButton = self.wait.until(EC.presence_of_element_located((By.XPATH,'//*[@bd-id="search_button_mobile"]')))
-                            searchButton.click()
-                            break
-                        except (ElementClickInterceptedException,):
-                            pass
-                    time.sleep(1) # chờ load data
-                    self.driver.execute_script(f'window.scrollTo(0,500)')
-                    fullString = self.driver.find_elements(By.CLASS_NAME,'bd-amount')[-1].text
-                    if fullString != '':
-                        balanceString, currency = fullString.split()
-                        balance = float(balanceString.replace(',',''))
-                        records.append((d,'OCB',accountNumber,balance,currency))
-                        # Scroll lên đầu trang
-                        self.driver.execute_script(f'window.scrollTo(0,0)')
+                while True: # click đến khi được thì thôi
+                    try:
+                        searchButton = self.wait.until(EC.presence_of_element_located((By.XPATH,'//*[@bd-id="search_button_mobile"]')))
+                        searchButton.click()
                         break
-                    # Scroll lên đầu trang
-                    self.driver.execute_script(f'window.scrollTo(0,0)')
-                    time.sleep(1) # tránh click khi chưa scroll xong
+                    except (ElementClickInterceptedException,):
+                        pass
+                time.sleep(1) # chờ load data
+                # Click Tải về chi tiết
+                xpath = '//*[text()="Tải về"]'
+                while True:
+                    try:
+                        self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+                        break
+                    except (ElementNotInteractableException,):
+                        time.sleep(1) # click bị fail thì chờ 1s rồi click lại
+                time.sleep(1) # chờ animation
+                xpath = '//*[text()="Tập tin XLS"]'
+                self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+                # Đọc file download
+                while True:
+                    checkFunc = lambda x:'TransactionHistory' in x and 'download' not in x
+                    downloadFile = first(listdir(self.downloadFolder),checkFunc)
+                    if downloadFile:  # download xong -> có file
+                        break
+                    time.sleep(0.5)  # chưa download xong -> đợi thêm 0.5s nữa
+                downloadTable = pd.read_excel(
+                    join(self.downloadFolder,downloadFile),
+                    usecols='C:D',
+                    skiprows=3,
+                )
+                # Số dư
+                rowMask = downloadTable.eq('Số dư cuối kỳ/ Ending Balance').any(axis=1)
+                balanceString = downloadTable.loc[rowMask,downloadTable.columns[-1]].squeeze()
+                balance = float(balanceString.replace(',',''))
+                # Currency
+                rowMask = downloadTable.eq('Loại tiền/ Currency').any(axis=1)
+                currency = downloadTable.loc[rowMask,downloadTable.columns[-1]].squeeze()
+                records.append((d,'OCB',accountNumber,balance,currency))
+                # Xóa file
+                os.remove(join(self.downloadFolder,downloadFile))
+                # Scroll lên đầu trang
+                self.driver.execute_script(f'window.scrollTo(0,0)')
+                time.sleep(0.5) # tránh click khi chưa scroll xong
 
             # Click "Ẩn tìm kiếm nâng cao"
             xpath = '//*[@ng-click="toggleAdvancedSearch()"]'
             self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
 
-        self.driver.quit()
         balanceTable  = pd.DataFrame(
             records,
             columns=['Date','Bank','AccountNumber','Balance','Currency'],
         )
 
-        return balanceTable
+        return self, balanceTable
+
+    def TienGuiKyHan(self):
+
+        # Dọn dẹp folder trước khi download
+        for file in listdir(self.downloadFolder):
+            if 'DSHDTG' in file:
+                os.remove(join(self.downloadFolder,file))
+        # Click main menu
+        self.wait.until(EC.presence_of_element_located((By.ID,'main-menu-icon'))).click()
+        # Click Hợp đồng tiền gửi -> Danh sách hợp đồng tiền gửi
+        xpath = '//*[@class="ahref"]/*[@class="deposits-icon"]'
+        _, accountButton = self.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+        accountButton.click()
+        xpath = '//*[@id="side-nav"]/ul/li[7]/div[2]/span'
+        self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        time.sleep(5) # chờ chuyển trang
+
+        # Click download
+        self.wait.until(EC.presence_of_element_located((By.XPATH,'//*[@placeholder="Tải về"]'))).click()
+        self.wait.until(EC.visibility_of_element_located((By.XPATH,'//*[@ng-click="downloadFile(option)"]'))).click()
+        # Đọc file download
+        while True:
+            downloadFile = first(listdir(self.downloadFolder),lambda x:'DSHDTG' in x and 'download' not in x)
+            if downloadFile: # download xong -> có file
+                break
+            time.sleep(1) # chưa download xong -> đợi thêm 1s nữa
+        downloadTable = pd.read_excel(
+            join(self.downloadFolder,downloadFile),
+            skiprows=15,
+            usecols='B,E:I',
+            names=['AccountNumber','Currency','IssueDate','ExpireDate','InterestRate','InterestAmount'],
+            dtype={'AccountNumber':object}
+        )
+        downloadTable[['IssueDate','ExpireDate']] = downloadTable[['IssueDate','ExpireDate']].applymap(lambda x: dt.datetime.strptime(x,'%d/%m/%Y'))
+        downloadTable['InterestRate'] = downloadTable['InterestRate'].map(lambda x: float(x.replace(' %',''))) / 100
+        downloadTable['InterestAmount'] = downloadTable['InterestAmount'].map(lambda x: float(x.replace(',','')))
+        downloadTable['TermDays'] = (downloadTable['ExpireDate'] - downloadTable['IssueDate']).dt.days
+        downloadTable['TermMonths'] = round(downloadTable['TermDays'] / 30)
+
+        # Số dư
+        xpath = '//*[@class="above"]/div/*[@class!="num"]'
+        accountKeys = self.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+        xpath = '//*[@amount="deposit.depositBalance"]/span[@class="bd-amount__value mg-right"]'
+        balanceValues = self.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+        mapper = {k.text: float(v.text.replace(',','')) for k,v in zip(accountKeys,balanceValues)}
+        downloadTable['Balance'] = downloadTable['AccountNumber'].map(mapper)
+        # Ngày
+        downloadTable['Date'] = dt.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0)
+        # Bank
+        downloadTable['Bank'] = 'OCB'
+
+        cols = ['Date','Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount','Currency']
+        balanceTable = downloadTable[cols]
+
+        # Xóa file
+        os.remove(join(self.downloadFolder,downloadFile))
+
+        return self, balanceTable
+
 

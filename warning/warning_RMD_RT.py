@@ -1,6 +1,8 @@
 """
 Cú pháp: run(True) hoặc run(False)  |  True: Ẩn browser window, False Không ẩn browser window
 """
+import time
+
 from request.stock import *
 from request import connect_DWH_CoSo
 from news_collector import scrape_ticker_by_exchange
@@ -145,10 +147,11 @@ def run(
 ) -> pd.DataFrame:
 
     today = dt.datetime.now().strftime('%Y-%m-%d')
+    forceSaleDate = bdate(today,-1) # lấy danh sách force sell ngày hôm trước
     # get Force Sell table
-    ForceSellFile = join(dirname(__file__),'TempFiles',f"ForceSell_{today.replace('-','.')}.pickle")
+    ForceSellFile = join(dirname(__file__),'TempFiles',f"ForceSell_{forceSaleDate.replace('-','.')}.pickle")
     if not isfile(ForceSellFile):
-        ForceSellTable = __getForceSell__(today)
+        ForceSellTable = __getForceSell__(forceSaleDate)
         ForceSellTable.to_pickle(ForceSellFile)
     else:
         ForceSellTable = pd.read_pickle(ForceSellFile)
@@ -174,13 +177,22 @@ def run(
     else:
         allTickers = pd.read_pickle(tickersFile)
 
+    options = Options()
+    if hide_window:
+        options.headless = True
+    driver = webdriver.Chrome(executable_path=PATH,options=options)
+    wait = WebDriverWait(driver,60,ignored_exceptions=ignored_exceptions)
+    url = r'https://priceboard.vcbs.com.vn/Priceboard/'
+    driver.get(url)
+    time.sleep(5) # bắt buộc
+
     allTickers = allTickers.loc[allTickers['ticker'].map(len)==3]
     if exchange == 'HOSE':
-        url = 'https://iboard.ssi.com.vn/bang-gia/hose'
+        exchangeXpath = '//*[text()="HOSE"]'
         fullTickers = allTickers.loc[allTickers['exchange']=='HOSE','ticker']
         mlist = internal.mlist(['HOSE'])
     elif exchange == 'HNX':
-        url = 'https://iboard.ssi.com.vn/bang-gia/hnx'
+        exchangeXpath = '//*[text()="HNX"]'
         fullTickers = allTickers.loc[allTickers['exchange']=='HNX','ticker']
         mlist = internal.mlist(['HNX'])
     else:
@@ -199,24 +211,24 @@ def run(
     else:
         avgVolume = pd.read_pickle(avgVolumeFile)
 
-    options = Options()
-    if hide_window:
-        options.headless = True
-    driver = webdriver.Chrome(executable_path=PATH,options=options)
-    wait = WebDriverWait(driver,60,ignored_exceptions=ignored_exceptions)
-    driver.get(url)
+    while True:
+        try:
+            driver.find_element(By.XPATH,exchangeXpath).click()
+            break
+        except (Exception,):
+            time.sleep(1)
 
     warnings = pd.DataFrame(columns=['Marginable','Message'],index=pd.Index(tickerPool,name='Ticker'))
     for ticker in warnings.index:
-        tickerElement = wait.until(EC.presence_of_element_located((By.XPATH,f'//tbody/*[@id="{ticker}"]')))
+        tickerElement = wait.until(EC.presence_of_element_located((By.XPATH,f'//tbody/*[@name="{ticker}"]')))
         sub_wait = WebDriverWait(tickerElement,60,ignored_exceptions=ignored_exceptions)
-        Floor = __formatPrice__(sub_wait.until(EC.presence_of_element_located((By.CLASS_NAME,'floor'))).text)
-        MatchPrice = __formatPrice__(sub_wait.until(EC.presence_of_element_located((By.CLASS_NAME,'matchedPrice'))).text)
-        SellVolume1 = __formatVolume__(sub_wait.until(EC.presence_of_element_located((By.CLASS_NAME,'best1OfferVol'))).text)
-        SellVolume2 = __formatVolume__(sub_wait.until(EC.presence_of_element_located((By.CLASS_NAME,'best2OfferVol'))).text) 
-        SellVolume3 = __formatVolume__(sub_wait.until(EC.presence_of_element_located((By.CLASS_NAME,'best3OfferVol'))).text)
-        FrgBuy = __formatVolume__(sub_wait.until(EC.presence_of_element_located((By.CLASS_NAME,'buyForeignQtty'))).text)
-        FrgSell = __formatVolume__(sub_wait.until(EC.presence_of_element_located((By.CLASS_NAME,'sellForeignQtty'))).text)
+        Floor = __formatPrice__(sub_wait.until(EC.presence_of_element_located((By.ID,f'{ticker}floor'))).text)
+        MatchPrice = __formatPrice__(sub_wait.until(EC.presence_of_element_located((By.ID,f'{ticker}closePrice'))).text)
+        SellVolume1 = __formatVolume__(sub_wait.until(EC.presence_of_element_located((By.ID,f'{ticker}best1OfferVolume'))).text)
+        SellVolume2 = __formatVolume__(sub_wait.until(EC.presence_of_element_located((By.ID,f'{ticker}best2OfferVolume'))).text)
+        SellVolume3 = __formatVolume__(sub_wait.until(EC.presence_of_element_located((By.ID,f'{ticker}best3OfferVolume'))).text)
+        FrgBuy = __formatVolume__(sub_wait.until(EC.presence_of_element_located((By.ID,f'{ticker}foreignBuy'))).text)
+        FrgSell = __formatVolume__(sub_wait.until(EC.presence_of_element_located((By.ID,f'{ticker}foreignSell'))).text)
         if MatchPrice == Floor:
             messages = []
             # Điều kiện 0:

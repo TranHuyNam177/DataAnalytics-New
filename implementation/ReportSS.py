@@ -7,9 +7,9 @@ def SS_BaoCaoCheckGia():
     BaoCaoCheckGia.run()
 
 @TaskMonitor
-def SS_BaoCaoDanhSachChungKhoanSSI():
-    from automation.trading_service.giaodichluuky import BaoCaoDanhSachChungKhoanSSI
-    BaoCaoDanhSachChungKhoanSSI.run()
+def SS_BaoCaoDanhSachChungKhoanVCBS():
+    from automation.trading_service.giaodichluuky import BaoCaoDanhSachChungKhoanVCBS
+    BaoCaoDanhSachChungKhoanVCBS.run()
 
 @TaskMonitor
 def SS_BaoCaoDongMoUyQuyenTK_HNX():

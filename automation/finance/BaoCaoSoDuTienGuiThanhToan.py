@@ -25,7 +25,7 @@ def run(  # chạy hàng ngày
             [t].[Date],
             [t].[Bank],
             [t].[AccountNumber],
-            [t].[CurrentBalance],
+            [t].[Balance],
             [t].[Currency]
         FROM [BankCurrentBalance] [t]
         WHERE [t].[Date] = '{t0_date}' AND [t].[Currency] = 'VND'
@@ -172,7 +172,7 @@ def run(  # chạy hàng ngày
     worksheet.write_column('B11',table['Date'],date_format)
     worksheet.write_column('C11',table['Bank'],text_center_format)
     worksheet.write_column('D11',table['AccountNumber'],text_center_format)
-    worksheet.write_column('E11',table['CurrentBalance'],money_format)
+    worksheet.write_column('E11',table['Balance'],money_format)
     worksheet.write_column('F11',table['Currency'],text_center_format)
 
     ###########################################################################

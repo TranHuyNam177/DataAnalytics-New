@@ -3,14 +3,15 @@ from news_collector import scrape_ticker_by_exchange
 
 
 def run():
+
     start = time.time()
     info = get_info('daily',None)
     period = info['period']
-    folder_name = 'DanhSachCoPhieuBangDienSSI'
+    folder_name = 'DanhSachCoPhieuBangDienVCBS'
 
     result = scrape_ticker_by_exchange.run(False)
 
-    file_name = f'Báo cáo danh sách mã CK trên bảng điện SSI {period}.xlsx'
+    file_name = f'Báo cáo danh sách mã CK trên bảng điện VCBS {period}.xlsx'
     writer = pd.ExcelWriter(
         join(dirname(dirname(dept_folder)),folder_name,file_name),
         engine='xlsxwriter',

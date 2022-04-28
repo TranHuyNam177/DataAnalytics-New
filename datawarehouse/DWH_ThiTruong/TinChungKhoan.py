@@ -20,5 +20,3 @@ def update(hours):
     INSERT(connect_DWH_ThiTruong,'TinChungKhoan',newsTable)
     DROP_DUPLICATES(connect_DWH_ThiTruong,'TinChungKhoan','URL') # xóa dòng có URL trùng nhau
 
-if __name__ == '__main__':
-    update(24)
