@@ -10,10 +10,10 @@ def TaskMonitor(func):
         mail.To = 'hiepdang@phs.vn'
         try:
             func(*args,**kwargs)
-            mail.Subject = f"{func.__name__} Run Successfully"
+            mail.Subject = f"{func.__name__} Done"
             traceback_message = ''
         except (Exception,):
-            mail.Subject = f"{func.__name__} Got Error"
+            mail.Subject = f"{func.__name__} Failed"
             traceback_message = traceback.format_exc()
         body = f"""
             <html>

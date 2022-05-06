@@ -11,9 +11,20 @@ class CheckToday:
         'ExecTaskLog',
         'bank_account_list',
         'de083',
-        # 'vrm6631', (tại sao lại ignore VRM6631 ??)
         'breakeven_price_portfolio',
         'storerun',
+        'VW_GETSEACCOUNTROOM_DB',
+        'V_GETSECMARGINASSET',
+        'V_GETSECMARGINRELEASE_MST1',
+        'V_GETSECMARGINRELEASE_MST2',
+        'V_GETSECMARGINRELEASE',
+        'VW_MR0004',
+        'vw_getsecmargindetail_detail',
+        'vw_getsecmargindetail',
+        'vw_mr0001_all',
+        'BankTransactionHistory',
+        'BankCurrentBalance',
+        'BankDepositBalance',
     ]
 
     def __init__(self,db):

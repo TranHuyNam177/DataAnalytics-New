@@ -7,15 +7,15 @@ class BankFailedException(Exception):
 
 def GetDataMonitor(func):
 
-    def wrapper(*args):
+    def wrapper(*args,**kwargs):
         bank = args[0]
         run_date = args[1].strftime('%d.%m.%Y')
         outlook = Dispatch('outlook.application')
         mail = outlook.CreateItem(0)
         mail.To = 'hiepdang@phs.vn'
         try:
-            func(*args)
-            mail.Subject = f"BankCurrentBalance.{bank} for {run_date} Run Successfully"
+            func(*args,**kwargs)
+            mail.Subject = f"BankCurrentBalance.{bank} for {run_date} Done"
             body = f"""
                 <html>
                     <head></head>
@@ -29,7 +29,7 @@ def GetDataMonitor(func):
             mail.HTMLBody = body
             mail.Send()
         except (Exception,):
-            mail.Subject = f"BankCurrentBalance.{bank} for {run_date} Got Error"
+            mail.Subject = f"BankCurrentBalance.{bank} for {run_date} Failed"
             traceback_message = traceback.format_exc()
             body = f"""
                 <html>
@@ -52,20 +52,20 @@ def GetDataMonitor(func):
 
 
 @GetDataMonitor
-def run(bank,fromDate,toDate):
+def run(bank,fromDate,toDate,debug=True):
 
     if bank == 'BIDV':
-        bankObject = getBankData.BIDV(fromDate,toDate).Login()
+        bankObject = getBankData.BIDV(fromDate,toDate,debug).Login()
     elif bank == 'EIB':
-        bankObject = getBankData.EIB(fromDate,toDate).Login()
+        bankObject = getBankData.EIB(fromDate,toDate,debug).Login()
     elif bank == 'IVB':
-        bankObject = getBankData.IVB(fromDate,toDate).Login()
+        bankObject = getBankData.IVB(fromDate,toDate,debug).Login()
     elif bank == 'VTB':
-        bankObject = getBankData.VTB(fromDate,toDate).Login()
+        bankObject = getBankData.VTB(fromDate,toDate,debug).Login()
     elif bank == 'VCB':
-        bankObject = getBankData.VCB(fromDate,toDate).Login()
+        bankObject = getBankData.VCB(fromDate,toDate,debug).Login()
     elif bank == 'OCB':
-        bankObject = getBankData.OCB(fromDate,toDate).Login()
+        bankObject = getBankData.OCB(fromDate,toDate,debug).Login()
     else:
         raise ValueError(f'Invalid bank name: {bank}')
 
@@ -77,10 +77,10 @@ def run(bank,fromDate,toDate):
     for func, dwhTable, checkCols in zipObject:
         print(func.__name__)
         bankObject, balanceTable = func()
+        fromDateString = fromDate.strftime('%Y-%m-%d')
+        toDateString = toDate.strftime('%Y-%m-%d')
+        DELETE(connect_DWH_CoSo,dwhTable,'W')
+        DELETE(connect_DWH_CoSo,dwhTable,f"""WHERE [Date] BETWEEN '{fromDateString}' AND '{toDateString}' AND [Bank] = '{bank}'""")
         INSERT(connect_DWH_CoSo,dwhTable,balanceTable)
-        DROP_DUPLICATES(connect_DWH_CoSo,dwhTable,*checkCols)  # xóa dòng trùng nhau
 
     del bankObject # destroy the object to close opening Chrome driver (call __del__ magic method)
-
-
-

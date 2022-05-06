@@ -4,15 +4,16 @@ import cv2
 
 class Base:
 
-    def __init__(self,bank:str,debug:bool=False,):
-
+    def __init__(
+        self,
+        bank: str
+    ):
         """
         Base class for all Bank classes
         :param bank: bank name
         """
 
         self.bank = bank
-        self.debug = debug
         self.ignored_exceptions = (
             ValueError,
             IndexError,
@@ -25,6 +26,15 @@ class Base:
         self.PATH = join(dirname(dirname(dirname(realpath(__file__)))),'dependency','chromedriver')
         self.user, self.password, self.URL = get_bank_authentication(self.bank).values()
         self.downloadFolder = r'C:\Users\hiepdang\Downloads'
+
+        self.cBankAccounts = {
+            'EIB': ['140114851002285','160314851020212'],
+            'OCB': ['0021100002115004'],
+            'BIDV': ['11910000132943','26110002677688'],
+            'VCB': ['0071001264078'],
+            'VTB': ['147001536591'],
+            'TCB': ['19038382442022'],
+        }
 
     def __repr__(self):
         return '<BaseObjectOfBank>'
@@ -65,10 +75,7 @@ class Base:
         base64Img = base64.b64encode(open(imgPATH,'rb').read()).decode('utf-8')
         # Gửi CAPTCHA qua bank
         mail = outlook.CreateItem(0)
-        if self.debug: # Development Run
-            mail.To = 'hiepdang@phs.vn'
-        else: # Production Run
-            mail.To = 'hiepdang@phs.vn; namtran@phs.vn; duynguyen@phs.vn; thaonguyenthanh@phs.vn'
+        mail.To = 'hiepdang@phs.vn'
         mail.Subject = f"CAPTCHA Required: {self.bank}"
         mail.attachments.Add(imgPATH)
         html = f"""
@@ -104,15 +111,14 @@ class Base:
 # có CAPTCHA
 class BIDV(Base):
 
-    def __init__(self,fromDate,toDate,debug=True):
+    def __init__(self,fromDate,toDate):
         
         """
         :param fromDate: Ngày bắt đầu lấy dữ liệu
-        :param toDate: Ngày kết thúc lấy dữ liệu
-        :param debug: Chạy debug (True) hay Production (False)
+        :param toDate: Ngầy kết thúc lấy dữ liệu
         """
         
-        super().__init__('BIDV',debug)
+        super().__init__('BIDV')
         self.fromDate = dt.datetime(fromDate.year,fromDate.month,fromDate.day)
         self.toDate = dt.datetime(toDate.year,toDate.month,toDate.day)
         self.driver = None
@@ -250,7 +256,7 @@ class BIDV(Base):
                 colLocMask = downloadData.eq('Số dư').any(axis=0)
                 balanceString = downloadData.loc[rowLocMask,colLocMask].squeeze()
                 balance = float(balanceString.replace(',',''))
-                records.append((d,self.bank,account,balance,'VND'))
+                records.append((d,'BIDV',account,balance,'VND'))
                 # Xóa file
                 os.remove(join(self.downloadFolder,downloadFile))
                 i += 1
@@ -274,7 +280,7 @@ class BIDV(Base):
         self.wait.until(EC.presence_of_element_located((By.ID,'menu-toggle-22'))).click()
         # Click "Tài khoản"
         self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Vấn tin'))).click()
-        # Click "Tiền gửi thanh toán"
+        # Click "Tiền gửi có kỳ hạn"
         self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Tiền gửi có kỳ hạn'))).click()
         # Click download
         self.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'export'))).click()
@@ -306,11 +312,7 @@ class BIDV(Base):
             accountElement.click()
             time.sleep(0.5) # chờ animation
             # Ngày
-            now = dt.datetime.now()
-            if now.hour > 12:
-                d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
-            else:
-                d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+            d = dt.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0)
             # Lãi suất
             xpath = f'//*[@aria-expanded="true"]/*[@class="information"]/div/div[2]/div[4]/p' # dòng 2 cột 4
             irateString, _ = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).text.split()
@@ -338,7 +340,7 @@ class BIDV(Base):
             # Click để collapse dòng
             accountElement.click()
             # Append
-            record = (d,self.bank,accountNumber,termDays,term,irate,issueDate,expireDate,balance,interestAmount,currency)
+            record = (d,'BIDV',accountNumber,termDays,term,irate,issueDate,expireDate,balance,interestAmount,currency)
             records.append(record)
 
         balanceTable = pd.DataFrame(
@@ -348,18 +350,111 @@ class BIDV(Base):
 
         return self, balanceTable
 
+    def SaoKeGiaoDich(self):
+
+        # Dọn dẹp folder trước khi download
+        for file in listdir(self.downloadFolder):
+            if 'EBK_BC_LICHSUGIAODICH' in file:
+                os.remove(join(self.downloadFolder,file))
+        # Click Menu bar
+        self.wait.until(EC.presence_of_element_located((By.ID,'menu-toggle-22'))).click()
+        # Click "Tài khoản"
+        self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Vấn tin'))).click()
+        # Click "Tiền gửi thanh toán"
+        self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Tiền gửi thanh toán'))).click()
+        # Lấy số lượng tài khoản
+        Accounts = self.wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME,'change')))
+        accountNumber = len(Accounts)
+        # Click vào tài khoản đầu tiên
+        xpath = f'//*[@class="change"]'
+        Account = self.wait.until(EC.visibility_of_element_located((By.XPATH,xpath)))
+        Account.click()
+        time.sleep(0.5) # chờ animation
+        # Click "Lịch sử giao dịch"
+        xpath = f'//*[@data-action="btDetailTransaction"]'
+        Button = self.wait.until(EC.visibility_of_element_located((By.XPATH,xpath)))
+        Button.click()
+        # Chọn tab "Thời gian"
+        self.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Thời gian'))).click()
+        # Lấy dữ liệu từng tài khoản
+        frames = []
+        for d in pd.date_range(self.fromDate,self.toDate):
+            # Từ ngày
+            fromDateInput = self.wait.until(EC.presence_of_element_located((By.ID,'fromDate')))
+            fromDateInput.clear()
+            fromDateInput.send_keys(d.strftime('%d/%m/%Y'))
+            # Đến ngày
+            toDateInput = self.wait.until(EC.presence_of_element_located((By.ID,'toDate')))
+            toDateInput.clear()
+            toDateInput.send_keys(d.strftime('%d/%m/%Y'))
+            # Chọn từng tài khoản
+            xpath = '//*[@aria-owns="accountNo_listbox"]'
+            accountInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            accountInput.clear()
+            i = 0
+            while True:
+                # Bấm mũi tên xuống để lấy từng TK (làm cách này để tránh lỗi)
+                accountInput.send_keys(Keys.DOWN)
+                value = accountInput.get_attribute('value')
+                print(value)
+                account = re.search('[0-9]{14}',value).group()
+                time.sleep(0.5) # chờ pop up (nếu có)
+                # Đóng pop up nếu có
+                xpath = '//*[@data-bb-handler="ok"]'
+                popupButtons = self.driver.find_elements(By.XPATH,xpath)
+                if popupButtons:
+                    popupButtons[0].click()
+                # Download file excel
+                self.wait.until(EC.presence_of_element_located((By.ID,'btnExportExcel01'))).click()
+                # Đọc file, record data
+                while True:
+                    checkFunc = lambda x: 'EBK_BC_LICHSUGIAODICH' in x and 'download' not in x
+                    downloadFile = first(listdir(self.downloadFolder),checkFunc)
+                    if downloadFile: # download xong -> có file
+                        break
+                    time.sleep(1) # chưa download xong -> đợi thêm 1s nữa
+
+                downloadData = pd.read_excel(
+                    join(self.downloadFolder,downloadFile),
+                    usecols='B,D:G',
+                    names=['Time','Debit','Credit','Balance','Content'],
+                )
+                startRow = downloadData.eq('Dư đầu').any(axis=1).argmax() + 1
+                endRow = downloadData.eq('Cộng phát sinh').any(axis=1).argmax() - 1
+                frame = downloadData.iloc[startRow:endRow+1].copy() # pandas treats endpoint exclusively
+                # Date
+                frame['Time'] = pd.to_datetime(frame['Time'],format='%d/%m/%Y %H:%M:%S')
+                # Debit, Credit, Balance
+                for colName in ('Debit','Credit','Balance'):
+                    frame[colName] = frame[colName].str.replace(',','').astype(float)
+                # Account Number
+                frame.insert(1,'AccountNumber',account)
+                frames.append(frame)
+
+                # Xóa file
+                os.remove(join(self.downloadFolder,downloadFile))
+                i += 1
+                if i == accountNumber:
+                    break
+
+        historyTable = pd.concat(frames)
+        historyTable = historyTable.loc[(historyTable['Debit']!=0)|(historyTable['Credit']!=0)]
+        historyTable.insert(1,'Bank',self.bank)
+        historyTable = historyTable.replace({np.nan: None}) # to be compatible with SQL
+
+        return self, historyTable
+
 # không CAPTCHA
 class VTB(Base):
 
-    def __init__(self,fromDate,toDate,debug=False):
+    def __init__(self,fromDate,toDate):
 
         """
         :param fromDate: Ngày bắt đầu lấy dữ liệu
-        :param toDate: Ngày kết thúc lấy dữ liệu
-        :param debug: Chạy debug (True) hay Production (False)
+        :param toDate: Ngầy kết thúc lấy dữ liệu
         """
 
-        super().__init__('VTB',debug)
+        super().__init__('VTB')
         self.fromDate = dt.datetime(fromDate.year,fromDate.month,fromDate.day)
         self.toDate = dt.datetime(toDate.year,toDate.month,toDate.day)
         self.driver = None
@@ -467,7 +562,7 @@ class VTB(Base):
                 # Currency
                 rowMask = downloadData.eq('Loại tiền tệ/Currency:').any(axis=1)
                 currency = downloadData.loc[rowMask,downloadData.columns[2]].squeeze()
-                records.append((d,self.bank,x,balance,currency))
+                records.append((d,'VTB',x,balance,currency))
                 # Xóa file
                 os.remove(join(self.downloadFolder,downloadFile))
 
@@ -527,14 +622,9 @@ class VTB(Base):
         downloadTable['TermMonths']  = np.int64(downloadTable['TermMonths'].str.replace('D','').str.split('M').str.get(0))
         downloadTable['TermDays'] = (downloadTable['ExpireDate'] - downloadTable['IssueDate']).dt.days
         downloadTable['InterestRate'] /= 100
-        downloadTable['Bank'] = self.bank
-        # Date
-        now = dt.datetime.now()
-        if now.hour > 12:
-            d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
-        else:
-            d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
-        downloadTable['Date'] = d
+        downloadTable['Date'] = dt.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0)
+        downloadTable['Bank'] = 'VTB'
+
         cols = ['Date','Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount','Currency']
         balanceTable = downloadTable[cols]
 
@@ -543,15 +633,14 @@ class VTB(Base):
 # có CAPTCHA
 class IVB(Base):
 
-    def __init__(self,fromDate,toDate,debug=False):
+    def __init__(self,fromDate,toDate):
 
         """
         :param fromDate: Ngày bắt đầu lấy dữ liệu
-        :param toDate: Ngày kết thúc lấy dữ liệu
-        :param debug: Chạy debug (True) hay Production (False)
+        :param toDate: Ngầy kết thúc lấy dữ liệu
         """
 
-        super().__init__('IVB',debug)
+        super().__init__('IVB')
         self.fromDate = dt.datetime(fromDate.year,fromDate.month,fromDate.day)
         self.toDate = dt.datetime(toDate.year,toDate.month,toDate.day)
         self.driver = None
@@ -661,7 +750,7 @@ class IVB(Base):
                 rowMask = downloadTable.eq('Số dư cuối kỳ').any(axis=1)
                 balanceString = downloadTable.loc[rowMask,downloadTable.columns[-1]].squeeze().replace(',','')
                 balance = float(balanceString)
-                records.append((d,self.bank,account,balance,currency))
+                records.append((d,'IVB',account,balance,currency))
                 # Xóa file download
                 os.remove(join(self.downloadFolder,downloadFile))
                 self.driver.execute_script(f'window.scrollTo(0,0)')
@@ -696,11 +785,7 @@ class IVB(Base):
         for element in rowElements:
             elementString = element.text
             # Date
-            now = dt.datetime.now()
-            if now.hour > 12:
-                d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
-            else:
-                d = (now-dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+            d = dt.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0)
             # Số tài khoản
             account = re.search('^[0-9]{7}-[0-9]{3}',elementString).group()
             # Ngày hiệu lực, Ngày đáo hạn
@@ -723,7 +808,7 @@ class IVB(Base):
             currency = re.search('VND|USD',element.text).group()
             # Lãi
             interest = float(re.findall('[0-9]+',element.text.replace(',',''))[-1])
-            records.append((d,self.bank,account,termDays,term,iRate,issueDate,expireDate,balance,interest,currency))
+            records.append((d,'IVB',account,termDays,term,iRate,issueDate,expireDate,balance,interest,currency))
 
         balanceTable = pd.DataFrame(
             data=records,
@@ -735,15 +820,14 @@ class IVB(Base):
 # có CAPTCHA
 class VCB(Base):
 
-    def __init__(self,fromDate,toDate,debug=False):
+    def __init__(self,fromDate,toDate):
 
         """
         :param fromDate: Ngày bắt đầu lấy dữ liệu
-        :param toDate: Ngày kết thúc lấy dữ liệu
-        :param debug: Chạy debug (True) hay Production (False)
+        :param toDate: Ngầy kết thúc lấy dữ liệu
         """
 
-        super().__init__('VCB',debug)
+        super().__init__('VCB')
         self.fromDate = dt.datetime(fromDate.year,fromDate.month,fromDate.day)
         self.toDate = dt.datetime(toDate.year,toDate.month,toDate.day)
         self.driver = None
@@ -887,7 +971,7 @@ class VCB(Base):
                     balance = None
                 print(balance)
                 currency = soup.find(text='Loại tiền:').find_next().text
-                records.append((d,self.bank,account,balance,currency))
+                records.append((d,'VCB',account,balance,currency))
                 # delete download file
                 os.remove(join(self.downloadFolder,downloadFile))
 
@@ -913,11 +997,7 @@ class VCB(Base):
             self.driver.get(URL)
             time.sleep(1)  # chờ để hiện số tài khoản (bắt buộc)
             # Ngày
-            now = dt.datetime.now()
-            if now.hour > 12:
-                d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
-            else:
-                d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+            d = dt.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0)
             # Tài khoản
             xpath = '//*[@id="Lbl_STK_Title" and text()!=""]'
             account = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).text
@@ -941,7 +1021,7 @@ class VCB(Base):
             xpath = '//*[@id="Lbl_SDS" and text()!=""]'
             balanceString, currency = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).text.split()
             balance = float(balanceString.replace(',',''))
-            records.append((d,self.bank,account,termDays,termMonths,iRate,issueDate,expireDate,balance,iRate,currency))
+            records.append((d,'VCB',account,termDays,termMonths,iRate,issueDate,expireDate,balance,iRate,currency))
 
         balanceTable = pd.DataFrame(
             data=records,
@@ -953,15 +1033,14 @@ class VCB(Base):
 # không CAPTCHA
 class EIB(Base):
 
-    def __init__(self,fromDate,toDate,debug=False):
+    def __init__(self,fromDate,toDate):
 
         """
         :param fromDate: Ngày bắt đầu lấy dữ liệu
-        :param toDate: Ngày kết thúc lấy dữ liệu
-        :param debug: Chạy debug (True) hay Production (False)
+        :param toDate: Ngầy kết thúc lấy dữ liệu
         """
 
-        super().__init__('EIB',debug)
+        super().__init__('EIB')
         self.fromDate = dt.datetime(fromDate.year,fromDate.month,fromDate.day)
         self.toDate = dt.datetime(toDate.year,toDate.month,toDate.day)
         self.driver = None
@@ -1069,7 +1148,7 @@ class EIB(Base):
                 # Số dư cuối kỳ
                 rowMask = downloadData.eq('Số dư cuối kỳ / Current Balance ').any(axis=1)
                 balance = float(downloadData.loc[rowMask,downloadData.columns[-2]].squeeze())
-                records.append((d,self.bank,account,balance,currency))
+                records.append((d,'EIB',account,balance,currency))
                 # Xóa file
                 os.remove(join(self.downloadFolder,downloadFile))
 
@@ -1106,15 +1185,14 @@ class EIB(Base):
 # không CAPTCHA
 class OCB(Base):
 
-    def __init__(self,fromDate,toDate,debug=False):
+    def __init__(self,fromDate,toDate):
 
         """
         :param fromDate: Ngày bắt đầu lấy dữ liệu
-        :param toDate: Ngày kết thúc lấy dữ liệu
-        :param debug: Chạy debug (True) hay Production (False)
+        :param toDate: Ngầy kết thúc lấy dữ liệu
         """
 
-        super().__init__('OCB',debug)
+        super().__init__('OCB')
         self.fromDate = dt.datetime(fromDate.year,fromDate.month,fromDate.day)
         self.toDate = dt.datetime(toDate.year,toDate.month,toDate.day)
         self.driver = None
@@ -1239,7 +1317,7 @@ class OCB(Base):
                 # Currency
                 rowMask = downloadTable.eq('Loại tiền/ Currency').any(axis=1)
                 currency = downloadTable.loc[rowMask,downloadTable.columns[-1]].squeeze()
-                records.append((d,self.bank,accountNumber,balance,currency))
+                records.append((d,'OCB',accountNumber,balance,currency))
                 # Xóa file
                 os.remove(join(self.downloadFolder,downloadFile))
                 # Scroll lên đầu trang
@@ -1303,14 +1381,9 @@ class OCB(Base):
         mapper = {k.text: float(v.text.replace(',','')) for k,v in zip(accountKeys,balanceValues)}
         downloadTable['Balance'] = downloadTable['AccountNumber'].map(mapper)
         # Ngày
-        now = dt.datetime.now()
-        if now.hour > 12:
-            d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
-        else:
-            d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
-        downloadTable['Date'] = d
+        downloadTable['Date'] = dt.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0)
         # Bank
-        downloadTable['Bank'] = self.bank
+        downloadTable['Bank'] = 'OCB'
 
         cols = ['Date','Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount','Currency']
         balanceTable = downloadTable[cols]

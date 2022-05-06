@@ -2,9 +2,8 @@ from automation.trading_service.giaodichluuky import *
 
 
 def run(
-    run_time=None,
+    run_time=None
 ):
-
     start = time.time()
     info = get_info('monthly',run_time)
     start_date = info['start_date']
@@ -15,23 +14,6 @@ def run(
     # create folder
     if not os.path.isdir(join(dept_folder,folder_name,period)):  # dept_folder from import
         os.mkdir(join(dept_folder,folder_name,period))
-
-    # Phi chuyen khoan sang cong ty chung khoan khac xuat theo ngay mac dinh
-    transfer_fee_CTCK = pd.read_sql(
-        f"""
-        SELECT 
-            [date], 
-            [account_code], 
-            [volume], 
-            [creator]
-        FROM [deposit_withdraw_stock]
-        WHERE [date] BETWEEN '{start_date}' AND '{end_date}'
-        AND [creator] NOT IN ('User Online trading')
-        AND [transaction] = 'Chuyen CK'
-        """,
-        connect_DWH_CoSo,
-        index_col=['date','account_code'],
-    )
 
     # Phi chuyen khoan thanh toan bu tru xuat theo ngay duoc dieu chinh
     def adjust_time(x):
@@ -47,97 +29,133 @@ def run(
     Tháng nào lấy ngày sai thì hardcode ngày đúng tại dòng ngay dưới
     """
 
-    adj_start_date,adj_end_date = adjust_time(start_date),adjust_time(end_date) # thay đổi tại đây
-    transfer_fee_TTBT = pd.read_sql(
+    adj_start_date, adj_end_date = '2022-03-30', '2022-04-27' # adjust_time(start_date), adjust_time(end_date)  # thay đổi tại đây
+
+    transfer_fee = pd.read_sql(
         f"""
-        SELECT 
-            [date], 
-            [sub_account], 
-            [ticker], 
-            [volume]
-        FROM [trading_record]
-        WHERE [date] BETWEEN '{adj_start_date}' AND '{adj_end_date}' 
-        AND [type_of_order] = 'S' 
-        AND [depository_place] = 'Tai PHS'
-        """,
-        connect_DWH_CoSo,
-    )
-    relationship = pd.read_sql(
-        f"""
-        SELECT date, sub_account, account_code, branch_id
-        FROM relationship
-        WHERE date BETWEEN '{adj_start_date}' AND '{end_date}'
+        WITH [r] AS (
+            SELECT DISTINCT 
+                [relationship].[date],
+                [relationship].[account_code],
+                [relationship].[branch_id]
+            FROM [relationship]
+            WHERE [relationship].[date] BETWEEN '{adj_start_date}' AND '{end_date}'
+        ),
+        [cal_sum_volume] AS (
+            SELECT
+                [date],
+                [sub_account],
+                [volume],
+                SUM([volume]) OVER(PARTITION BY [date], [ticker]) [sum_volume]
+            FROM [trading_record]
+            WHERE [date] BETWEEN '{adj_start_date}' AND '{adj_end_date}'
+            AND [type_of_order] = 'S' 
+            AND [depository_place] = 'Tai PHS'
+        ),
+        [cal_vol_percent] AS (
+            SELECT
+                [cal_sum_volume].*,
+                ([cal_sum_volume].[volume] / [cal_sum_volume].[sum_volume]) [vol_percent]
+            FROM [cal_sum_volume]
+        ),
+        [rod0040] AS (
+            SELECT
+                [cal_vol_percent].*,
+                CASE
+                    WHEN [cal_vol_percent].[sum_volume] > 1000000 THEN [cal_vol_percent].[vol_percent] * 1000000
+                    ELSE [cal_vol_percent].[volume]
+                END [charged_volume]
+            FROM [cal_vol_percent]
+        ),
+        [rse2009] AS (
+            SELECT
+                [r].[branch_id],
+                [deposit_withdraw_stock].[date], 
+                [deposit_withdraw_stock].[account_code],
+                [creator],
+                CASE
+                    WHEN [deposit_withdraw_stock].[volume] >= 1000000 THEN 1000000
+                    ELSE [deposit_withdraw_stock].[volume]
+                END [volume]
+                FROM [deposit_withdraw_stock]
+                LEFT JOIN [r] 
+                ON [r].[account_code] = [deposit_withdraw_stock].[account_code] AND [r].[date] = [deposit_withdraw_stock].[date]
+                WHERE [deposit_withdraw_stock].[date] BETWEEN '{start_date}' AND '{end_date}'
+                AND [creator] NOT IN ('User Online trading')
+                AND [transaction] = 'Chuyen CK'
+        ),
+        [fee_CTCK] AS (
+            SELECT
+                MAX([rse2009].[branch_id]) [branch_id],
+                SUM([rse2009].[volume]) [volume],
+                SUM(CASE
+                    WHEN [rse2009].[date] > '2020-3-19' THEN [rse2009].[volume] * 0.3
+                    ELSE [rse2009].[volume] * 0.5
+                END) [fee]
+            FROM [rse2009]
+            GROUP BY [rse2009].[branch_id]
+        ),
+        [fee_TTBT] AS (
+            SELECT
+                [r].[branch_id],
+                SUM([rod0040].[volume]) [volume],
+                SUM(
+                    CASE
+                        WHEN [rod0040].[date] > '2020-3-16' THEN [rod0040].[charged_volume] * 0.3
+                        ELSE [rod0040].[charged_volume] * 0.5
+                    END
+                ) [fee]
+            FROM [rod0040]
+            LEFT JOIN [sub_account] on [sub_account].[sub_account] = [rod0040].[sub_account]
+            LEFT JOIN [r]
+            ON [r].[account_code] = [sub_account].[account_code] AND [r].[date] = [rod0040].[date]
+            GROUP BY [r].[branch_id]
+        ),
+        [res] AS (
+            SELECT
+                [branch].[branch_id] [Mã Chi Nhánh],
+                CASE 
+                    WHEN [branch].[branch_id] = '0001' THEN N'HQ'
+                    WHEN [branch].[branch_id] = '0101' THEN N'Quận 3'
+                    WHEN [branch].[branch_id] = '0102' THEN N'PMH'
+                    WHEN [branch].[branch_id] = '0104' THEN N'Q7'
+                    WHEN [branch].[branch_id] = '0105' THEN N'TB'
+                    WHEN [branch].[branch_id] = '0116' THEN N'P.QLTK1'
+                    WHEN [branch].[branch_id] = '0111' THEN N'InB1'
+                    WHEN [branch].[branch_id] = '0113' THEN N'IB'
+                    WHEN [branch].[branch_id] = '0201' THEN N'Hà Nội'
+                    WHEN [branch].[branch_id] = '0202' THEN N'TX'
+                    WHEN [branch].[branch_id] = '0301' THEN N'Hải Phòng'
+                    WHEN [branch].[branch_id] = '0117' THEN N'Quận 1'
+                    WHEN [branch].[branch_id] = '0118' THEN N'P.QLTK3'
+                    WHEN [branch].[branch_id] = '0119' THEN N'InB2'
+                END [Tên Chi Nhánh],
+                ISNULL([fee_TTBT].[fee], 0) [fee_TTBT],
+                ISNULL([fee_TTBT].[volume], 0) [fee_TTBT_volume],
+                ISNULL([fee_CTCK].[fee], 0) [fee_CTCK],
+                ISNULL([fee_CTCK].[volume], 0) [fee_CTCK_volume],
+                ISNULL([fee_TTBT].[fee], 0) + ISNULL([fee_CTCK].[fee], 0) [Phí Chuyển Khoản],
+                (ISNULL([fee_TTBT].[volume], 0) + ISNULL([fee_CTCK].[volume], 0)) [sum Số Lượng],
+                (ROUND(ISNULL([fee_TTBT].[fee], 0), 0) + ROUND(ISNULL([fee_CTCK].[fee], 0), 0)) [sum Phí]
+            FROM [fee_TTBT]
+            FULL OUTER JOIN [fee_CTCK] ON [fee_CTCK].[branch_id] = [fee_TTBT].[branch_id]
+            FULL OUTER JOIN [branch] ON [fee_TTBT].[branch_id] = [branch].[branch_id]
+        )
+        SELECT
+            ROW_NUMBER() OVER (ORDER BY [Mã Chi Nhánh]) [STT],
+            [res].*
+        FROM [res]
+        WHERE [res].[Tên Chi Nhánh] IS NOT NULL
+        ORDER BY [Mã Chi Nhánh]
         """,
         connect_DWH_CoSo
     )
-    branch_name_mapper = {
-        '0001':'HQ',
-        '0101':'Quận 3',
-        '0102':'PMH',
-        '0104':'Q7',
-        '0105':'TB',
-        '0116':'P.QLTK1',
-        '0111':'InB1',
-        '0113':'IB',
-        '0201':'Hà nội',
-        '0202':'TX',
-        '0301':'Hải phòng',
-        '0117':'Quận 1',
-        '0118':'P.QLTK3',
-        '0119':'InB2',
-    }
-    # calculate transfer fee to CTCK
-    transfer_fee_CTCK['volume'] = transfer_fee_CTCK['volume'].apply(min,args=(1000000,))
-    case = transfer_fee_CTCK.index.get_level_values(0)>dt.datetime(2020,3,19)
-    transfer_fee_CTCK.loc[case,'fee'] = transfer_fee_CTCK['volume']*0.3
-    transfer_fee_CTCK.loc[~case,'fee'] = transfer_fee_CTCK['volume']*0.5
-    branch_id_mapper = relationship[['date','account_code','branch_id']].set_index(['date','account_code']).squeeze()
-    branch_id_mapper = branch_id_mapper.loc[~branch_id_mapper.index.duplicated()]  # select unique index
-    transfer_fee_CTCK['branch_id'] = transfer_fee_CTCK.index.map(branch_id_mapper)
-    transfer_fee_CTCK.reset_index(drop=True,inplace=True)
-    transfer_fee_CTCK = transfer_fee_CTCK.groupby('branch_id',as_index=True)[['volume','fee']].sum()
-    if transfer_fee_CTCK.empty: # group by compress empty dataframe by default
-        transfer_fee_CTCK[['volume','fee']] = np.nan
-    transfer_fee_CTCK = transfer_fee_CTCK.reindex(branch_name_mapper.keys()).fillna(0)
-    # calculate transfer fee on TTBT
-    sum_volume = transfer_fee_TTBT.groupby(['date','ticker'])['volume'].sum().squeeze().sort_index()
-    transfer_fee_TTBT = transfer_fee_TTBT.reset_index().set_index(['date','ticker'])
-    transfer_fee_TTBT['sum_volume'] = sum_volume
-    transfer_fee_TTBT.reset_index(inplace=True)
-    transfer_fee_TTBT['vol_percent'] = transfer_fee_TTBT['volume']/transfer_fee_TTBT['sum_volume']
-    case = transfer_fee_TTBT['sum_volume']>1000000
-    transfer_fee_TTBT.loc[case,'charged_volume'] = transfer_fee_TTBT['vol_percent']*1000000
-    transfer_fee_TTBT.loc[~case,'charged_volume'] = transfer_fee_TTBT['volume']
-    case = transfer_fee_TTBT['date']>dt.datetime(2020,3,16)
-    transfer_fee_TTBT.loc[case,'fee'] = transfer_fee_TTBT['charged_volume']*0.3
-    transfer_fee_TTBT.loc[~case,'fee'] = transfer_fee_TTBT['charged_volume']*0.5
-    transfer_fee_TTBT = transfer_fee_TTBT[['date','sub_account','volume','fee']]
-    transfer_fee_TTBT.set_index(['date','sub_account'],inplace=True)
-    transfer_fee_TTBT['branch_id'] = relationship[['date','sub_account','branch_id']].set_index(['date','sub_account'])
-    transfer_fee_TTBT.reset_index(drop=True,inplace=True)
-    transfer_fee_TTBT = transfer_fee_TTBT.groupby('branch_id',as_index=True)[['volume','fee']].sum()
-    if transfer_fee_TTBT.empty: # group by compress empty dataframe by default
-        transfer_fee_TTBT[['volume','fee']] = np.nan
-    transfer_fee_TTBT = transfer_fee_TTBT.reindex(branch_name_mapper.keys()).fillna(0)
 
-    transfer_fee = pd.DataFrame(
-        columns=[
-            'Mã Chi Nhánh',
-            'Tên Chi Nhánh',
-            'Phí Chuyển Khoản',
-        ],
-    )
-    transfer_fee['Mã Chi Nhánh'] = branch_name_mapper.keys()
-    transfer_fee['Tên Chi Nhánh'] = branch_name_mapper.values()
-    transfer_fee.set_index('Mã Chi Nhánh',inplace=True)
-    transfer_fee['Phí Chuyển Khoản'] = transfer_fee_CTCK['fee']+transfer_fee_TTBT['fee']
-    transfer_fee.index.name = 'Mã Chi Nhánh'
-    transfer_fee.reset_index(inplace=True)
-    transfer_fee.insert(0,'STT',transfer_fee.index+1)
+    ########################################################################################
+    ########################################################################################
+    ########################################################################################
 
-    sum_fee = transfer_fee['Phí Chuyển Khoản'].sum()
     table_title = f'PHÍ CHUYỂN KHOẢN {period}'
-
     # Write to Báo cáo phí chuyển khoản
     file_name = f'Báo cáo phí chuyển khoản {period}.xlsx'
     writer = pd.ExcelWriter(
@@ -215,12 +233,13 @@ def run(
     datenote_format = workbook.add_format(
         {
             'font_name':'Times New Roman',
-            'italic': True,
+            'italic':True,
         }
     )
+    sum_fee = transfer_fee['Phí Chuyển Khoản'].sum()
     worksheet.merge_range('A1:D1',table_title,title_format)
     worksheet.write('E1',f'Dữ liệu từ {adj_start_date} đến {adj_end_date}',datenote_format)
-    worksheet.write_row(2,0,transfer_fee.columns,header_format)
+    worksheet.write_row(2,0,['STT','Tên Chi Nhánh','Mã Chi Nhánh','Phí Chuyển Khoản'],header_format)
     worksheet.write_column(3,0,transfer_fee['STT'],stt_format)
     worksheet.write_column(3,1,transfer_fee['Tên Chi Nhánh'],tenchinhanh_format)
     worksheet.write_column(3,2,transfer_fee['Mã Chi Nhánh'],machinhanh_format)
@@ -230,21 +249,9 @@ def run(
     worksheet.write(tong_row,3,sum_fee,tongphiluuky_format)
     writer.close()
 
-    lv1_col = ['Chuyển khoản thanh toán bù trừ']*3+['Chuyển khoản chứng khoán sang CTCK khác']*3+['Tổng cộng']*2
-    lv2_col = ['Số lượng','Phí','Phí làm tròn']*2+['Số lượng','Phí']
-    summary = pd.DataFrame(
-        index=pd.MultiIndex.from_frame(transfer_fee[['Mã Chi Nhánh','Tên Chi Nhánh']]),
-        columns=pd.MultiIndex.from_arrays([lv1_col,lv2_col])
-    )
-    summary[('Chuyển khoản thanh toán bù trừ','Số lượng')] = summary.index.get_level_values(0).map(transfer_fee_TTBT['volume'])
-    summary[('Chuyển khoản thanh toán bù trừ','Phí')] = summary.index.get_level_values(0).map(transfer_fee_TTBT['fee'])
-    summary[('Chuyển khoản thanh toán bù trừ','Phí làm tròn')] = np.round(summary.loc[:,('Chuyển khoản thanh toán bù trừ','Phí')],0)
-    summary[('Chuyển khoản chứng khoán sang CTCK khác','Số lượng')] = summary.index.get_level_values(0).map(transfer_fee_CTCK['volume'])
-    summary[('Chuyển khoản chứng khoán sang CTCK khác','Phí')] = summary.index.get_level_values(0).map(transfer_fee_CTCK['fee'])
-    summary[('Chuyển khoản chứng khoán sang CTCK khác','Phí làm tròn')] = np.round(summary[('Chuyển khoản chứng khoán sang CTCK khác','Phí')],0)
-    summary[('Tổng cộng','Số lượng')] = summary[('Chuyển khoản thanh toán bù trừ','Số lượng')]+summary[('Chuyển khoản chứng khoán sang CTCK khác','Số lượng')]
-    summary[('Tổng cộng','Phí')] = summary[('Chuyển khoản thanh toán bù trừ','Phí làm tròn')]+summary[('Chuyển khoản chứng khoán sang CTCK khác','Phí làm tròn')]
-    summary.fillna(0,inplace=True)
+    ###################################################################################
+    ###################################################################################
+    ###################################################################################
 
     # Write to Báo cáo phí chuyển khoản tổng hợp
     file_name = f'Báo cáo phí chuyển khoản tổng hợp {period}.xlsx'
@@ -321,35 +328,39 @@ def run(
     datenote_format = workbook.add_format(
         {
             'font_name':'Times New Roman',
-            'italic': True,
+            'italic':True,
         }
     )
-    column_0 = summary.index.names[0]
-    column_1 = summary.index.names[1]
-    column_0_24 = summary.columns.get_level_values(0).drop_duplicates()[0]
-    column_0_57 = summary.columns.get_level_values(0).drop_duplicates()[1]
-    column_0_89 = summary.columns.get_level_values(0).drop_duplicates()[2]
-    columns_1 = summary.columns.get_level_values(1)
-    branch_id_col = summary.index.get_level_values(0)
-    branch_name_col = summary.index.get_level_values(1)
-    worksheet.merge_range('A1:A2',column_0,header_format)
-    worksheet.merge_range('B1:B2',column_1,header_format)
-    worksheet.merge_range('C1:E1',column_0_24,header_format)
-    worksheet.merge_range('F1:H1',column_0_57,header_format)
-    worksheet.merge_range('I1:J1',column_0_89,header_format)
-    worksheet.write_row('C2',columns_1,header_format)
-    worksheet.write_column('A3',branch_id_col,branch_id_format)
-    worksheet.write_column('B3',branch_name_col,branch_name_format)
-    for col in range(summary.shape[1]):
-        data = summary.iloc[:,col]
-        if col<summary.shape[1]-1:
-            worksheet.write_column(2,col+2,data,number_format)
-        else:
-            worksheet.write_column(2,col+2,data,last_col_format)
-    sum_row = summary.shape[0]+2
-    worksheet.merge_range(sum_row,0,sum_row,1,'Tổng cộng',tongcong_format)
-    sum_values = summary.values.sum(axis=0)
-    worksheet.write_row(sum_row,2,sum_values,column_sum_format)
+    worksheet.write('I2','Số lượng',header_format)
+    worksheet.write('J2','Phí',header_format)
+    worksheet.merge_range('A1:A2','Mã Chi Nhánh',header_format)
+    worksheet.merge_range('B1:B2','Tên Chi Nhánh',header_format)
+    worksheet.merge_range('C1:E1','Chuyển khoản thanh toán bù trừ',header_format)
+    worksheet.merge_range('F1:H1','Chuyển khoản chứng khoán sang CTCK khác',header_format)
+    worksheet.merge_range('I1:J1','Tổng cộng',header_format)
+    worksheet.write_row('C2',['Số lượng','Phí','Phí làm tròn']*2,header_format)
+    worksheet.write_column('A3',transfer_fee['Mã Chi Nhánh'],branch_id_format)
+    worksheet.write_column('B3',transfer_fee['Tên Chi Nhánh'],branch_name_format)
+    worksheet.write_column('C3',transfer_fee['fee_TTBT_volume'],number_format)
+    worksheet.write_column('D3',transfer_fee['fee_TTBT'],number_format)
+    worksheet.write_column('E3',np.round(transfer_fee['fee_TTBT'],0),number_format)
+    worksheet.write_column('F3',transfer_fee['fee_CTCK_volume'],number_format)
+    worksheet.write_column('G3',transfer_fee['fee_CTCK'],number_format)
+    worksheet.write_column('H3',np.round(transfer_fee['fee_CTCK'],0),number_format)
+    worksheet.write_column('I3',transfer_fee['sum Số Lượng'],number_format)
+    worksheet.write_column('J3',transfer_fee['sum Phí'],last_col_format)
+
+    sum_row = transfer_fee.shape[0]+3
+    worksheet.merge_range(f'A{sum_row}:B{sum_row}','Tổng cộng',tongcong_format)
+    worksheet.write(f'C{sum_row}',transfer_fee['fee_TTBT_volume'].sum(),column_sum_format)
+    worksheet.write(f'D{sum_row}',transfer_fee['fee_TTBT'].sum(),column_sum_format)
+    worksheet.write(f'E{sum_row}',np.round(transfer_fee['fee_TTBT'],0).sum(),column_sum_format)
+    worksheet.write(f'F{sum_row}',transfer_fee['fee_CTCK_volume'].sum(),column_sum_format)
+    worksheet.write(f'G{sum_row}',transfer_fee['fee_CTCK'].sum(),column_sum_format)
+    worksheet.write(f'H{sum_row}',np.round(transfer_fee['fee_CTCK'],0).sum(),column_sum_format)
+    worksheet.write(f'I{sum_row}',transfer_fee['sum Số Lượng'].sum(),column_sum_format)
+    worksheet.write(f'J{sum_row}',transfer_fee['sum Phí'].sum(),column_sum_format)
+
     worksheet.write(f'A{sum_row+3}',f'Dữ liệu từ {adj_start_date} đến {adj_end_date}',datenote_format)
     writer.close()
 

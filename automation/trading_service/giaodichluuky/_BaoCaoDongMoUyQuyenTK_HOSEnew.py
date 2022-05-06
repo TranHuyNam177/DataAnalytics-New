@@ -2,7 +2,7 @@ from automation.trading_service.giaodichluuky import *
 
 
 def run(
-    run_time=None
+    run_time=None,
 ):
 
     start = time.time()
@@ -19,265 +19,215 @@ def run(
     if not os.path.isdir(join(dept_folder,folder_name,period)):  # dept_folder from import
         os.mkdir(join(dept_folder,folder_name,period))
 
-    summary = pd.read_sql(
-        f"""
-            WITH
-            [FlagTable] AS (
-            SELECT 
-                [ao].[account_type] [Type],
-                CASE 
-                    WHEN [ao].[account_type] = N'Cá nhân trong nước' THEN 2
-                    WHEN [ao].[account_type] = N'Tổ chức trong nước' THEN 3
-                    WHEN [ao].[account_type] = N'Cá nhân nước ngoài' THEN 5
-                    WHEN [ao].[account_type] = N'Tổ chức nước ngoài' THEN 6
-                END [Number],
-                CASE WHEN [ao].[date_of_open] BETWEEN '{start_date}' AND '{end_date}' THEN 1 ELSE 0 END [Open],
-                CASE WHEN [ac].[date_of_close] BETWEEN '{start_date}' AND '{end_date}' THEN 1 ELSE 0 END [Close]
-            FROM [account] [ao] FULL JOIN [account] [ac] ON [ao].[account_code] = [ac].[account_code]
-            WHERE [ao].[account_type] IN (N'Cá nhân trong nước',N'Tổ chức trong nước',N'Cá nhân nước ngoài',N'Tổ chức nước ngoài')
-            ),
-            [AggregateTable] AS (
-            SELECT 
-                [FlagTable].[Number],
-                [FlagTable].[Type],
-                SUM([FlagTable].[Open]) [Open],
-                SUM([FlagTable].[Close]) [Close]
-            FROM [FlagTable]
-            GROUP BY [FlagTable].[Type], [FlagTable].[Number]
-            ),
-            [Change] AS (
-                SELECT 
-                    1 [Number], 
-                    N'Trong nước' [Type], 
-                    SUM([AggregateTable].[Open]) [Open], 
-                    SUM([AggregateTable].[Close]) [Close] 
-                FROM [AggregateTable] WHERE [AggregateTable].[Type] IN (N'Cá nhân trong nước',N'Tổ chức trong nước')
-                UNION 
-                SELECT *
-                FROM [AggregateTable]
-                UNION
-                SELECT 
-                    4 [Number], 
-                    N'Nước ngoài' [Type], 
-                    SUM([AggregateTable].[Open]) [Open], 
-                    SUM([AggregateTable].[Close]) [Close]
-                FROM [AggregateTable] WHERE [AggregateTable].[Type] IN (N'Cá nhân nước ngoài',N'Tổ chức nước ngoài')
-                UNION 
-                SELECT 
-                    7 [Number], 
-                    N'Tổng Cộng' [Type], 
-                    SUM([AggregateTable].[Open]) [Open], 
-                    SUM([AggregateTable].[Close]) [Close]
-                FROM [AggregateTable]
-            ),
-            [tempEnd] AS (
-                SELECT 
-                    COUNT([account].[account_code]) [count], 
-                    [account].[account_type]
-                FROM [account]
-                WHERE 
-                    [account].[date_of_open] <= '{end_date}'
-                    AND ([account].[date_of_close] IS NULL 
-                        OR ([account].[date_of_close] > '{end_date}' AND [account].[date_of_close] != '2099-12-31')
-                    ) -- mot so tai khoan dong rat lau roi duoc gan ngay dong la ngay nay
-                    AND [account].[account_type] IN (N'Cá nhân trong nước',N'Tổ chức trong nước',N'Cá nhân nước ngoài',N'Tổ chức nước ngoài')
-                GROUP BY [account].[account_type]
-            ),
-            [End] AS (
-                SELECT * FROM [tempEnd]
-                UNION SELECT SUM([tempEnd].[count]) [count], N'Trong nước' FROM [tempEnd] WHERE [tempEnd].[account_type] IN (N'Cá nhân trong nước',N'Tổ chức trong nước')
-                UNION SELECT SUM([tempEnd].[count]) [count], N'Nước ngoài' FROM [tempEnd] WHERE [tempEnd].[account_type] IN (N'Cá nhân nước ngoài',N'Tổ chức nước ngoài')
-                UNION SELECT SUM([tempEnd].[count]) [count], N'Tổng Cộng' FROM [tempEnd]
-            )
-            SELECT 
-                COALESCE([Change].[Type],[End].[account_type]) [Type],
-                [End].[count] + [Change].[Close] - [Change].[Open] [Start],
-                [Change].[Open],
-                [Change].[Close],
-                [End].[count] [End]
-            FROM [Change] 
-            FULL JOIN [End] ON [End].[account_type] = [Change].[Type]
-            ORDER BY [Change].[Number]
-        """
-        ,
-        connect_DWH_CoSo
-    )
-
     # country code
     country_code = pd.read_excel(join(dirname(dirname(__file__)),'country_code.xlsx'),index_col=0,squeeze=True)
-    # country_code = pd.read_excel(
-    #     r'D:\DataAnalytics\automation\trading_service\country_code.xlsx', index_col=0, squeeze=True)
     split_at = int(country_code.shape[0]/2)+1
     country_code_head = country_code.head(split_at)
     country_code_tail = country_code.tail(country_code.shape[0]-split_at)
 
     country_mapper = country_code.str.replace(' ','').str[2:].reset_index().set_index('QUỐC GIA').squeeze()
 
-    account_open = pd.read_sql(
+    period_account = pd.read_sql(
         f"""
-            WITH
-            [m] AS (
-                SELECT DISTINCT
-                    [sub_account].[account_code]
-                FROM [vcf0051] 
-                LEFT JOIN [sub_account] ON [vcf0051].[sub_account] = [sub_account].[sub_account]
-                WHERE [vcf0051].[contract_type] NOT LIKE N'%Thường%' AND [vcf0051].[date] = '{end_date}'
-            )
-            SELECT
-                ROW_NUMBER() OVER (ORDER BY [a].[account_type], [a].[account_code], [a].[date_of_open]) [no.],
-                [a].[account_type],
-                [a].[account_code],
-                [a].[customer_name],
-                REPLACE([a].[nationality], ' ', '') [nationality],
-                [a].[address],
-                [a].[customer_id_number],
-                [a].[date_of_issue],
-                [a].[place_of_issue],
-                [a].[date_of_open],
-                [a].[date_of_close],
-                CASE
-                    WHEN [m].[account_code] IS NULL THEN '' ELSE 'TKKQ' END [remark],
-                CASE 
-                    WHEN [a].[account_type] LIKE N'%Cá nhân%' THEN 'CN'
-                    WHEN [a].[account_type] LIKE N'%Tổ chức%' THEN 'TC'
-                END [entity_type]
-            FROM [account] [a]
-            LEFT JOIN [m] ON [m].[account_code] = [a].[account_code]
-            WHERE [a].[date_of_open] BETWEEN '{start_date}' AND '{end_date}'
-            ORDER BY [a].[account_type], [a].[account_code], [a].[date_of_open]
-        """,
-        connect_DWH_CoSo
-    )
-    account_close = pd.read_sql(
-        f"""
-            WITH
-            [m] AS (
-                SELECT DISTINCT
-                    [sub_account].[account_code]
-                FROM [vcf0051] 
-                LEFT JOIN [sub_account] ON [vcf0051].[sub_account] = [sub_account].[sub_account]
-                WHERE [vcf0051].[contract_type] NOT LIKE N'%Thường%' AND [vcf0051].[date] = '{end_date}'
-            )
-            SELECT
-                ROW_NUMBER() OVER (ORDER BY [a].[account_type], [a].[account_code], [a].[date_of_close]) [no.],
-                [a].[account_type],
-                [a].[account_code],
-                [a].[customer_name],
-                REPLACE([a].[nationality], ' ', '') [nationality],
-                [a].[address],
-                [a].[customer_id_number],
-                [a].[date_of_issue],
-                [a].[place_of_issue],
-                [a].[date_of_open],
-                [a].[date_of_close],
-                CASE
-                    WHEN [m].[account_code] IS NULL THEN '' ELSE 'TKKQ' END [remark],
-                CASE 
-                    WHEN [a].[account_type] LIKE N'%Cá nhân%' THEN 'CN'
-                    WHEN [a].[account_type] LIKE N'%Tổ chức%' THEN 'TC'
-                END [entity_type]
-            FROM [account] [a]
-            LEFT JOIN [m] ON [m].[account_code] = [a].[account_code]
-            WHERE [a].[date_of_close] BETWEEN '{start_date}' AND '{end_date}'
-            ORDER BY [a].[account_type], [a].[account_code], [a].[date_of_close]
-        """,
-        connect_DWH_CoSo
-    )
-    account_open['nationality'] = account_open['nationality'].map(country_mapper).fillna('')
-    account_close['nationality'] = account_close['nationality'].map(country_mapper).fillna('')
-
-    customer_information_change = pd.read_sql(
-        f"""
-            SELECT 
-                CONCAT('(',(ROW_NUMBER() OVER (ORDER BY [z].[account_code], [z].[date_of_change])),')') [no.],
-                *
-            FROM (
-                SELECT
-                DISTINCT
-                    ISNULL([t].[account_code],'') [account_code],
-                    ISNULL([a].[customer_name],'') [customer_name],
-                    ISNULL([t].[date_of_change],'') [date_of_change],
-                    ISNULL([t].[old_id_number],'') [old_id_number],
-                    ISNULL([t].[new_id_number],'') [new_id_number],
-                    ISNULL([t].[old_date_of_issue],'') [old_date_of_issue],
-                    ISNULL([t].[new_date_of_issue],'') [new_date_of_issue],
-                    ISNULL([t].[old_place_of_issue],'') [old_place_of_issue],
-                    ISNULL([t].[new_place_of_issue],'') [new_place_of_issue],
-                    ISNULL([t].[old_address],'') [old_address],
-                    ISNULL([t].[new_address],'') [new_address],
-                    ISNULL(REPLACE([t].[old_nationality], ' ', ''),'') [old_nationality],
-                    ISNULL(REPLACE([t].[new_nationality], ' ', ''),'') [new_nationality],
-                    '' [old_note],
-                    '' [new_note]
-                FROM [rcf0005] [t]
-                LEFT JOIN [account] [a] ON [a].[account_code] = [t].[account_code]
-                WHERE [t].[date_of_change] BETWEEN '{start_date}' AND '{end_date}'
-            ) [z]
+        SELECT
+            [account].[account_type],
+            [account].[account_code],
+            [account].[customer_name],
+            [account].[nationality],
+            [account].[address],
+            [account].[customer_id_number],
+            [account].[date_of_issue],
+            [account].[place_of_issue],
+            [account].[date_of_open],
+            [account].[date_of_close]
+        FROM [account]
+        WHERE 
+            ([account].[date_of_open] BETWEEN '{start_date}' AND '{end_date}')
+        OR 
+            ([account].[date_of_close] BETWEEN '{start_date}' AND '{end_date}')
         """,
         connect_DWH_CoSo,
+        index_col='account_code',
     )
-    customer_information_change['old_nationality'] = customer_information_change['old_nationality'].map(country_mapper).fillna('')
-    customer_information_change['new_nationality'] = customer_information_change['new_nationality'].map(country_mapper).fillna('')
+    period_account['nationality'] = period_account['nationality'].str.replace(' ','').map(country_mapper).fillna('')
+    start_account = pd.read_sql(
+        f"""
+        SELECT 
+            [account].[account_code], 
+            [account].[account_type]
+        FROM [account]
+        WHERE
+            ([account].[date_of_open] <= '{bdate(start_date,-1)}') 
+        AND (
+            ([account].[date_of_close] IS NULL) 
+            OR ([account].[date_of_close] > '{bdate(start_date,-1)}' AND [account].[date_of_close] != '2099-12-31' )
+            ) -- mot so tai khoan dong rat lau roi duoc gan ngay dong la ngay nay
+        """,
+        connect_DWH_CoSo,
+        index_col='account_code',
+    ).squeeze()
+    end_account = pd.read_sql(
+        f"""
+        SELECT 
+            [account].[account_code], 
+            [account].[account_type]
+        FROM
+            [account]
+        WHERE
+            ([account].[date_of_open] <= '{end_date}') 
+        AND (
+            ([account].[date_of_close] IS NULL) 
+            OR ([account].[date_of_close] > '{end_date}' AND [account].[date_of_close] != '2099-12-31' )
+            ) -- mot so tai khoan dong rat lau roi duoc gan ngay dong la ngay nay
+        """,
+        connect_DWH_CoSo,
+        index_col='account_code',
+    ).squeeze()
+    contract_type = pd.read_sql(
+        """
+        SELECT
+            [customer_information].[sub_account],
+            [sub_account].[account_code],
+            [customer_information].[contract_code],
+            [customer_information].[contract_type]
+        FROM 
+            [customer_information]
+        LEFT JOIN 
+            [sub_account] 
+        ON 
+            [customer_information].[sub_account] = [sub_account].[sub_account]
+        """,
+        connect_DWH_CoSo,
+        index_col='sub_account',
+    )
+    customer_information_change = pd.read_sql(
+        f"""
+        SELECT 
+            [rcf0005].[account_code],
+            [account].[customer_name],
+            [rcf0005].[date_of_change],
+            [rcf0005].[old_id_number],
+            [rcf0005].[new_id_number],
+            [rcf0005].[old_date_of_issue],
+            [rcf0005].[new_date_of_issue],
+            [rcf0005].[old_place_of_issue],
+            [rcf0005].[new_place_of_issue],
+            [rcf0005].[old_address],
+            [rcf0005].[new_address],
+            [rcf0005].[old_nationality],
+            [rcf0005].[new_nationality]
+        FROM 
+            [rcf0005]
+        LEFT JOIN
+            [account]
+        ON
+            [account].[account_code] = [rcf0005].[account_code]
+        WHERE 
+            [rcf0005].[date_of_change] BETWEEN '{start_date}' AND '{end_date}'
+        ORDER BY
+            [rcf0005].[account_code],
+            [rcf0005].[date_of_change]
+        """,
+        connect_DWH_CoSo,
+        index_col='account_code'
+    ).drop_duplicates()  # RCF0005 có duplicated data
+    customer_information_change['old_nationality'] = customer_information_change['old_nationality'].str.replace(' ',
+                                                                                                                '').map(
+        country_mapper).fillna('')
+    customer_information_change['new_nationality'] = customer_information_change['new_nationality'].str.replace(' ',
+                                                                                                                '').map(
+        country_mapper).fillna('')
     authorization = pd.read_sql(
         f"""
-            SELECT
-                ROW_NUMBER() OVER (ORDER BY [authorization].[account_code]) [no.],
-                ISNULL([authorization].[account_code],'') [account_code],
-                ISNULL([authorization].[authorizing_person_id],'') [authorizing_person_id],
-                ISNULL([authorization].[authorizing_person_name],'') [authorizing_person_name],
-                ISNULL([authorization].[authorizing_person_address],'') [authorizing_person_address],
-                ISNULL([authorization].[authorized_person_id],'') [authorized_person_id],
-                ISNULL([authorization].[authorized_person_name],'') [authorized_person_name],
-                CASE
-                    WHEN [authorization].[authorized_person_name] = N'CTY CP CHỨNG KHOÁN PHÚ HƯNG'
-                        THEN N'{CompanyAddress}'
-                    ELSE [authorization].[authorized_person_address]
-                END [authorized_person_address],
-                [authorization].[date_of_authorization],
-                'I,II,IV,V,VII,IX,X' [scope_of_authorization]
-            FROM [authorization]  
-            WHERE [authorization].[date_of_authorization] BETWEEN '{start_date}' AND '{end_date}'
-                AND [authorization].[scope_of_authorization] IS NOT NULL
-                AND [authorization].[scope_of_authorization] <> 'I,IV,V'
+        SELECT * 
+        FROM 
+            [authorization] 
+        WHERE 
+            [authorization].[date_of_authorization] BETWEEN '{start_date}' AND '{end_date}'
+        AND 
+            [authorization].[scope_of_authorization] IS NOT NULL
+        AND 
+            [authorization].[scope_of_authorization] <> 'I,IV,V'
         """,
-        connect_DWH_CoSo
+        connect_DWH_CoSo,
+        index_col='account_code',
     )
     # Highlight cac uy quyen duoc mo moi chi de dang ky uy quyen them (rule ben DVKH)
     highlight_account = pd.read_sql(
         f"""
-            SELECT
-                [authorization_change].[account_code]
-            FROM 
-                [authorization_change]
-            WHERE 
-                [authorization_change].[new_end_date] BETWEEN '{start_date}' AND '{end_date}'
+        SELECT
+            [authorization_change].[account_code]
+        FROM 
+            [authorization_change]
+        WHERE 
+            [authorization_change].[new_end_date] BETWEEN '{start_date}' AND '{end_date}'
         """,
-        connect_DWH_CoSo
+        connect_DWH_CoSo,
     )
     authorization_change = pd.read_sql(
         f"""
-            SELECT 
-                ROW_NUMBER() OVER (ORDER BY [account_code],[date_of_change]) [no.],
-                ISNULL([c].[account_code],'') [account_code],
-                ISNULL([c].[authorizing_person_id],'') [authorizing_person_id],
-                ISNULL([c].[authorizing_person_name],'') [authorizing_person_name],
-                ISNULL(CONVERT(VARCHAR(20),[c].[date_of_authorization],103),'') [date_of_authorization],
-                ISNULL(CONVERT(VARCHAR(20),[c].[date_of_termination],103),'') [date_of_termination],
-                [c].[date_of_change],
-                ISNULL([c].[authorized_person_name],'') [authorized_person_name],
-                ISNULL([c].[old_authorized_person_id],'') [old_authorized_person_id],
-                ISNULL([c].[new_authorized_person_id],'') [new_authorized_person_id],
-                ISNULL([c].[old_authorized_person_address],'') [old_authorized_person_address],
-                ISNULL([c].[new_authorized_person_address],'') [new_authorized_person_address],
-                ISNULL([c].[old_scope_of_authorization],'') [old_scope_of_authorization],
-                ISNULL([c].[new_scope_of_authorization],'') [new_scope_of_authorization],
-                ISNULL(CONVERT(VARCHAR(20),[c].[old_end_date],103),'') [old_end_date],
-                ISNULL(CONVERT(VARCHAR(20),[c].[new_end_date],103),'') [new_end_date]
-            FROM [authorization_change] [c]
-            WHERE [c].[date_of_change] BETWEEN '{start_date}' AND '{end_date}'
+        SELECT *
+        FROM 
+            [authorization_change]
+        WHERE 
+            [authorization_change].[date_of_change] BETWEEN '{start_date}' AND '{end_date}'
         """,
-        connect_DWH_CoSo
+        connect_DWH_CoSo,
+        index_col='account_code'
     )
+    authorization['scope_of_authorization'] = 'I,II,IV,V,VII,IX,X'
+    authorization.loc[authorization[
+                          'authorized_person_name']=='CTY CP CHỨNG KHOÁN PHÚ HƯNG','authorized_person_address'] = CompanyAddress
+    mapper = lambda x:'Thường' if x.startswith('Thường') else 'Ký Quỹ'
+    contract_type['contract_type'] = contract_type['contract_type'].map(mapper)
+
+    margin_account = contract_type.loc[contract_type['contract_type']=='Ký Quỹ','account_code']
+    period_account.loc[period_account.index.isin(margin_account),'remark'] = 'TKKQ'
+    period_account['remark'].fillna('',inplace=True)
+    period_account.loc[period_account['account_type'].str.startswith('Cá nhân'),'entity_type'] = 'CN'
+    period_account.loc[period_account['account_type'].str.startswith('Tổ chức'),'entity_type'] = 'TC'
+    open_mask = (period_account['date_of_open'].dt.month==month)&(period_account['date_of_open'].dt.year==year)
+    account_open = period_account.loc[open_mask]
+    close_mask = (period_account['date_of_close'].dt.month==month)&(period_account['date_of_close'].dt.year==year)
+    account_close = period_account.loc[close_mask]
+
+    # Tinh bien dong TK
+    open_ind_domestic = (account_open['account_type']=='Cá nhân trong nước').sum()
+    open_ins_domestic = (account_open['account_type']=='Tổ chức trong nước').sum()
+    open_ind_foreign = (account_open['account_type']=='Cá nhân nước ngoài').sum()
+    open_ins_foreign = (account_open['account_type']=='Tổ chức nước ngoài').sum()
+    close_ind_domestic = (account_close['account_type']=='Cá nhân trong nước').sum()
+    close_ins_domestic = (account_close['account_type']=='Tổ chức trong nước').sum()
+    close_ind_foreign = (account_close['account_type']=='Cá nhân nước ngoài').sum()
+    close_ins_foreign = (account_close['account_type']=='Tổ chức nước ngoài').sum()
+    open_total_domestic = open_ind_domestic+open_ins_domestic
+    open_total_foreign = open_ind_foreign+open_ins_foreign
+    close_total_domestic = close_ind_domestic+close_ins_domestic
+    close_total_foreign = close_ind_foreign+close_ins_foreign
+    open_total = open_total_domestic+open_total_foreign
+    close_total = close_total_domestic+close_total_foreign
+
+    # Dau ky
+    start_account_count = start_account.value_counts()
+    opening_ind_domestic = start_account_count.loc['Cá nhân trong nước']
+    opening_ins_domestic = start_account_count.loc['Tổ chức trong nước']
+    opening_ind_foreign = start_account_count.loc['Cá nhân nước ngoài']
+    opening_ins_foreign = start_account_count.loc['Tổ chức nước ngoài']
+
+    opening_total_domestic = opening_ind_domestic+opening_ins_domestic
+    opening_total_foreign = opening_ind_foreign+opening_ins_foreign
+    opening_total = opening_total_domestic+opening_total_foreign
+
+    # Cuoi ky
+    end_account_count = end_account.value_counts()
+    closing_ind_domestic = end_account_count.loc['Cá nhân trong nước']
+    closing_ins_domestic = end_account_count.loc['Tổ chức trong nước']
+    closing_ind_foreign = end_account_count.loc['Cá nhân nước ngoài']
+    closing_ins_foreign = end_account_count.loc['Tổ chức nước ngoài']
+
+    closing_totaL_domestic = closing_ind_domestic+closing_ins_domestic
+    closing_totaL_foreign = closing_ind_foreign+closing_ins_foreign
+    closing_total = closing_totaL_domestic+closing_totaL_foreign
 
     ###########################################################################
     ###########################################################################
@@ -410,7 +360,7 @@ def run(
             'font_size':12
         }
     )
-    sheet_tonghop = workbook.add_worksheet('Tổng hợp')
+    sheet_tonghop = workbook.add_worksheet('Tông hợp')
     sheet_tonghop.hide_gridlines(option=2)
 
     sheet_tonghop.set_column('A:A',8)
@@ -443,15 +393,58 @@ def run(
     sheet_tonghop.write_column('B13',['     Cá nhân','     Tổ chức'],normal_cell_format)
     sheet_tonghop.write_column('B16',['     Cá nhân','     Tổ chức'],normal_cell_format)
     sheet_tonghop.write('B18','Tổng cộng',header_cell_format)
-
-    cols = ['Start', 'Open', 'Close', 'End']
-    sheet_tonghop.write_row('C12', summary.loc[summary['Type'] == 'Trong nước', cols].squeeze(), header_value)
-    sheet_tonghop.write_row('C13', summary.loc[summary['Type'] == 'Cá nhân trong nước', cols].squeeze(), normal_value)
-    sheet_tonghop.write_row('C14', summary.loc[summary['Type'] == 'Tổ chức trong nước', cols].squeeze(), normal_value)
-    sheet_tonghop.write_row('C15', summary.loc[summary['Type'] == 'Nước ngoài', cols].squeeze(), header_value)
-    sheet_tonghop.write_row('C16', summary.loc[summary['Type'] == 'Cá nhân nước ngoài', cols].squeeze(), normal_value)
-    sheet_tonghop.write_row('C17', summary.loc[summary['Type'] == 'Tổ chức nước ngoài', cols].squeeze(), normal_value)
-    sheet_tonghop.write_row('C18', summary.loc[summary['Type'] == 'Tổng Cộng', cols].squeeze(), header_value)
+    closing_column = np.array(
+        [
+            closing_totaL_domestic,
+            closing_ind_domestic,
+            closing_ins_domestic,
+            closing_totaL_foreign,
+            closing_ind_foreign,
+            closing_ins_foreign,
+            closing_total,
+        ]
+    )
+    close_column = np.array(
+        [
+            close_total_domestic,
+            close_ind_domestic,
+            close_ins_domestic,
+            close_total_foreign,
+            close_ind_foreign,
+            close_ins_foreign,
+            close_total,
+        ]
+    )
+    open_column = np.array(
+        [
+            open_total_domestic,
+            open_ind_domestic,
+            open_ins_domestic,
+            open_total_foreign,
+            open_ind_foreign,
+            open_ins_foreign,
+            open_total,
+        ]
+    )
+    opening_column = np.array(
+        [
+            opening_total_domestic,
+            opening_ind_domestic,
+            opening_ins_domestic,
+            opening_total_foreign,
+            opening_ind_foreign,
+            opening_ins_foreign,
+            opening_total,
+        ]
+    )
+    value_array = np.array([opening_column,open_column,close_column,closing_column]).transpose()
+    for col in range(4):
+        for row in range(7):
+            if row in [0,3,6]:
+                fmt = header_value
+            else:
+                fmt = normal_value
+            sheet_tonghop.write(11+row,2+col,value_array[row,col],fmt)
 
     ###########################################################################
     ###########################################################################
@@ -541,10 +534,10 @@ def run(
     sheet_motaikhoan.write_row('A2',headers,header_format)
     header_num = [f'({i})' for i in np.arange(len(headers))+1]
     sheet_motaikhoan.write_row('A3',header_num,header_format)
-
-    sheet_motaikhoan.write_column('A4',account_open['no.'],text_center_format)
+    stt_column = [i for i in np.arange(0,account_open.shape[0])+1]
+    sheet_motaikhoan.write_column('A4',stt_column,text_center_format)
     sheet_motaikhoan.write_column('B4',account_open['customer_name'],text_left_format)
-    sheet_motaikhoan.write_column('C4',account_open['account_code'],text_center_format)
+    sheet_motaikhoan.write_column('C4',account_open.index,text_center_format)
     sheet_motaikhoan.write_column('D4',account_open['customer_id_number'],text_center_format)
     sheet_motaikhoan.write_column('E4',account_open['address'],text_left_format)
     sheet_motaikhoan.write_column('F4',account_open['date_of_issue'].map(convertNaTtoSpaceString),date_format)
@@ -641,10 +634,10 @@ def run(
     sheet_dongtaikhoan.write_row('A2',headers,header_format)
     header_num = [f'({i})' for i in np.arange(len(headers))+1]
     sheet_dongtaikhoan.write_row('A3',header_num,header_format)
-
-    sheet_dongtaikhoan.write_column('A4', account_close['no.'], text_center_format)
+    stt_column = [i for i in np.arange(0,account_close.shape[0])+1]
+    sheet_dongtaikhoan.write_column('A4',stt_column,text_center_format)
     sheet_dongtaikhoan.write_column('B4',account_close['customer_name'],text_left_format)
-    sheet_dongtaikhoan.write_column('C4', account_close['account_code'], text_center_format)
+    sheet_dongtaikhoan.write_column('C4',account_close.index,text_center_format)
     sheet_dongtaikhoan.write_column('D4',account_close['customer_id_number'],text_center_format)
     sheet_dongtaikhoan.write_column('E4',account_close['address'],text_left_format)
     sheet_dongtaikhoan.write_column('F4',account_close['date_of_issue'].map(convertNaTtoSpaceString),date_format)
@@ -754,19 +747,51 @@ def run(
         [f'({i})' for i in np.arange(16)+1],  # cong them 2 cot ghi chu
         header_format,
     )
-    sheet_thaydoithongtin.write_column('A5', customer_information_change['no.'], text_center_format)
+    sheet_thaydoithongtin.write_column(
+        'A5',
+        [f'({i})' for i in np.arange(customer_information_change.shape[0])+1],
+        text_center_format,
+    )
     sheet_thaydoithongtin.write_column(
         'B5',
         customer_information_change['customer_name'],
         text_left_format,
     )
-    sheet_thaydoithongtin.write_column('C5', customer_information_change['account_code'], text_center_format)
-    sheet_thaydoithongtin.write_column('D5', customer_information_change['date_of_change'], date_format)
-    sheet_thaydoithongtin.write_column('E5', customer_information_change['old_id_number'], text_center_format)
-    sheet_thaydoithongtin.write_column('F5', customer_information_change['old_date_of_issue'], date_format)
-    sheet_thaydoithongtin.write_column('G5', customer_information_change['old_place_of_issue'], text_center_format)
-    sheet_thaydoithongtin.write_column('H5', customer_information_change['new_id_number'], text_center_format)
-    sheet_thaydoithongtin.write_column('I5', customer_information_change['new_date_of_issue'], date_format)
+    sheet_thaydoithongtin.write_column(
+        'C5',
+        customer_information_change.index,
+        text_center_format,
+    )
+    sheet_thaydoithongtin.write_column(
+        'D5',
+        customer_information_change['date_of_change'].map(convertNaTtoSpaceString),
+        date_format,
+    )
+    sheet_thaydoithongtin.write_column(
+        'E5',
+        customer_information_change['old_id_number'].map(convertNaTtoSpaceString),
+        text_center_format,
+    )
+    sheet_thaydoithongtin.write_column(
+        'F5',
+        customer_information_change['old_date_of_issue'].map(convertNaTtoSpaceString),
+        date_format,
+    )
+    sheet_thaydoithongtin.write_column(
+        'G5',
+        customer_information_change['old_place_of_issue'],
+        text_center_format,
+    )
+    sheet_thaydoithongtin.write_column(
+        'H5',
+        customer_information_change['new_id_number'],
+        text_center_format,
+    )
+    sheet_thaydoithongtin.write_column(
+        'I5',
+        customer_information_change['new_date_of_issue'].map(convertNaTtoSpaceString),
+        date_format,
+    )
     sheet_thaydoithongtin.write_column(
         'J5',
         customer_information_change['new_place_of_issue'],
@@ -792,8 +817,16 @@ def run(
         customer_information_change['new_nationality'],
         text_center_format,
     )
-    sheet_thaydoithongtin.write_column('O5', customer_information_change['old_note'], text_left_format)
-    sheet_thaydoithongtin.write_column('P5', customer_information_change['new_note'], text_left_format)
+    sheet_thaydoithongtin.write_column(
+        'O5',
+        ['']*customer_information_change.shape[0],
+        text_left_format,
+    )
+    sheet_thaydoithongtin.write_column(
+        'P5',
+        ['']*customer_information_change.shape[0],
+        text_left_format,
+    )
 
     ###########################################################################
     ###########################################################################
@@ -911,10 +944,11 @@ def run(
         'Địa chỉ người nhận UQ',
         'Phạm vi uỷ quyền',
     ]
-    sheet_uyquyen.write_row('A2', headers, header_format)
-    sheet_uyquyen.write_row('A3', [f'({i})' for i in np.arange(len(headers)) + 1], header_format)
+    authorization['date_of_authorization'] = authorization['date_of_authorization'].map(convertNaTtoSpaceString)
+    sheet_uyquyen.write_row('A2',headers,header_format)
+    sheet_uyquyen.write_row('A3',[f'({i})' for i in np.arange(len(headers))+1],header_format)
     for row in range(authorization.shape[0]):
-        ticker = authorization.iloc[row, authorization.columns.get_loc('account_code')]
+        ticker = authorization.index[row]
         if ticker in highlight_account.values:
             fmt1 = text_highlight_center_format
             fmt2 = text_highlight_left_format
@@ -924,15 +958,20 @@ def run(
             fmt2 = text_left_format
             fmt3 = date_format
         sheet_uyquyen.write(row+3,0,row+1,fmt1)
-        sheet_uyquyen.write(row+3,1,authorization.iloc[row,authorization.columns.get_loc('authorizing_person_name')],fmt2)
-        sheet_uyquyen.write(row+3,2,authorization.iloc[row,authorization.columns.get_loc('account_code')],fmt1)
+        sheet_uyquyen.write(row+3,1,authorization.iloc[row,authorization.columns.get_loc('authorizing_person_name')],
+                            fmt2)
+        sheet_uyquyen.write(row+3,2,authorization.index[row],fmt1)
         sheet_uyquyen.write(row+3,3,authorization.iloc[row,authorization.columns.get_loc('authorizing_person_id')],fmt1)
-        sheet_uyquyen.write(row+3,4,authorization.iloc[row,authorization.columns.get_loc('authorizing_person_address')],fmt2)
+        sheet_uyquyen.write(row+3,4,authorization.iloc[row,authorization.columns.get_loc('authorizing_person_address')],
+                            fmt2)
         sheet_uyquyen.write(row+3,5,authorization.iloc[row,authorization.columns.get_loc('date_of_authorization')],fmt3)
-        sheet_uyquyen.write(row+3,6,authorization.iloc[row, authorization.columns.get_loc('authorized_person_name')],fmt1)
+        sheet_uyquyen.write(row+3,6,authorization.iloc[row,authorization.columns.get_loc('authorized_person_name')],
+                            fmt1)
         sheet_uyquyen.write(row+3,7,authorization.iloc[row,authorization.columns.get_loc('authorized_person_id')],fmt1)
-        sheet_uyquyen.write(row+3,8,authorization.iloc[row,authorization.columns.get_loc('authorized_person_address')],fmt2)
-        sheet_uyquyen.write(row+3,9,authorization.iloc[row,authorization.columns.get_loc('scope_of_authorization')],fmt1)
+        sheet_uyquyen.write(row+3,8,authorization.iloc[row,authorization.columns.get_loc('authorized_person_address')],
+                            fmt2)
+        sheet_uyquyen.write(row+3,9,authorization.iloc[row,authorization.columns.get_loc('scope_of_authorization')],
+                            fmt1)
 
     ###########################################################################
     ###########################################################################
@@ -1040,24 +1079,29 @@ def run(
     ]
     sheet_thaydoiuyquyen.write_row('I3',sub_header,header_format)
     sheet_thaydoiuyquyen.write_row('A4',[f'({i})' for i in np.arange(16)+1],header_format)
-    sheet_thaydoiuyquyen.write_column('A5',authorization_change['no.'], text_center_format)
+    sheet_thaydoiuyquyen.write_column('A5',np.arange(authorization_change.shape[0])+1,text_center_format)
     sheet_thaydoiuyquyen.write_column('B5',authorization_change['authorizing_person_name'],text_left_format)
-    sheet_thaydoiuyquyen.write_column('C5',authorization_change['account_code'],text_center_format)
+    sheet_thaydoiuyquyen.write_column('C5',authorization_change.index,text_center_format)
     sheet_thaydoiuyquyen.write_column('D5',authorization_change['authorizing_person_id'],text_left_format)
-    sheet_thaydoiuyquyen.write_column('E5',authorization_change['date_of_authorization'],date_format)
+    sheet_thaydoiuyquyen.write_column('E5',authorization_change['date_of_authorization'].map(convertNaTtoSpaceString),
+                                      date_format)
     sheet_thaydoiuyquyen.write_column('F5',authorization_change['authorized_person_name'],text_center_format)
-    sheet_thaydoiuyquyen.write_column('G5',authorization_change['date_of_termination'],date_format)
-    sheet_thaydoiuyquyen.write_column('H5',authorization_change['date_of_change'],date_format)
+    sheet_thaydoiuyquyen.write_column('G5',authorization_change['date_of_termination'].map(convertNaTtoSpaceString),
+                                      date_format)
+    sheet_thaydoiuyquyen.write_column('H5',authorization_change['date_of_change'].map(convertNaTtoSpaceString),
+                                      date_format)
     sheet_thaydoiuyquyen.write_column('I5',authorization_change['old_authorized_person_id'],text_center_format)
     sheet_thaydoiuyquyen.write_column('J5',authorization_change['new_authorized_person_id'],text_center_format)
     sheet_thaydoiuyquyen.write_column('K5',authorization_change['old_authorized_person_address'],text_center_format)
     sheet_thaydoiuyquyen.write_column('L5',authorization_change['new_authorized_person_address'],text_center_format)
     sheet_thaydoiuyquyen.write_column('M5',authorization_change['old_scope_of_authorization'],text_center_format)
     sheet_thaydoiuyquyen.write_column('N5',authorization_change['new_scope_of_authorization'],text_center_format)
-    sheet_thaydoiuyquyen.write_column('O5',authorization_change['old_end_date'],date_format)
-    sheet_thaydoiuyquyen.write_column('P5',authorization_change['new_end_date'],date_format)
+    sheet_thaydoiuyquyen.write_column('O5',authorization_change['old_end_date'].map(convertNaTtoSpaceString),
+                                      date_format)
+    sheet_thaydoiuyquyen.write_column('P5',authorization_change['new_end_date'].map(convertNaTtoSpaceString),
+                                      date_format)
 
-    row_of_signature = 3 + authorization_change.shape[0] + 2
+    row_of_signature = 3+authorization_change.shape[0]+2
     sheet_thaydoiuyquyen.set_row(row_of_signature-1,55)
     sheet_thaydoiuyquyen.set_row(row_of_signature+2,80)
     sheet_thaydoiuyquyen.merge_range(row_of_signature,1,row_of_signature,4,'Người lập',signature_format)

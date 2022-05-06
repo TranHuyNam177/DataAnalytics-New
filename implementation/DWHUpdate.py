@@ -23,7 +23,11 @@ def DWHCoSo_InternetBanking(bank):
     from datawarehouse.DWH_CoSo import InternetBanking
     import datetime as dt
     today = dt.datetime.today()
-    InternetBanking.run(bank,today-dt.timedelta(days=1),today-dt.timedelta(days=1))
+    if today.hour >= 12: # chạy buổi tối (gửi mail CAPTCHA đến hiepdang@phs.vn -> debug mode ON)
+        debug = True
+    else: # chạy sáng sớm (gửi mail CAPTCHA đến all -> debug mode OFF)
+        debug = False
+    InternetBanking.run(bank,today-dt.timedelta(days=1),today-dt.timedelta(days=1),debug)
 
 @TaskMonitor
 def DWH_PhaiSinh_Update_Today():
@@ -49,9 +53,9 @@ def DWH_ThiTruong_Update_DanhSachMa():
 
 @TaskMonitor
 def DWHThiTruongUpdate_DuLieuGiaoDichNgay():
-    from datawarehouse.DWH_ThiTruong.DuLieuGiaoDichNgay import update as Update_DuLieuGiaoDichNgay
+    from datawarehouse.DWH_ThiTruong.DuLieuGiaoDichNgay import run as Update_DuLieuGiaoDichNgay
     import datetime as dt
-    today = dt.datetime.now()
+    today = dt.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0)
     Update_DuLieuGiaoDichNgay(today,today)
 
 @TaskMonitor

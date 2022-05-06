@@ -58,6 +58,8 @@ def DROP_DUPLICATES(
     This function DELETE duplicates values from [db].[table] given a list of columns
     on which we check for duplicates
 
+    (Hàm này có downside là không biết nó DELETE dòng nào trong các dòng trùng)
+
     :param conn: connection object of the Database
     :param table: name of the table in the Database
     :param columns: columns to check for duplicates
@@ -107,3 +109,62 @@ def EXEC(
     cursor.close()
 
 
+def BDATE(
+    date:str,
+    bdays:int=0
+) -> str:
+
+    """
+    This function return the business date before/after a certain business days
+    since a given date
+
+    :param date: allow string like 'yyyy-mm-dd', 'yyyy/mm/dd'
+    :param bdays: allow positive integer (after) or negative integer (before)
+
+    :return: string of type 'yyyy-mm-dd'
+    """
+
+    dateType = pd.read_sql(
+        f"""
+        SELECT [t].[Work]
+        FROM [Date] [t]
+        WHERE [t].[Date] = '{date}'
+        """,
+        connect_DWH_CoSo,
+    ).squeeze()
+
+    if dateType: # Ngày làm việc
+        top = abs(bdays) + 1
+    else: # Ngày nghỉ
+        top = abs(bdays)
+
+    if bdays < 0:
+        return pd.read_sql(
+            f"""
+            WITH [FullTable] AS (
+                SELECT TOP {top} [t].[Date]
+                FROM [Date] [t]
+                WHERE [t].[Work] = 1 AND [t].[Date] <= '{date}'
+                ORDER BY [t].[Date] DESC
+            )
+            SELECT MIN([FullTable].[Date])
+            FROM [FullTable]
+            """,
+            connect_DWH_CoSo,
+        ).squeeze().strftime('%Y-%m-%d')
+    elif bdays > 0:
+        return pd.read_sql(
+            f"""
+            WITH [FullTable] AS (
+                SELECT TOP {top} [t].[Date]
+                FROM [Date] [t]
+                WHERE [t].[Work] = 1 AND [t].[Date] >= '{date}'
+                ORDER BY [t].[Date] ASC
+            )
+            SELECT MAX([FullTable].[Date])
+            FROM [FullTable]
+            """,
+            connect_DWH_CoSo,
+        ).squeeze().strftime('%Y-%m-%d')
+    else:
+        return f'{date[:4]}-{date[5:7]}-{date[-2:]}'
