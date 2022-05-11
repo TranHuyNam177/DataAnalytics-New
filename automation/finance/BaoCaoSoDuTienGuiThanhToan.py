@@ -33,6 +33,7 @@ def run(  # chạy hàng ngày
         """,
         connect_DWH_CoSo
     )
+    table['Balance'] = table['Balance'].fillna(0)
 
     ###################################################
     ###################################################
@@ -151,7 +152,7 @@ def run(  # chạy hàng ngày
     sheet_title_name = 'CURRENT ACCOUNT BALANCE'
     sub_title_name = f'Date {file_date}'
 
-    worksheet = workbook.add_worksheet(f'{period}')
+    worksheet = workbook.add_worksheet(f'CurrentAccountBalance')
     worksheet.hide_gridlines(option=2)
     worksheet.insert_image('A1',join(dirname(__file__),'img','phs_logo.png'),{'x_scale':0.66,'y_scale':0.71})
 

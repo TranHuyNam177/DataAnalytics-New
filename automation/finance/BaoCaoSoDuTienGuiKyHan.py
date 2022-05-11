@@ -183,7 +183,7 @@ def run(  # chạy hàng ngày
     sheet_title_name = 'DEPOSIT ACCOUNT BALANCE'
     sub_title_name = f'Date {file_date}'
 
-    worksheet = workbook.add_worksheet(f'{period}')
+    worksheet = workbook.add_worksheet(f'DepositAccountBalance')
     worksheet.hide_gridlines(option=2)
     worksheet.insert_image('A1',join(dirname(__file__),'img','phs_logo.png'),{'x_scale':0.66,'y_scale':0.71})
 

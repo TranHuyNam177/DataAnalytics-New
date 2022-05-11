@@ -1,5 +1,5 @@
 from datawarehouse import *
-from automation.finance import getBankData
+from automation.finance import BankCurrentBalance
 
 def check(bank):
 

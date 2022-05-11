@@ -1,6 +1,8 @@
 from datawarehouse import *
-from automation.finance import getBankData
-
+from automation.finance import *
+from automation.finance import BankCurrentBalance
+from automation.finance import BankDepositBalance
+from automation.finance import BankTransactionHistory
 
 class BankFailedException(Exception):
     pass
@@ -8,14 +10,13 @@ class BankFailedException(Exception):
 def GetDataMonitor(func):
 
     def wrapper(*args,**kwargs):
-        bank = args[0]
-        run_date = args[1].strftime('%d.%m.%Y')
+        bank = args[0].bank
         outlook = Dispatch('outlook.application')
         mail = outlook.CreateItem(0)
         mail.To = 'hiepdang@phs.vn'
         try:
-            func(*args,**kwargs)
-            mail.Subject = f"BankCurrentBalance.{bank} for {run_date} Done"
+            bankObject = func(*args,**kwargs)
+            mail.Subject = f"{func.__name__}.{bank} Done"
             body = f"""
                 <html>
                     <head></head>
@@ -29,7 +30,7 @@ def GetDataMonitor(func):
             mail.HTMLBody = body
             mail.Send()
         except (Exception,):
-            mail.Subject = f"BankCurrentBalance.{bank} for {run_date} Failed"
+            mail.Subject = f"BankCurrentBalance.{bank} Failed"
             traceback_message = traceback.format_exc()
             body = f"""
                 <html>
@@ -46,41 +47,85 @@ def GetDataMonitor(func):
                 """
             mail.HTMLBody = body
             mail.Send()
-            raise BankFailedException(f"{bank} failed on {run_date}")
-
+            raise BankFailedException(f"{bank} Failed")
+        return bankObject
     return wrapper
 
 
 @GetDataMonitor
-def run(bank,fromDate,toDate,debug=True):
+def runBankCurrentBalance(bankObject,fromDate,toDate):
+    """
+    :param bankObject: Bank name
+    :param fromDate: Ngày bắt đầu lấy dữ liệu
+    :param toDate: Ngày kết thúc lấy dữ liệu
+    """
 
-    if bank == 'BIDV':
-        bankObject = getBankData.BIDV(fromDate,toDate,debug).Login()
-    elif bank == 'EIB':
-        bankObject = getBankData.EIB(fromDate,toDate,debug).Login()
-    elif bank == 'IVB':
-        bankObject = getBankData.IVB(fromDate,toDate,debug).Login()
-    elif bank == 'VTB':
-        bankObject = getBankData.VTB(fromDate,toDate,debug).Login()
-    elif bank == 'VCB':
-        bankObject = getBankData.VCB(fromDate,toDate,debug).Login()
-    elif bank == 'OCB':
-        bankObject = getBankData.OCB(fromDate,toDate,debug).Login()
+    if bankObject.bank == 'BIDV':
+        balanceTable = BankCurrentBalance.runBIDV(bankObject,fromDate,toDate)
+    elif bankObject.bank == 'EIB':
+        balanceTable = BankCurrentBalance.runEIB(bankObject,fromDate,toDate)
+    elif bankObject.bank == 'IVB':
+        balanceTable = BankCurrentBalance.runIVB(bankObject,fromDate,toDate)
+    elif bankObject.bank == 'VTB':
+        balanceTable = BankCurrentBalance.runVTB(bankObject,fromDate,toDate)
+    elif bankObject.bank == 'VCB':
+        balanceTable = BankCurrentBalance.runVCB(bankObject,fromDate,toDate)
+    elif bankObject.bank == 'OCB':
+        balanceTable = BankCurrentBalance.runOCB(bankObject,fromDate,toDate)
+    elif bankObject.bank == 'TCB':
+        balanceTable = BankCurrentBalance.runTCB(bankObject,fromDate,toDate)
     else:
-        raise ValueError(f'Invalid bank name: {bank}')
+        raise ValueError(f'Invalid bank name: {bankObject.bank}')
 
-    zipObject = zip(
-        [bankObject.TienGuiThanhToan,bankObject.TienGuiKyHan],
-        ['BankCurrentBalance','BankDepositBalance'],
-        [['Date','Bank','AccountNumber','Currency'],['Date','Bank','AccountNumber','IssueDate','ExpireDate','Currency']]
-    )
-    for func, dwhTable, checkCols in zipObject:
-        print(func.__name__)
-        bankObject, balanceTable = func()
-        fromDateString = fromDate.strftime('%Y-%m-%d')
-        toDateString = toDate.strftime('%Y-%m-%d')
-        DELETE(connect_DWH_CoSo,dwhTable,'W')
-        DELETE(connect_DWH_CoSo,dwhTable,f"""WHERE [Date] BETWEEN '{fromDateString}' AND '{toDateString}' AND [Bank] = '{bank}'""")
-        INSERT(connect_DWH_CoSo,dwhTable,balanceTable)
+    fromDateString = fromDate.strftime('%Y-%m-%d')
+    toDateString = toDate.strftime('%Y-%m-%d')
+    DELETE(connect_DWH_CoSo,'BankCurrentBalance',f"""WHERE [Date] BETWEEN '{fromDateString}' AND '{toDateString}' AND [Bank] = '{bankObject.bank}'""")
+    INSERT(connect_DWH_CoSo,'BankCurrentBalance',balanceTable)
 
-    del bankObject # destroy the object to close opening Chrome driver (call __del__ magic method)
+    return bankObject # destroy the object to close opening Chrome driver (call __del__ magic method)
+
+@GetDataMonitor
+def runBankDepositBalance(bankObject):
+    """
+    :param bankObject: Bank Object (đã login)
+    """
+
+    if bankObject.bank == 'BIDV':
+        balanceTable = BankDepositBalance.runBIDV(bankObject)
+    elif bankObject.bank == 'IVB':
+        balanceTable = BankDepositBalance.runIVB(bankObject)
+    elif bankObject.bank == 'VTB':
+        balanceTable = BankDepositBalance.runVTB(bankObject)
+    elif bankObject.bank == 'VCB':
+        balanceTable = BankDepositBalance.runVCB(bankObject)
+    elif bankObject.bank == 'OCB':
+        balanceTable = BankDepositBalance.runOCB(bankObject)
+    else:
+        raise ValueError(f'Invalid bank name: {bankObject.bank}')
+
+    dateString = balanceTable['Date'].max().strftime('%Y-%m-%d')
+    DELETE(connect_DWH_CoSo,'BankDepositBalance',f"""WHERE [Date] = '{dateString}' AND [Bank] = '{bankObject.bank}'""")
+    INSERT(connect_DWH_CoSo,'BankDepositBalance',balanceTable)
+
+    return bankObject
+
+@GetDataMonitor
+def runBankTransactionHistory(bankObject,fromDate,toDate,cBankAccountsOnly):
+    """
+    :param bankObject: Bank Object (đã login)
+    :param fromDate: Ngày bắt đầu lấy dữ liệu
+    :param toDate: Ngày kết thúc lấy dữ liệu
+    :param cBankAccountsOnly: Chỉ lấy các tài khoản giao dịch với KH
+    """
+
+    if bankObject.bank == 'BIDV':
+        balanceTable = BankTransactionHistory.runBIDV(bankObject,fromDate,toDate,cBankAccountsOnly)
+    else:
+        raise ValueError(f'Invalid bank name: {bankObject.bank}')
+    fromTimeString = fromDate.strftime('%Y-%m-%d 00:00:00')
+    toTimeString = toDate.strftime('%Y-%m-%d 23:59:59')
+    DELETE(connect_DWH_CoSo,'BankTransactionHistory',f"""WHERE [Time] BETWEEN '{fromTimeString}' AND '{toTimeString}' AND [Bank] = '{bankObject.bank}'""")
+    INSERT(connect_DWH_CoSo,'BankTransactionHistory',balanceTable)
+
+    return bankObject
+
