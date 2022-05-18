@@ -512,7 +512,7 @@ class hose:
                                 'Thời gian': [t],
                                 'Tiêu đề': [sub_title],
                                 'Nội dung': paragraph,
-                                'Link': sub_pdfs
+                                'File đính kèm': sub_pdfs
                             },
                             index=[0],
                         )

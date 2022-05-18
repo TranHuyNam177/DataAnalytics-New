@@ -20,27 +20,3 @@ def UPDATEBACKDATE(
     """
 
     EXEC(connect_DWH_PhaiSinh,'spRunPhaiSinhBack',Ngaylui=days)
-
-
-def CHECKBATCH() -> bool:
-
-    """
-    This function EXEC spbatch to see if batch job finishes.
-    Return True if batch finishes, False if not finishes
-
-    """
-
-    todayString = dt.datetime.now().strftime('%Y-%m-%d')
-    EXEC(connect_DWH_PhaiSinh,'spbatch',FrDate=todayString,ToDate=todayString)
-    batchTable = pd.read_sql(
-        f"""
-        SELECT * FROM [batch] WHERE [batch].[date] = '{todayString}'
-        """,
-        connect_DWH_PhaiSinh,
-    )
-
-    if batchTable.shape[0] == 0:
-        return False
-    else:
-        return True
-

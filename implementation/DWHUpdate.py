@@ -24,9 +24,11 @@ def DWHCoSo_InternetBanking_EOD(bank,func='all'):
     from datawarehouse.DWH_CoSo import InternetBanking
     from automation.finance import BIDV,EIB,IVB,VTB,VCB,OCB,TCB
     import datetime as dt
+    now = dt.datetime.now()
+    hour = now.hour
     today = dt.datetime.today().replace(hour=0,minute=0,second=0,microsecond=0)
 
-    if today.hour >= 12: # chạy buổi tối (gửi mail CAPTCHA đến hiepdang@phs.vn -> debug mode ON)
+    if hour >= 12: # chạy buổi tối (gửi mail CAPTCHA đến hiepdang@phs.vn -> debug mode ON)
         dataDate = today
         debug = True
     else: # chạy sáng sớm (gửi mail CAPTCHA đến all -> debug mode OFF)

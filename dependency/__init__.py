@@ -82,12 +82,16 @@ pytesseract.pytesseract.tesseract_cmd = join(dirname(__file__),'tesseract','tess
 ###############################################################################
 
 import base64
+import struct
+import calendar
 
 ###############################################################################
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import NoSuchFrameException
+from selenium.common.exceptions import NoSuchWindowException
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.common.exceptions import TimeoutException

@@ -118,8 +118,8 @@ def get_bank_authentication(
     resultDict = dict()
     with open(fr'C:\Users\hiepdang\Desktop\Passwords\Bank\{bank}.txt') as file:
         if bank in ['BIDV','IVB','VCB','VTB','EIB','OCB','TCB']:
-            resultDict['user'], resultDict['password'], resultDict['URL'] = file.readlines()
             resultDict['id'] = ''
+            resultDict['user'], resultDict['password'], resultDict['URL'] = file.readlines()
         elif bank in ['FUBON','SCSB','FIRST','MEGA','SINOPAC','ESUN']:
             resultDict['id'], resultDict['user'], resultDict['password'], resultDict['URL'] = file.readlines()
         else:
@@ -155,7 +155,7 @@ class Base:
         self.id = infoDict['id']
         self.user = infoDict['user']
         self.password = infoDict['password']
-        self.ULR = infoDict['URL']
+        self.URL = infoDict['URL']
         self.downloadFolder = r'C:\Users\hiepdang\Downloads'
 
         self.cBankAccounts = {
@@ -174,7 +174,6 @@ class Base:
 
         """
         This function get CAPTCHA image and send it to mail for user input
-
         :param captcha_element: Selenium's Web Driver of CAPTCHA image
         """
 
@@ -184,6 +183,12 @@ class Base:
             regexPattern = '^[0-9A-Za-z]{6}$'
         elif self.bank == 'VCB':
             regexPattern = '^[0-9A-Z]{6}$'
+        elif self.bank == 'SCSB':
+            regexPattern = '^[0-9]{5}$'
+        elif self.bank == 'FIRST':
+            regexPattern = '^[0-9]{5}$'
+        elif self.bank == 'SINOPAC':
+            regexPattern = '^[0-9A-Z]{5}$'
         else:
             raise ValueError('Invalid Bank Name')
 
@@ -583,16 +588,15 @@ class TCB(Base):
 
         return self
 
-
 class FUBON(Base):
 
     def __init__(self,debug=True):
-        super().__init__('TCB',debug)
+        super().__init__('FUBON',debug)
         self.driver = None
         self.wait = None
 
     def __repr__(self):
-        return f'<BankObject_TCB>'
+        return f'<BankObject_FUBON>'
 
     def __del__(self):
         self.driver.quit()
@@ -604,3 +608,408 @@ class FUBON(Base):
         self.driver.maximize_window()
         self.driver.get(self.URL)
         self.wait = WebDriverWait(self.driver,30,ignored_exceptions=self.ignored_exceptions)
+        # Switch frame
+        self.driver.switch_to.frame(0)
+        # Customer Code
+        xpath = '//*[contains(text(),"Customer Code")]/../*/input'
+        idInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        idInput.clear()
+        idInput.send_keys(self.id)
+        # User Code
+        xpath = '//*[contains(text(),"User Code")]/../*/input'
+        userInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        userInput.clear()
+        userInput.send_keys(self.user)
+        # Password
+        xpath = '//*[contains(text(),"Password")]/../*/input'
+        passwordInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        passwordInput.clear()
+        passwordInput.send_keys(self.password)
+        # Click "Submit"
+        xpath = '//*[@value="Submit"]'
+        self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+
+        return self
+
+class SCSB(Base):
+
+    def __init__(self,debug=True):
+        super().__init__('SCSB',debug)
+        self.driver = None
+        self.wait = None
+
+    def __repr__(self):
+        return f'<BankObject_SCSB>'
+
+    def __del__(self):
+        self.driver.quit()
+        print('Destructor: Chrome Driver has quit')
+
+    def Login(self):
+
+        self.driver = webdriver.Chrome(executable_path=self.PATH)
+        self.driver.maximize_window()
+        self.driver.get(self.URL)
+        self.wait = WebDriverWait(self.driver,30,ignored_exceptions=self.ignored_exceptions)
+
+        # Switch frame
+        self.driver.switch_to.frame(1)
+
+        def firstGO(CAPTCHA):
+            """
+            Procedure login màn hình đầu tiên với CAPTCHA cho trước
+            """
+            # Nhập CAPTCHA
+            xpath = '//*[@id="cpatchaTextBox"]'
+            captchaInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            captchaInput.clear()
+            captchaInput.send_keys(CAPTCHA)
+            # User ID
+            xpath = '//*[@id="userID"]'
+            idInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            idInput.clear()
+            idInput.send_keys(self.id)
+            # Username
+            xpath = '//*[@name="loginUID"]'
+            userInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            userInput.clear()
+            userInput.send_keys(self.user)
+            # Click Đăng nhập
+            xpath = '//*[@value="Submit"]'
+            self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+
+        def secondGO():
+            """
+            Procedure login màn hình thứ hai với CAPTCHA cho trước
+            """
+            # Điền password
+            xpath = '//*[@name="password"]'
+            passwordInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            passwordInput.clear()
+            passwordInput.send_keys(self.password)
+            # Click đăng nhập
+            self.wait.until(EC.presence_of_element_located((By.XPATH,'//*[@value="Submit"]'))).click()
+
+        # CAPTCHA
+        while True:
+            xpath = '//*[@id="captcha"]'
+            CAPTCHA = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            imgPATH = join(dirname(__file__),'CAPTCHA',f'{self.bank}.png')
+            CAPTCHA.screenshot(imgPATH)  # download CAPTCHA về dưới dạng .png
+            predictedCAPTCHA = re.sub('[^0-9]','',pytesseract.image_to_string(imgPATH))
+            print(predictedCAPTCHA)
+            condition = len(predictedCAPTCHA) == 5
+            if condition: # case không cần refresh
+                break
+            self.wait.until(EC.presence_of_element_located((By.XPATH,'//*[@name="Image40"]'))).click() # case cần refresh
+
+        firstGO(predictedCAPTCHA)
+
+        # Check xem CAPTCHA đúng chưa, nếu chưa đúng -> gửi mail đọc CAPTCHA bằng tay
+        try:
+            self.driver.switch_to.alert.accept()
+            # Màn hình login đầu tiên thất bại -> gửi mail, đọc CAPTCHA từ mail
+            xpath = '//*[@id="captcha"]'
+            captchaElement = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            imgPATH = join(dirname(__file__),'CAPTCHA',f'{self.bank}.png')
+            captchaElement.screenshot(imgPATH)  # download CAPTCHA về dưới dạng .png
+            manualCAPTCHA = self.__GetCaptchaFromMail__(captchaElement)
+            firstGO(manualCAPTCHA)
+            secondGO()
+        except (selenium.common.exceptions.NoAlertPresentException,): # Màn hình login đầu tiên thành công
+            secondGO()
+
+        return self
+
+class FIRST(Base):
+
+    def __init__(self,debug=True):
+        super().__init__('FIRST',debug)
+        self.driver = None
+        self.wait = None
+
+    def __repr__(self):
+        return f'<BankObject_FIRST>'
+
+    def __del__(self):
+        self.driver.quit()
+        print('Destructor: Chrome Driver has quit')
+
+    def Login(self):
+
+        self.driver = webdriver.Chrome(executable_path=self.PATH)
+        self.driver.maximize_window()
+        self.driver.get(self.URL)
+        self.wait = WebDriverWait(self.driver,30,ignored_exceptions=self.ignored_exceptions)
+
+        # Chờ để các frame xuất hiện
+        time.sleep(3)
+        # Chuyển frame
+        self.driver.switch_to.frame("iFrameID")
+        # Click "Overseas Branch User"
+        xpath = '//*[@class="login"]/*[@id="tabs"]/li[2]'
+        self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        # Chọn chi nhánh Ho Chi Minh
+        xpath = '//*[@id="form:branchCombo_label"]'
+        dropDownList = self.driver.find_element(By.XPATH,xpath)
+        dropDownList.click()
+        xpath = '//*[@data-label="Ho Chi Minh City Branch - 920"]'
+        self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+
+        def GO(CAPTCHA):
+            # ID
+            xpath = '//*[@id="form:custId"]'
+            idInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            idInput.clear()
+            idInput.send_keys(self.id)
+            # Usernam
+            xpath = '//*[@id="form:userUuid"]'
+            userInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            userInput.clear()
+            userInput.send_keys(self.user)
+            # Password
+            xpath = '//*[@id="form:pwd"]'
+            passwordInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            passwordInput.clear()
+            passwordInput.send_keys(self.password)
+            # CAPTCHA
+            xpath= '//*[@id="form:verifyCode"]'
+            captchaInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            captchaInput.clear()
+            captchaInput.send_keys(CAPTCHA)
+            # Click login
+            xpath = '//*[@id="form:submitLoginBtn"]'
+            self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+
+        # CAPTCHA
+        while True:
+            xpath = '//*[@id="captchaImg1"]'
+            captchaElement = self.wait.until(EC.visibility_of_element_located((By.XPATH,xpath)))
+            imgPATH = join(realpath(dirname(__file__)),'CAPTCHA',f'{self.bank}.png')
+            captchaElement.screenshot(imgPATH)  # download CAPTCHA về dưới dạng .png
+            image = cv2.imread(imgPATH)
+            image = image[:,5:100,:] # crop image
+            cv2.imwrite(imgPATH,image)
+            tor = 0.05 # tolerance level
+            correctRGB = (0,88,61)
+            blueMatch = (correctRGB[2]*(1-tor)<=image[:,:,0]) & (image[:,:,0]<=correctRGB[2]*(1+tor))
+            greenMatch = (correctRGB[1]*(1-tor)<=image[:,:,1]) & (image[:,:,1]<=correctRGB[1]*(1+tor))
+            redMatch = (correctRGB[0]*(1-tor)<=image[:,:,2]) & (image[:,:,2]<=correctRGB[0]*(1+tor))
+            rgbMatch = redMatch & greenMatch & blueMatch
+            imageArray = np.stack([rgbMatch,rgbMatch,rgbMatch],axis=2)
+            imageArray = imageArray.astype(np.uint8)
+            imageArray *= 255
+            outputTable = pytesseract.pytesseract.image_to_data(
+                imageArray,
+                output_type='data.frame',
+                pandas_config={'dtype':{'text':str}}
+            )
+            outputTable = outputTable.loc[outputTable['conf']!=-1]
+            outputSeries = outputTable.loc[outputTable.index[-1],['conf','text']]
+            confidenceLevel = outputSeries['conf']
+            predictedCAPTCHA = re.sub('[^0-9]','',outputSeries['text'])
+            condition1 = confidenceLevel >= 90 # confidence level >= 90%
+            condition2 = len(predictedCAPTCHA) == 5
+            if condition1 and condition2: # case không cần refresh
+                break
+            else: # case cần refresh
+                xpath = '//*[@class="refresh"]'
+                self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+
+        GO(predictedCAPTCHA)
+
+        # Check xem đọc CAPTCHA đúng chưa
+        time.sleep(3)
+        self.driver.switch_to.frame(0)
+        xpath = '//*[contains(text(),"please try again")]'
+        errorMessage = self.driver.find_elements(By.XPATH,xpath)
+        if errorMessage: # Nếu đọc sai CAPTCHA
+            # Đóng pop-up báo lỗi
+            xpath = '//*[@id="form:j_idt13"]'
+            self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+            while True:
+                try:
+                    self.driver.switch_to.frame(0)
+                    break
+                except (NoSuchFrameException,NoSuchWindowException):
+                    time.sleep(0.5)
+            # Lấy hình ảnh + gửi mail
+            xpath = '//*[@id="captchaImg1"]'
+            captchaElement = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            manualCAPTCHA = self.__GetCaptchaFromMail__(captchaElement)
+            GO(manualCAPTCHA)
+
+        return self
+
+class MEGA(Base):
+
+    def __init__(self,debug=True):
+        super().__init__('MEGA',debug)
+        self.driver = None
+        self.wait = None
+
+    def __repr__(self):
+        return f'<BankObject_MEGA>'
+
+    def __del__(self):
+        self.driver.quit()
+        print('Destructor: Chrome Driver has quit')
+
+    def Login(self):
+
+        self.driver = webdriver.Chrome(executable_path=self.PATH)
+        self.driver.maximize_window()
+        self.driver.get(self.URL)
+        self.wait = WebDriverWait(self.driver,30,ignored_exceptions=self.ignored_exceptions)
+
+        # Switch frame
+        self.driver.switch_to.frame(0)
+        # Click "Selected Location Services"
+        xpath = '//*[contains(text(),"Selected Location Services")]'
+        self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        # Chọn "HoChiMinh City Branch"
+        xpath = '//*[@id="form1:branchCode"]'
+        dropDownList = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        Select(dropDownList).select_by_visible_text('Ho Chi Minh City Branch')
+        # Company ID
+        xpath = '//*[@id="form1:custId"]'
+        idInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        idInput.clear()
+        idInput.send_keys(self.id)
+        # Username
+        xpath = '//*[@id="form1:loginId"]'
+        userInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        userInput.clear()
+        userInput.send_keys(self.user)
+        # Password
+        xpath = '//*[@id="form1:password"]'
+        passwordInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        passwordInput.clear()
+        passwordInput.send_keys(self.password)
+        # Click "Login"
+        xpath = '//*[@id="form1:login3"]'
+        self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+
+        return self
+
+class SINOPAC(Base):
+
+    def __init__(self,debug=True):
+        super().__init__('SINOPAC',debug)
+        self.driver = None
+        self.wait = None
+
+    def __repr__(self):
+        return f'<BankObject_SINOPAC>'
+
+    def __del__(self):
+        self.driver.quit()
+        print('Destructor: Chrome Driver has quit')
+
+    def Login(self):
+
+        self.driver = webdriver.Chrome(executable_path=self.PATH)
+        self.driver.maximize_window()
+        self.driver.get(self.URL)
+        self.wait = WebDriverWait(self.driver,30,ignored_exceptions=self.ignored_exceptions)
+
+        # Switch frame
+        self.driver.switch_to.frame(0)
+        # e-Banking ID
+        xpath = '//*[@id="form:txtCustId"]'
+        idInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        idInput.clear()
+        idInput.send_keys(self.id)
+        # User ID
+        xpath = '//*[@id="form:txtUserId"]'
+        userInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        userInput.clear()
+        userInput.send_keys(self.user)
+        # Password
+        xpath = '//*[@id="form:txtUserPwd"]'
+        passwordInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        passwordInput.clear()
+        passwordInput.send_keys(self.password)
+        # CAPTCHA
+        xpath = '//*[@id="form:captchaImg"]'
+        captchaElement = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        CAPTCHA = self.__GetCaptchaFromMail__(captchaElement)
+        xpath = '//*[@id="form:captchaInput"]'
+        captchaInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        captchaInput.clear()
+        captchaInput.send_keys(CAPTCHA)
+        # Click Login
+        xpath = '//*[@id="form:submitLoginBtn"]'
+        self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+
+        return self
+
+class ESUN(Base):
+
+    def __init__(self,debug=True):
+        super().__init__('ESUN',debug)
+        self.driver = None
+        self.wait = None
+
+    def __repr__(self):
+        return f'<BankObject_ESUN>'
+
+    def __del__(self):
+        self.driver.quit()
+        print('Destructor: Chrome Driver has quit')
+
+    def Login(self):
+
+        self.driver = webdriver.Chrome(executable_path=self.PATH)
+        self.driver.maximize_window()
+        self.driver.get(self.URL)
+        self.wait = WebDriverWait(self.driver,30,ignored_exceptions=self.ignored_exceptions)
+
+        # Switch frame
+        self.driver.switch_to.frame('mainFrame')
+        # Đổi ngôn ngữ sang tiếng anh
+        xpath = '//*[contains(@class,"ui-dropdown")]'
+        self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        xpath = '//*[contains(span,"English")]'
+        englishElement = self.wait.until(EC.visibility_of_any_elements_located((By.XPATH,xpath)))[0]
+        englishElement.click()
+        # Switch frame (do load lại trang)
+        try:
+            self.driver.switch_to.frame('mainFrame')
+        except (NoSuchFrameException,NoSuchWindowException):
+            pass
+        # Chọn Vietnam
+        xpath = '//*[contains(@class,"ui-dropdown-trigger")]'
+        _, countryDropDown = self.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+        countryDropDown.click()
+        xpath = '//*[span="Vietnam" and contains(@class,"ui-dropdown-item")]'
+        self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        # Customer ID
+        xpath = '//*[@placeholder="Customer ID/No"]'
+        idInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        idInput.clear()
+        idInput.send_keys(self.id)
+        # User Name
+        xpath = '//*[@placeholder="User Name"]'
+        userInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        userInput.clear()
+        userInput.send_keys(self.user)
+        # Password
+        xpath = '//*[@placeholder="User Password"]'
+        passwordInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        passwordInput.clear()
+        passwordInput.send_keys(self.password)
+        # Click "Login"
+        xpath = '//*[contains(button,"Log In")]/button'
+        self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        time.sleep(1) # chờ animation (trong TH popup "Repeated Login" window)
+        # Check xem có hiện "Repeated Login" không
+        xpath = '//*[text()="Repeated Login"]'
+        errorMessage = self.driver.find_elements(By.XPATH,xpath)
+        if errorMessage: # trường hợp có lỗi
+            xpath = '//*[@class="submit_btn"]'
+            _, confirmButton = self.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+            confirmButton.click()
+
+        return self
+

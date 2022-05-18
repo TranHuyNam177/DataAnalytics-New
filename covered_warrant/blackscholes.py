@@ -92,8 +92,7 @@ class issuance:
         self,
     ) -> int:
 
-        self.cw_value = (self.S*stats.norm.cdf(self.d1)-self.K*np.exp(-self.r*self.delta_t)*stats.norm.cdf(
-            self.d2))/self.k
+        self.cw_value = (self.S*stats.norm.cdf(self.d1)-self.K*np.exp(-self.r*self.delta_t)*stats.norm.cdf(self.d2))/self.k
         self.cw_value = int(self.cw_value)
 
         return self.cw_value

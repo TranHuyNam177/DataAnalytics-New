@@ -3,11 +3,9 @@ from automation import *
 dept_folder = r'C:\Users\hiepdang\Shared Folder\Risk Management\Report'
 
 def get_info(
-    periodicity: str,
-    run_time=None,
+    periodicity:str,
+    run_time=dt.datetime.now(),
 ):
-    if run_time=='now' or run_time is None:
-        run_time = dt.datetime.now()
 
     run_year = run_time.year
     run_month = run_time.month
@@ -21,7 +19,7 @@ def get_info(
     Sat >> run_weekday = 7
     Sun >> run_weekday = 8
     """
-    run_weekday = run_time.weekday()+2
+    run_weekday = run_time.weekday() + 2
 
     # Calculate time for quarterly report
     if run_month in [1,2,3]:
@@ -39,7 +37,7 @@ def get_info(
 
     # Calculate time for monthly report
     if run_month==1:
-        mreport_year = run_year-1
+        mreport_year = run_year - 1
         mreport_month = 12
     else:
         mreport_year = run_year
@@ -49,11 +47,11 @@ def get_info(
 
     # Calculate time for weekly report
     if run_weekday in [2,3,4,5]:
-        sow = run_time-dt.timedelta(days=run_weekday+5)
-        eow = run_time-dt.timedelta(days=run_weekday+1)
+        sow = run_time - dt.timedelta(days=run_weekday+5)
+        eow = run_time - dt.timedelta(days=run_weekday+1)
     else:  # run_weekday in [6,7,8]
-        sow = run_time-dt.timedelta(days=run_weekday-2)
-        eow = run_time-dt.timedelta(days=run_weekday-6)
+        sow = run_time - dt.timedelta(days=run_weekday-2)
+        eow = run_time - dt.timedelta(days=run_weekday-6)
 
     # select name of the folder
     folder_mapper = {
@@ -65,21 +63,21 @@ def get_info(
     folder_name = folder_mapper[periodicity]
 
     # choose dates and period
-    if periodicity.lower()=='daily':
+    if periodicity.lower() == 'daily':
         start_date = run_time.strftime('%Y.%m.%d')
         end_date = start_date
         period = run_time.strftime('%Y.%m.%d')
-    elif periodicity.lower()=='weekly':
+    elif periodicity.lower() == 'weekly':
         start_date = sow.strftime('%Y.%m.%d')
         end_date = eow.strftime('%Y.%m.%d')
         start_str = convert_int(sow.day)
         end_str = f'{convert_int(eow.day)}.{convert_int(eow.month)}.{eow.year}'
         period = f'{start_str}-{end_str}'
-    elif periodicity.lower()=='monthly':
+    elif periodicity.lower() == 'monthly':
         start_date = som.strftime('%Y.%m.%d')
         end_date = eom.strftime('%Y.%m.%d')
         period = f'{convert_int(eom.month)}.{eom.year}'
-    elif periodicity.lower()=='quarterly':
+    elif periodicity.lower() == 'quarterly':
         start_date = soq.strftime('%Y.%m.%d')
         end_date = eoq.strftime('%Y.%m.%d')
         quarter_mapper = {

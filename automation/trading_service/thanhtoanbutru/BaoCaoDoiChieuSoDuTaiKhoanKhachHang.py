@@ -142,6 +142,8 @@ def run(
     table['check'] = table['check'].replace(False,'Bất thường')
     table.sort_values('check',inplace=True)
 
+    return table
+
     ###################################################
     ###################################################
     ###################################################

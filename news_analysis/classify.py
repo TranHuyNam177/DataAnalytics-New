@@ -91,7 +91,7 @@ def FilterNewsByKeywords(
     resultTable = resultTable.sort_values(['PredictedClass','Ticker','Time'],ascending=[False,True,False],ignore_index=True)
 
     # Write to Excel
-    info = get_info('daily',None)
+    info = get_info('daily',dt.datetime.now())
     period = info['period']
     t0_date = info['end_date'].replace('/','-')
     folder_name = info['folder_name']

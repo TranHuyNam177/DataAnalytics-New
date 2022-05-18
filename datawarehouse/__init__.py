@@ -1,3 +1,5 @@
+import time
+
 from request import *
 
 
@@ -168,3 +170,61 @@ def BDATE(
         ).squeeze().strftime('%Y-%m-%d')
     else:
         return f'{date[:4]}-{date[5:7]}-{date[-2:]}'
+
+
+def CHECKBATCH(conn,batchType:int) -> bool:
+
+    """
+    This function EXEC spbatch to see if batch job finishes.
+    Return True if batch finishes, False if not finishes
+
+    :param conn: connection object of the Database
+    :param batchType: 1 for mid-day batch, 2 for end-day batch
+    """
+
+    todayString = dt.datetime.now().strftime('%Y-%m-%d')
+    dbName = conn.getinfo(pyodbc.SQL_DATABASE_NAME)
+    if dbName == 'DWH-CoSo':
+        EXEC(conn,'spbatch',FrDate=todayString,ToDate=todayString)
+        batchTable = pd.read_sql(
+            f"""
+            SELECT * FROM [batch] WHERE [batch].[date] = '{todayString}' AND [batch].[batch_type] = {batchType}
+            """,
+            conn,
+        )
+    elif dbName == 'DWH-PhaiSinh':
+        EXEC(conn,'spbatch',FrDate=todayString,ToDate=todayString)
+        batchTable = pd.read_sql(
+            f"""
+            SELECT * FROM [batch] WHERE [batch].[date] = '{todayString}'
+            """,
+            conn,
+        )
+    else:
+        raise ValueError(f'Invalid database: {dbName}')
+
+    if batchTable.shape[0]:
+        print(f"Batch done at: {batchTable.loc[batchTable.index[-1],'batch_end']}")
+        return True
+    else:
+        return False
+
+def AfterBatch(conn,batchType): # decorator
+
+    """
+    Pause the function till batch done
+    """
+
+    def wrapper(func):
+
+        while True:
+            checkResult = CHECKBATCH(conn,batchType)
+            if checkResult:
+                break
+            time.sleep(15)
+
+        func(*args,**kwargs)
+
+    return wrapper
+
+
