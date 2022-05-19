@@ -15,3 +15,18 @@ def RMD_TinChungKhoan():
     else:
         classify.FilterNewsByKeywords(hours=8)
 
+@TaskMonitor
+def RMD_SaveTempData1():
+    from automation.risk_management import CheckQuotaLimitReport
+    CheckQuotaLimitReport.generateTempData()
+
+@TaskMonitor
+def RMD_CallMarginReport():
+    from automation.risk_management import CallMarginReport
+    CallMarginReport.run(dt.datetime.now())
+
+@TaskMonitor
+def RMD_QuotaLimitViolationReport():
+    from automation.risk_management import QuotaLimitViolation
+    QuotaLimitViolation.run(dt.datetime.now())
+

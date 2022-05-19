@@ -2,60 +2,13 @@ from automation.risk_management import *
 from datawarehouse import BDATE
 
 
-"""
-TK bị lệch ngày 29/04/2022
-1. 022C017132	0117000598	ĐINH TIÊN HOÀNG
-- Trạng thái call trên DB là No - Trạng thái call từ báo cáo bên QLRR là Yes
-2. 022C018098	0203001688	NGUYỄN KIM NHUNG
-- DB ngày 29/4/2022 không trả ra kết quả
-3. 022C024544	0202001405	NGUYỄN THỊ CHĂM
-- DB ngày 29/4/2022 không trả ra kết quả
-4. 022C027172	0102002141	DƯƠNG THỊ CÁT ĐẰNG
-- DB ngày 29/4/2022 không trả ra kết quả
-5. 022C042269	0202003304	ĐẶNG NHÂN THỦY
-- DB ngày 29/4/2022 không trả ra kết quả
-6. 022C042343	0101003903	PHAN THỊ NGỌC NỮ
-- DB ngày 29/4/2022 không trả ra kết quả
-7. 022C087587	0101087587	VŨ KIM LIÊN
-- DB ngày 29/4/2022 không trả ra kết quả
-8. 022C240592	0117002925	NGUYỄN VĂN HỒ
-- Trạng thái call trên DB là No - Trạng thái call từ báo cáo bên QLRR là Yes
-9. 022C357999	0202002369	LÊ CHÍ CƯỜNG
-- DB ngày 29/4/2022 không trả ra kết quả
-10. 022C567803	0117002907	NGUYỄN ĐÌNH TƯ
-- Trạng thái call trên DB là No - Trạng thái call từ báo cáo bên QLRR là Yes
-11. 022C777999	0201001455	NGUYỄN XUÂN CỬ
-- DB ngày 29/4/2022 không trả ra kết quả
-"""
-"""
-TK bị lệch ngày 09/05/2022
-1. TK bị dư so với file mẫu:
-022C012610 - có trên SQL nhưng ko có trên Flex (dữ liệu chốt sau batch cuối ngày 06/05/2022)
-2. TK bị lệch số liệu:
-022C076999 - Lệch cột Số tiền phải bán,cột Supplementary Amount,cột Overdue + Due to date amount,cột Số tiền nộp thêm gốc 
-và cột THIẾU HỤT
-(so SQL với Flex)
-    - Số tiền phải bán:
-        SQL:  1,196,063,222 + FLEX: 622,617,641
-    - Supplementary Amount:
-        SQL:  1,196,063,222 + FLEX: 622,617,641
-    - Overdue + Due to date amount
-        SQL:  1,195,690,750 + FLEX: 0
-    - Số tiền nộp thêm gốc:
-        SQL:  1,196,063,222 + FLEX: 622,617,641
-    - THIẾU HỤT:
-        SQL:  1,196,063,222 + FLEX: 622,617,641
-"""
-
-
 def run(  # chạy hàng ngày
     run_time=dt.datetime.now()
 ):
     start = time.time()
     info = get_info('daily',run_time)
-    period = info['period']
-    t0_date = info['end_date']
-    t1_date = BDATE(t0_date,1)
+    dataDate = info['end_date']
+    period = reportDate.replace('-','.')
     folder_name = info['folder_name']
 
     # create folder
@@ -79,7 +32,7 @@ def run(  # chạy hàng ngày
             FROM [relationship]
             LEFT JOIN [account] ON [relationship].[account_code] = [account].[account_code]
             LEFT JOIN [broker] ON [relationship].[broker_id] = [broker].[broker_id]
-            WHERE [relationship].[date] = '{t0_date}'
+            WHERE [relationship].[date] = '{dataDate}'
         )
         SELECT 
             [i].[account_code] [AccountCode],
@@ -114,7 +67,7 @@ def run(  # chạy hàng ngày
         LEFT JOIN [i] ON [i].[sub_account] = [t].[TieuKhoan] 
             AND [i].[date] = [t].[Ngay]
         WHERE 
-            [t].[Ngay] = '{t0_date}'
+            [t].[Ngay] = '{dataDate}'
             AND [t].[TenLoaiHinh] = N'Margin'
             AND [t].[TrangThaiCall] = N'Yes'
             AND [t].[LoaiCall] <> ''
@@ -129,10 +82,11 @@ def run(  # chạy hàng ngày
     ###################################################
     ###################################################
 
-    t1_day = t1_date[-2:]
-    t1_month = calendar.month_name[int(t1_date[5:7])]
-    t1_year = t1_date[0:4]
-    file_name = f'Call Margin Report on {t1_day} {t1_month} {t1_year}.xlsx'
+    reportDate = BDATE(dataDate,1)
+    t1_day = reportDate[-2:]
+    t1_month = calendar.month_name[int(reportDate[5:7])]
+    t1_year = reportDate[0:4]
+    file_name = f'Call Margin Report on {t1_month} {t1_day} {t1_year}.xlsx'
     writer = pd.ExcelWriter(
         join(dept_folder,folder_name,period,file_name),
         engine='xlsxwriter',
@@ -153,7 +107,7 @@ def run(  # chạy hàng ngày
             'valign':'top',
             'font_size':12,
             'font_name':'Calibri',
-            'text_wrap':True
+            'text_wrap':True,
         }
     )
     text_left_format = workbook.add_format(

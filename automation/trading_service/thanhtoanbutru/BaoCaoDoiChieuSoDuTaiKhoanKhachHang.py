@@ -1,12 +1,12 @@
 from automation.trading_service.thanhtoanbutru import *
-
+from datawarehouse import EXEC
 
 # DONE
 def initiate(
     run_time = dt.datetime.now() - dt.timedelta(days=1)
 ):
     """
-    Hàm này được chạy để khởi tạo file gốc hôm qua khi chạy lần đầu (để hôm nay đối chiếu)
+    Hàm này được chạy để khởi tạo file gốc tại ngày bất kỳ
     """
 
     info = get_info('daily',run_time)
@@ -53,25 +53,31 @@ def run(
     ###################################################
     ###################################################
 
+    EXEC(connect_DWH_CoSo,'spsub_account_deposit',FrDate=t0_date,ToDate=t0_date)
+    EXEC(connect_DWH_CoSo,'sprelationship',FrDate=t0_date,ToDate=t0_date)
+    EXEC(connect_DWH_CoSo,'spaccount',FrDate=t0_date,ToDate=t0_date)
+    EXEC(connect_DWH_CoSo,'spbroker',FrDate=t0_date,ToDate=t0_date)
+    EXEC(connect_DWH_CoSo,'spbranch',FrDate=t0_date,ToDate=t0_date)
+
     # --------------------- Viết Query ---------------------
     info_table = pd.read_sql(
         f"""
         SELECT
-          [relationship].[account_code],
-          [relationship].[sub_account],
-          [account].[customer_name],
-          [broker].[broker_name],
-          [branch].[branch_name]
+            [relationship].[account_code],
+            [relationship].[sub_account],
+            [account].[customer_name],
+            [broker].[broker_name],
+            [branch].[branch_name]
         FROM
-          [relationship]
+            [relationship]
         LEFT JOIN
-          [account] ON [account].[account_code] = [relationship].[account_code]
+            [account] ON [account].[account_code] = [relationship].[account_code]
         LEFT JOIN 
-          [branch] ON [branch].[branch_id] = [relationship].[branch_id]
+            [branch] ON [branch].[branch_id] = [relationship].[branch_id]
         LEFT JOIN 
-          [broker] ON [broker].[broker_id] = [relationship].[broker_id]
+            [broker] ON [broker].[broker_id] = [relationship].[broker_id]
         WHERE 
-          [relationship].[date] ='{t0_date}'
+            [relationship].[date] ='{t0_date}'
         """,
         connect_DWH_CoSo,
         index_col='sub_account'
@@ -141,8 +147,6 @@ def run(
     table['check'] = table['check'].replace(True,'Khớp')
     table['check'] = table['check'].replace(False,'Bất thường')
     table.sort_values('check',inplace=True)
-
-    return table
 
     ###################################################
     ###################################################

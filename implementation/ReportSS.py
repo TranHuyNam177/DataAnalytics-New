@@ -69,7 +69,7 @@ def SS_BaoCaoDoiChieuLaiTienGuiPhatSinh_p2():
 @TaskMonitor
 def SS_BaoCaoDoiChieuSoDuTaiKhoanKhachHang():
     from automation.trading_service.thanhtoanbutru import BaoCaoDoiChieuSoDuTaiKhoanKhachHang
-    BaoCaoDoiChieuSoDuTaiKhoanKhachHang.run(dt.datetime.now()-dt.timedelta(days=1))
+    BaoCaoDoiChieuSoDuTaiKhoanKhachHang.run()
 
 @TaskMonitor
 def SS_BaoCaoDoiChieuTTBTTienMuaBanChungKhoan():
