@@ -1,5 +1,6 @@
 from automation.risk_management import *
 
+
 def run(  # chạy hàng ngày
     run_time = dt.datetime.now()
 ):
@@ -118,6 +119,7 @@ def run(  # chạy hàng ngày
                 ELSE '[00-10]'
             END [Group]
         FROM [MidResult]
+        WHERE [MidResult].[OriginalLoan] <> 0
         ORDER BY [MidResult].[MMRTA],[MidResult].[MMRMA]
         """,
         connect_DWH_CoSo
