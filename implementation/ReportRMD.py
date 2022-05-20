@@ -30,3 +30,7 @@ def RMD_QuotaLimitViolationReport():
     from automation.risk_management import QuotaLimitViolation
     QuotaLimitViolation.run(dt.datetime.now())
 
+@TaskMonitor
+def RMD_MarketPressureReport():
+    from automation.risk_management import MarketPressure
+    MarketPressure.run(dt.datetime.now())

@@ -443,15 +443,6 @@ def run(  # chạy hàng ngày
             'font_name': 'Times New Roman'
         }
     )
-    text_left_format = workbook.add_format(
-        {
-            'border': 1,
-            'align': 'left',
-            'valign': 'vbottom',
-            'font_size': 10,
-            'font_name': 'Times New Roman'
-        }
-    )
     money_format = workbook.add_format(
         {
             'border':1,
