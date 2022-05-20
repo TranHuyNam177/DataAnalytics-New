@@ -1,6 +1,4 @@
 from automation.risk_management import *
-from datawarehouse import BDATE
-
 
 def run(  # chạy hàng ngày
     run_time = dt.datetime.now()
