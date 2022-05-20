@@ -178,7 +178,7 @@ def run(  # chạy hàng ngày
             'font_name': 'Calibri'
         }
     )
-    title1_red_format = workbook.add_format(
+    title_red_format = workbook.add_format(
         {
             'bold': True,
             'align': 'center',
@@ -188,7 +188,7 @@ def run(  # chạy hàng ngày
             'color': '#FF0000'
         }
     )
-    title_2_format = workbook.add_format(
+    subtitle_1_format = workbook.add_format(
         {
             'bold': True,
             'italic': True,
@@ -198,7 +198,7 @@ def run(  # chạy hàng ngày
             'font_name': 'Calibri'
         }
     )
-    title_2_color_format = workbook.add_format(
+    subtitle_1_color_format = workbook.add_format(
         {
             'bold': True,
             'italic': True,
@@ -209,7 +209,7 @@ def run(  # chạy hàng ngày
             'color': '#FF0000'
         }
     )
-    title_3_format = workbook.add_format(
+    subtitle_2_format = workbook.add_format(
         {
             'bold': True,
             'align': 'left',
@@ -264,10 +264,11 @@ def run(  # chạy hàng ngày
             'align': 'right',
             'valign': 'vcenter',
             'font_size': 11,
-            'font_name': 'Calibri'
+            'font_name': 'Calibri',
+            'num_format': '0'
         }
     )
-    sum_num_format = workbook.add_format(
+    sum_format = workbook.add_format(
         {
             'bold':True,
             'border': 1,
@@ -295,7 +296,7 @@ def run(  # chạy hàng ngày
             'valign': 'vcenter',
             'font_size': 11,
             'font_name': 'Calibri',
-            'num_format': '0.00'
+            'num_format': '_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)'
         }
     )
     percent_format = workbook.add_format(
@@ -314,10 +315,11 @@ def run(  # chạy hàng ngày
         'Outstanding',
         '% Total Oustanding'
     ]
-    title_2 = f'Data is as at end {t0_day}.{t0_month} {t0_year} (it is not inculde 08 accounts that belong to Accumulated Negative Value)'
-    title_3 = 'C. Market Pressure (%) is used to indicate the breakeven point of loan with assumption that whole portfolio may drop at same percentage.'
+    subtitle_1 = f'Data is as at end {t0_day}.{t0_month} {t0_year} (it is not inculde 08 accounts that belong to Accumulated Negative Value)'
+    subtitle_2 = 'C. Market Pressure (%) is used to indicate the breakeven point of loan with assumption that whole portfolio may drop at same percentage.'
 
     summary_sheet = workbook.add_worksheet('Summary')
+    summary_sheet.hide_gridlines(2)
     summary_sheet.set_column('A:A',31)
     summary_sheet.set_column('B:B',15)
     summary_sheet.set_column('C:C',14)
@@ -326,78 +328,71 @@ def run(  # chạy hàng ngày
     summary_sheet.set_column('F:F',21)
     summary_sheet.set_column('G:G',0)
 
-    summary_sheet.set_row(5,30)
     summary_sheet.merge_range('A1:I1','',cell_format)
     summary_sheet.write_rich_string(
-        'A1','SUMMARY RISK REPORT FOR ',title1_red_format,'Market Pressure (%)',cell_format
+        'A1','SUMMARY RISK REPORT FOR ',title_red_format,'Market Pressure (%)',cell_format
     )
-    summary_sheet.merge_range('A2:F2',title_2,title_2_format)
+    summary_sheet.merge_range('A2:F2',subtitle_1,subtitle_1_format)
     summary_sheet.merge_range('A3:F3','', cell_format)
     summary_sheet.write_rich_string(
-        'A3', 'Unit for Outstanding: ',title_2_color_format,'million dong',title_2_format
+        'A3', 'Unit for Outstanding: ',subtitle_1_color_format,'million dong',subtitle_1_format
     )
-    summary_sheet.write('A4',title_3,title_3_format)
+    summary_sheet.write('A4',subtitle_2,subtitle_2_format)
     summary_sheet.write_row('A6',headers,headers_format)
-    summary_sheet.merge_range('A7:A8','0 < Market Pressure < 10%',text_left_merge_format)
-    summary_sheet.write_rich_string('A9','10%<= Market Pressure',text_left_color_format,' <15%',text_left_format)
-    summary_sheet.write_rich_string('A10','15%<= Market Pressure',text_left_color_format,' <20%',text_left_format)
-    summary_sheet.write_rich_string('A11','20%<= Market Pressure',text_left_color_format,' <25%',text_left_format)
-    summary_sheet.write_rich_string('A12','25%<= Market Pressure',text_left_color_format,' <30%',text_left_format)
-    summary_sheet.write_rich_string('A13','30%<= Market Pressure',text_left_color_format,' <35%',text_left_format)
-    summary_sheet.write_rich_string('A14','35%<= Market Pressure',text_left_color_format,' <40%',text_left_format)
-    summary_sheet.write_rich_string('A15','40%<= Market Pressure',text_left_color_format,' <45%',text_left_format)
-    summary_sheet.write_rich_string('A16','45%<= Market Pressure',text_left_color_format,' <50%',text_left_format)
-    summary_sheet.write_rich_string('A17','50%<= Market Pressure',text_left_color_format,' <55%',text_left_format)
-    summary_sheet.write_rich_string('A18','55%<= Market Pressure',text_left_color_format,' <60%',text_left_format)
-    summary_sheet.write_rich_string('A19','60%<= Market Pressure',text_left_color_format,' <65%',text_left_format)
-    summary_sheet.write_rich_string('A20','65%<= Market Pressure',text_left_color_format,' <70%',text_left_format)
-    summary_sheet.write_rich_string('A21','70%<= Market Pressure',text_left_color_format,' <75%',text_left_format)
-    summary_sheet.write_rich_string('A22','75%<= Market Pressure',text_left_color_format,' <80%',text_left_format)
-    summary_sheet.write_rich_string('A23','Market Pressure',text_left_color_format,' >=80%', text_left_format)
+    summary_sheet.write('A7','Market Pressure < 10%',text_left_merge_format)
+    summary_sheet.write_rich_string('A8','10%<= Market Pressure',text_left_color_format,' <15%',text_left_format)
+    summary_sheet.write_rich_string('A9','15%<= Market Pressure',text_left_color_format,' <20%',text_left_format)
+    summary_sheet.write_rich_string('A10','20%<= Market Pressure',text_left_color_format,' <25%',text_left_format)
+    summary_sheet.write_rich_string('A11','25%<= Market Pressure',text_left_color_format,' <30%',text_left_format)
+    summary_sheet.write_rich_string('A12','30%<= Market Pressure',text_left_color_format,' <35%',text_left_format)
+    summary_sheet.write_rich_string('A13','35%<= Market Pressure',text_left_color_format,' <40%',text_left_format)
+    summary_sheet.write_rich_string('A14','40%<= Market Pressure',text_left_color_format,' <45%',text_left_format)
+    summary_sheet.write_rich_string('A15','45%<= Market Pressure',text_left_color_format,' <50%',text_left_format)
+    summary_sheet.write_rich_string('A16','50%<= Market Pressure',text_left_color_format,' <55%',text_left_format)
+    summary_sheet.write_rich_string('A17','55%<= Market Pressure',text_left_color_format,' <60%',text_left_format)
+    summary_sheet.write_rich_string('A18','60%<= Market Pressure',text_left_color_format,' <65%',text_left_format)
+    summary_sheet.write_rich_string('A19','65%<= Market Pressure',text_left_color_format,' <70%',text_left_format)
+    summary_sheet.write_rich_string('A20','70%<= Market Pressure',text_left_color_format,' <75%',text_left_format)
+    summary_sheet.write_rich_string('A21','75%<= Market Pressure',text_left_color_format,' <80%',text_left_format)
+    summary_sheet.write_rich_string('A22','Market Pressure',text_left_color_format,' >=80%', text_left_format)
 
-    summary_sheet.merge_range('B7:B8',detailTable.loc[detailTable.index[0],'AccountNumber'],num_right_format)
-    summary_sheet.merge_range('D7:D8',detailTable.loc[detailTable.index[0],'Proportion'],percent_format)
-    summary_sheet.write_column('B9',detailTable.loc[detailTable.index[1:],'Proportion'],num_right_format)
-    for loc, value in enumerate(detailTable['sum']):
+    summary_sheet.write_column('B7',summaryTable['AccountNumber'],num_right_format)
+    summary_sheet.write_column('D7',summaryTable['Proportion'],percent_format)
+    for loc, value in enumerate(summaryTable['Outstanding']):
         if value > 100 or value == 0:
             fmt = money_normal_format
         else:
             fmt = money_small_format
-        if row == 0:
-            summary_sheet.merge_range('C7:C8',value,fmt)
-        else:
-            summary_sheet.write(loc+7,2,value,fmt)
+        summary_sheet.write(f'C{loc+7}',value,fmt)
 
-    summary_sheet.write_column('D9',table_sheet_1['%TotalOutstanding'][1:],percent_format)
-    sum_row = table_sheet_1.shape[0]+8
+    sum_row = summaryTable.shape[0] + 7
     summary_sheet.write(f'A{sum_row}','Total',headers_format)
-    summary_sheet.write(f'B{sum_row}',table_sheet_1['count'].sum(),sum_num_format)
-    summary_sheet.write(f'C{sum_row}',table_sheet_1['sum'].sum(),sum_num_format)
-    summary_sheet.write(f'D{sum_row}','', sum_num_format)
+    summary_sheet.write(f'B{sum_row}',summaryTable['AccountNumber'].sum(),sum_format)
+    summary_sheet.write(f'C{sum_row}',summaryTable['Outstanding'].sum(),sum_format)
+    summary_sheet.write(f'D{sum_row}','', sum_format)
 
     ###################################################
     ###################################################
     ###################################################
 
     # Sheet Detail
-    # Format
-    sum_num_color_format = workbook.add_format(
+    sum_color_format = workbook.add_format(
         {
             'bold': True,
             'align': 'right',
             'valign': 'vbottom',
-            'font_size': 11,
+            'font_size': 10,
             'font_name': 'Times New Roman',
             'num_format': '#,##0',
             'color': '#FF0000'
         }
     )
-    sum_num_format = workbook.add_format(
+    sum_format = workbook.add_format(
         {
             'bold': True,
             'align': 'right',
             'valign': 'vbottom',
-            'font_size': 11,
+            'font_size': 10,
             'font_name': 'Times New Roman',
             'num_format': '#,##0',
         }
@@ -409,7 +404,7 @@ def run(  # chạy hàng ngày
             'border': 1,
             'align': 'center',
             'valign': 'vcenter',
-            'font_size': 11,
+            'font_size': 10,
             'font_name': 'Times New Roman',
             'bg_color': '#FFC000'
         }
@@ -421,7 +416,7 @@ def run(  # chạy hàng ngày
             'border': 1,
             'align': 'center',
             'valign': 'vcenter',
-            'font_size': 11,
+            'font_size': 10,
             'font_name': 'Times New Roman',
             'bg_color': '#FFF2CC'
         }
@@ -433,29 +428,18 @@ def run(  # chạy hàng ngày
             'border': 1,
             'align': 'center',
             'valign': 'vcenter',
-            'font_size': 11,
+            'font_size': 10,
             'font_name': 'Times New Roman',
             'color': '#FF0000',
             'bg_color': '#FFF2CC'
         }
     )
-    header_4_format = workbook.add_format(
-        {
-            'bold': True,
-            'text_wrap': True,
-            'align': 'center',
-            'valign': 'vcenter',
-            'font_size': 11,
-            'font_name': 'Times New Roman'
-        }
-    )
     text_center_format = workbook.add_format(
         {
             'border': 1,
-            'text_wrap': True,
             'align': 'center',
             'valign': 'vcenter',
-            'font_size': 11,
+            'font_size': 10,
             'font_name': 'Times New Roman'
         }
     )
@@ -464,7 +448,7 @@ def run(  # chạy hàng ngày
             'border': 1,
             'align': 'left',
             'valign': 'vbottom',
-            'font_size': 11,
+            'font_size': 10,
             'font_name': 'Times New Roman'
         }
     )
@@ -473,7 +457,7 @@ def run(  # chạy hàng ngày
             'border':1,
             'align': 'right',
             'valign': 'vbottom',
-            'font_size': 11,
+            'font_size': 10,
             'font_name': 'Times New Roman',
             'num_format': '_(* #,##0_);_(* (#,##0);_(* "-"??_);_(@_)'
         }
@@ -483,7 +467,7 @@ def run(  # chạy hàng ngày
             'border': 1,
             'align': 'right',
             'valign': 'vbottom',
-            'font_size': 11,
+            'font_size': 10,
             'font_name': 'Times New Roman',
             'num_format': '0.00'
         }
@@ -493,7 +477,7 @@ def run(  # chạy hàng ngày
         'Location',
         'Custody',
         'Original Loan',
-        'interest',
+        'Interest',
         'Total Loan',
     ]
     headers_2 = [
@@ -506,42 +490,36 @@ def run(  # chạy hàng ngày
         'MMR (base on Total Asset)'
     ]
 
-    worksheet = workbook.add_worksheet('Detail')
+    detail_sheet = workbook.add_worksheet('Detail')
+    detail_sheet.hide_gridlines(2)
+    detail_sheet.set_column('A:A',6)
+    detail_sheet.set_column('B:B',12)
+    detail_sheet.set_column('C:C',17)
+    detail_sheet.set_column('D:F',19)
+    detail_sheet.set_column('G:J',0)
+    detail_sheet.set_column('K:K',18)
+    detail_sheet.set_column('L:L',16)
+    detail_sheet.set_row(1,30)
 
-    worksheet.set_column('A:A',0)
-    worksheet.set_column('B:B',5.5)
-    worksheet.set_column('C:C',11.5)
-    worksheet.set_column('D:D',17)
-    worksheet.set_column('E:G',19)
-    worksheet.set_column('H:K',0)
-    worksheet.set_column('L:L',14)
-    worksheet.set_column('M:M',16)
-    worksheet.set_column('N:N',0)
-    worksheet.set_column('O:O',9)
-
-    worksheet.set_row(1,52)
-    worksheet.write('A2','Bad Loans',header_4_format)
-    worksheet.write('B1',table_sheet_2.shape[0],sum_num_color_format)
-    worksheet.write('E1',table_sheet_2['original_loan'].sum(),sum_num_color_format)
-    worksheet.write('F1',table_sheet_2['original_loan'].sum()/pow(10,6),sum_num_format)
-    worksheet.write_row('B2',headers_1,header_1_format)
-    worksheet.write_row('H2',headers_2,header_2_format)
-    worksheet.write_row('K2',headers_3,header_3_format)
-    worksheet.write('M2','Group/deal',header_2_format)
-    worksheet.write('N2','bad loan',header_4_format)
-    worksheet.write('O2','Note',header_4_format)
-    worksheet.write_column('B3',np.arange(table_sheet_2.shape[0])+1,text_center_format)
-    worksheet.write_column('C3',table_sheet_2['location'],text_center_format)
-    worksheet.write_column('D3',table_sheet_2['custody'],text_left_format)
-    worksheet.write_column('E3',table_sheet_2['original_loan'],money_format)
-    worksheet.write_column('F3',table_sheet_2['interest'],money_format)
-    worksheet.write_column('G3',table_sheet_2['total_loan'],money_format)
-    worksheet.write_column('H3',table_sheet_2['total_cash'],money_format)
-    worksheet.write_column('I3',table_sheet_2['total_margin_val'],money_format)
-    worksheet.write_column('J3',table_sheet_2['total_asset_val'],money_format)
-    worksheet.write_column('K3',table_sheet_2['MMR_MarginableAsset'],percent_format)
-    worksheet.write_column('L3',table_sheet_2['MMR_TotalAsset'],percent_format)
-    worksheet.write_column('M3',[0]*table_sheet_2.shape[0],money_format)
+    detail_sheet.write('A1',detailTable.shape[0],sum_color_format)
+    detail_sheet.write('D1',detailTable['OriginalLoan'].sum(),sum_color_format)
+    detail_sheet.write('E1',detailTable['OriginalLoan'].sum()/10e6,sum_format)
+    detail_sheet.write_row('A2',headers_1,header_1_format)
+    detail_sheet.write_row('G2',headers_2,header_2_format)
+    detail_sheet.write_row('J2',headers_3,header_3_format)
+    detail_sheet.write('L2','Group/Deal',header_2_format)
+    detail_sheet.write_column('A3',detailTable['No.'],text_center_format)
+    detail_sheet.write_column('B3',detailTable['Location'],text_center_format)
+    detail_sheet.write_column('C3',detailTable['Custody'],text_center_format)
+    detail_sheet.write_column('D3',detailTable['OriginalLoan'],money_format)
+    detail_sheet.write_column('E3',detailTable['Interest'],money_format)
+    detail_sheet.write_column('F3',detailTable['TotalLoan'],money_format)
+    detail_sheet.write_column('G3',detailTable['CashAndPIA'],money_format)
+    detail_sheet.write_column('H3',detailTable['MarginValue'],money_format)
+    detail_sheet.write_column('I3',detailTable['TotalAssetValue'],money_format)
+    detail_sheet.write_column('J3',detailTable['MMRMA'],percent_format)
+    detail_sheet.write_column('K3',detailTable['MMRTA'],percent_format)
+    detail_sheet.write_column('L3',['']*detailTable.shape[0],money_format)
 
     ###########################################################################
     ###########################################################################

@@ -1,3 +1,5 @@
+import time
+
 from automation.finance import *
 
 def runBIDV(bankObject,fromDate,toDate):
@@ -404,14 +406,14 @@ def runEIB(bankObject,fromDate,toDate):
         xpath = '//*[@class="modal-footer"]/button'
         bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click() # nút đầu tiên
         for d in pd.date_range(fromDate,toDate):
-            xpath = '//*[@placeholder="dd/mm/yyyy"]'
+            xpath = '//*[@name="fromDate" or @name="toDate"]/div/input'
             fromDateInput,toDateInput = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
             # Từ ngày
             fromDateInput.clear()
-            fromDateInput.send_keys((d-dt.timedelta(days=10)).strftime('%d/%m/%Y'))
+            fromDateInput.send_keys(f"{(d-dt.timedelta(days=10)).strftime('%d/%m/%Y')} 00:00:00")
             # Đến ngày
             toDateInput.clear()
-            toDateInput.send_keys(d.strftime('%d/%m/%Y'))
+            toDateInput.send_keys(f"{d.strftime('%d/%m/%Y')} 23:59:59")
             # Click "Tìm kiếm"
             _, searchButton = bankObject.wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME,'btn-primary')))
             while True:

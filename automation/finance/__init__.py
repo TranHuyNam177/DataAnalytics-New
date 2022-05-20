@@ -508,6 +508,15 @@ class EIB(Base):
         passwordInput.send_keys(self.password)
         # Click "Đăng nhập"
         self.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'btn-primary'))).click()
+        # Tắt popup yêu cầu đăng ký SMS (nếu có)
+        time.sleep(5) # chờ đăng nhập xong
+        xpath = '//*[contains(text(),"Thông báo")]'
+        noticeWindow = self.driver.find_elements(By.XPATH,xpath)
+        if noticeWindow:  # có popup
+            xpath = '//*[contains(text(),"Đồng ý")]'
+            self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+            xpath = '//*[contains(text(),"Đóng")]'
+            self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
 
         return self
 
