@@ -114,8 +114,7 @@ def BreakevenPrice_2pct(  # weekly run as requested by RMD
 
     for ticker in tickers:
         try:
-            lv0_price,lv1_price,lv2_price,lv3_price,breakeven_price,group = monte_carlo_test.run(ticker=ticker,
-                                                                                                 alpha=0.02)
+            lv0_price,lv1_price,lv2_price,lv3_price,breakeven_price,group = monte_carlo_test.run(ticker=ticker,alpha=0.02)
             with open(github_table_path,mode='a',newline='') as github_file:
                 github_writer = csv.writer(github_file,delimiter=',')
                 github_writer.writerow([ticker,lv0_price,lv1_price,lv2_price,lv3_price,group,breakeven_price])

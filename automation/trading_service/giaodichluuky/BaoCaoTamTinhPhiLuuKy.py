@@ -29,9 +29,9 @@ def run(
     )
     branch_id = pd.read_sql(
         f"""
-        SELECT date, sub_account, branch_id
-        FROM relationship
-        WHERE date BETWEEN '{start_date}' AND '{end_date}'
+        SELECT [date], [sub_account], [branch_id]
+        FROM [relationship]
+        WHERE [date] BETWEEN '{start_date}' AND '{end_date}'
         """,
         connect_DWH_CoSo,
         index_col=['date','sub_account'],
@@ -74,7 +74,7 @@ def run(
     table_title = f'PHÍ LƯU KÝ {period}'
 
     # Write to Excel
-    file_name = f'Báo cáo phí tạm tính phí lưu ký {period}.xlsx'
+    file_name = f'Báo cáo phí tạm tính phí lưu ký {period}_.xlsx'
     writer = pd.ExcelWriter(
         join(dept_folder,folder_name,period,file_name),
         engine='xlsxwriter',

@@ -875,15 +875,21 @@ class ta:
         else:
             end = todate
 
-        r = requests.post(
-            self.address_hist,
-            data=json.dumps({
-                'symbol':ticker,
-                'fromdate':start,
-                'todate':end,
-            }),
-            headers={'content-type':'application/json'}
-        )
+        with requests.Session() as session:
+            retry = requests.packages.urllib3.util.retry.Retry(connect=5,backoff_factor=1)
+            adapter = requests.adapters.HTTPAdapter(max_retries=retry)
+            session.mount('https://',adapter)
+            r = session.post(
+                self.address_hist,
+                data = json.dumps({
+                    'symbol':ticker,
+                    'fromdate':start,
+                    'todate':end,
+                }),
+                headers={'content-type':'application/json'},
+                timeout=30
+            )
+
         history = pd.DataFrame(json.loads(r.json()['d']))
         history.rename(
             columns={

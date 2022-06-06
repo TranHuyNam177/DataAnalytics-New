@@ -1,16 +1,16 @@
-import time
-
 from request import *
 
 
-def INSERT(
+def BATCHINSERT(
     conn,
     table:str,
     df:pd.DataFrame,
 ):
     """
-    This function INSERT a pd.DataFrame to a particular [db].[table].
-    Must make sure the order / data type of pd.DataFrame align with [db].[table]
+    This function INSERT the whole batch of data from a pd.DataFrame to a particular [db].[table].
+    Must make sure the data type of pd.DataFrame align with [db].[table], must fill missing values by None, can't insert
+    tables with empty column
+    More performant, less flexible than SEQUENTIALINSERT
 
     :param conn: connection object of the Database
     :param table: name of the table in the Database
@@ -19,12 +19,38 @@ def INSERT(
     :return: None
     """
 
-    sqlStatement = f"INSERT INTO [{table}] VALUES ({','.join(['?']*df.shape[1])})"
+    sqlStatement = f"INSERT INTO [{table}] ([{'],['.join(df.columns)}]) VALUES ({','.join(['?']*df.shape[1])})"
     cursor = conn.cursor()
     cursor.executemany(sqlStatement,df.values.tolist())
     cursor.commit()
     cursor.close()
 
+def SEQUENTIALINSERT(
+    conn,
+    table:str,
+    df:pd.DataFrame,
+):
+    """
+    This function INSERT row by row a pd.DataFrame to a particular [db].[table].
+    Must make sure the data type of pd.DataFrame align with [db].[table]. Able to treat missing values with NULL automatically.
+    Less performant, more flexible than BATCHINSERT
+
+    :param conn: connection object of the Database
+    :param table: name of the table in the Database
+    :param df: inserted pd.DataFrame
+
+    :return: None
+    """
+
+    cursor = conn.cursor()
+    for row in df.index:
+        truncatedRow = df.loc[row].dropna()
+        if not truncatedRow.shape[0]: # dòng rỗng
+            continue
+        sqlStatement = f"INSERT INTO [{table}] ([{'],['.join(truncatedRow.index)}]) VALUES ({','.join(['?']*truncatedRow.shape[0])})"
+        cursor.execute(sqlStatement,truncatedRow.to_list())
+        cursor.commit()
+    cursor.close()
 
 def DELETE(
     conn,
@@ -51,7 +77,7 @@ def DELETE(
     cursor.close()
 
 
-def DROP_DUPLICATES(
+def DROPDUPLICATES(
     conn,
     table:str,
     *columns:str,
@@ -209,22 +235,266 @@ def CHECKBATCH(conn,batchType:int) -> bool:
     else:
         return False
 
-def AfterBatch(conn,batchType): # decorator
+
+def AFTERBATCH(conn,batchType): # decorator
 
     """
     Pause the function till batch done
     """
 
-    def wrapper(func):
+    def wrapper(func): # nhận hàm ban đầu
 
-        while True:
-            checkResult = CHECKBATCH(conn,batchType)
-            if checkResult:
-                break
-            time.sleep(15)
+        def decoratedFunction(*args,**kwargs):
+            while True:
+                if CHECKBATCH(conn,batchType):
+                    break
+                time.sleep(30)
+            func(*args,**kwargs)
 
-        func(*args,**kwargs)
+        return decoratedFunction # trả ra hàm decorated rồi
 
     return wrapper
 
 
+def LASTSYNC(conn,tableName=None):
+
+    if conn == connect_DWH_CoSo:
+        if tableName is None:
+            return pd.read_sql(
+                f"""
+                SELECT MAX([EXEC_DATE]) FROM [ExecTaskLog] 
+                WHERE [STATUS] = 'END' AND [DESCRIPTION] = 'RunCoSo'
+                """,
+                conn,
+            ).squeeze().to_pydatetime()
+        else:
+            if tableName not in TableNames_DWH_CoSo.squeeze().to_list():
+                raise ValueError("Invalid Table Name")
+            return pd.read_sql(
+                f"""
+                SELECT MAX([EXEC_DATE]) FROM [ExecTaskLog] 
+                WHERE [STATUS] = 'OK' AND [DESCRIPTION] = '{tableName}'
+                """,
+                conn,
+            ).squeeze().to_pydatetime()
+    elif conn == connect_DWH_PhaiSinh:
+        if tableName is None:
+            return pd.read_sql(
+                f"""
+                SELECT MAX(EXEC_DATE) FROM [ExecTaskLog] 
+                WHERE [STATUS] = 'END' AND [DESCRIPTION] = 'RunPhaiSinh'
+                """,
+                conn,
+            ).squeeze().to_pydatetime()
+        else:
+            if tableName not in TableNames_DWH_PhaiSinh.squeeze().to_list():
+                raise ValueError("Invalid Table Name")
+            return pd.read_sql(
+                f"""
+                SELECT MAX([EXEC_DATE]) FROM [ExecTaskLog] 
+                WHERE [STATUS] = 'OK' AND [DESCRIPTION] = '{tableName}'
+                """,
+                conn,
+            ).squeeze().to_pydatetime()
+    else:
+        raise ValueError("Invalid Database")
+
+
+def NOTIFYSYNCSTATUSTODAY(db):
+
+    check_time = dt.datetime.now()
+
+    ignored_Tables = [
+        'v_sqlrun',
+        'ExcludeDays',
+        'ExecTaskLog',
+        'bank_account_list',
+        'de083',
+        'breakeven_price_portfolio',
+        'storerun',
+        'VW_GETSEACCOUNTROOM_DB',
+        'V_GETSECMARGINASSET',
+        'V_GETSECMARGINRELEASE_MST1',
+        'V_GETSECMARGINRELEASE_MST2',
+        'V_GETSECMARGINRELEASE',
+        'VW_MR0004',
+        'vw_getsecmargindetail_detail',
+        'vw_getsecmargindetail',
+        'vw_mr0001_all',
+        'BankTransactionHistory',
+        'BankCurrentBalance',
+        'BankDepositBalance',
+    ]
+
+    if db == 'DWH-CoSo':
+        conn = connect_DWH_CoSo
+        db_Tables = TableNames_DWH_CoSo.squeeze()
+        prefix = '[DWH-CoSo]'
+        description = 'RunCoSo'
+        since = dt.datetime.now()-dt.timedelta(minutes=30)
+
+    elif db == 'DWH-PhaiSinh':
+        conn = connect_DWH_PhaiSinh
+        db_Tables = TableNames_DWH_PhaiSinh.squeeze()
+        prefix = '[DWH-PhaiSinh]'
+        description = 'RunPhaiSinh'
+        since = dt.datetime.now()-dt.timedelta(minutes=30)
+
+    else:
+        raise ValueError('The module currently checks DWH-CoSo or DWH-PhaiSinh only')
+
+    db_Tables = db_Tables.loc[~db_Tables.isin(ignored_Tables)]
+
+    # check xem n phút vừa rồi có chạy chưa (n được quy định ở trên)
+    run_check = pd.read_sql(
+        f"""
+        SELECT [ExecTaskLog].[EXEC_DATE] [TIME]
+        FROM [ExecTaskLog]
+        WHERE [ExecTaskLog].[EXEC_DATE] >= '{since.strftime("%Y-%m-%d %H:%M:%S")}'
+            AND [ExecTaskLog].[STATUS] = 'START'
+        """,
+        conn,
+    ).squeeze(axis=0)
+
+    if run_check.empty: # nếu chưa chạy
+        NotRunTables = db_Tables
+    else: # nếu chạy rồi
+        # check xem nếu chạy rồi thì có đủ bảng chưa
+        run_Tables = pd.read_sql(
+            f"""
+            SELECT [ExecTaskLog].[DESCRIPTION]
+            FROM [ExecTaskLog]
+            WHERE [ExecTaskLog].[STATUS] = 'OK'
+            AND [ExecTaskLog].[EXEC_DATE] >= (
+                SELECT MAX([ExecTaskLog].[EXEC_DATE]) [Time]
+                FROM [ExecTaskLog]
+                WHERE [ExecTaskLog].[STATUS] = 'START'
+                AND [ExecTaskLog].[DESCRIPTION] = '{description}'
+            )
+            """,
+            conn,
+        ).squeeze()
+        NotRunTables = db_Tables.loc[~db_Tables.isin(run_Tables)]
+
+    missing_Tables = NotRunTables.to_frame()
+    missing_Tables.columns = ['Missing Tables']
+    missing_Tables = prefix + '.[' + missing_Tables + ']'
+    html_table = missing_Tables.to_html(index=False)
+    html_table = html_table.replace('<tr>','<tr align="center">')  # center columns
+    html_table = html_table.replace('border="1"','border="1" style="border-collapse:collapse"')  # make thinner borders
+
+
+    if missing_Tables.empty:
+        content = f"""
+            <p style="font-family:Times New Roman; font-size:100%"><i>
+                ĐỦ SỐ LƯỢNG BẢNG
+            </i></p>
+        """
+    else:
+        # HTML table for email
+        content = html_table
+
+    # Send mail
+    body = f"""
+    <html>
+        <head></head>
+        <body>
+            {content}
+            <p style="font-family:Times New Roman; font-size:90%"><i>
+                -- Generated by Reporting System
+            </i></p>
+        </body>
+    </html>
+    """
+
+    outlook = Dispatch('outlook.application')
+    mail = outlook.CreateItem(0)
+    mapi = outlook.GetNamespace("MAPI")
+
+    for account in mapi.Accounts:
+        print(f"Account {account.DeliveryStore.DisplayName} is being logged")
+
+    mail.To = 'hiepdang@phs.vn; tupham@phs.vn'
+    mail.Subject = f"{prefix} Missing Tables {check_time.strftime('%Y-%m-%d %H:%M:%S')}"
+    mail.HTMLBody = body
+    mail.Send()
+
+
+def NOTIFYSYNCSTATUSBACKDATE(db):
+
+    """
+    Được chạy vào:
+        - Mon-Fri: 12:15, 18:00, 21:00
+        - Sat-Sun: 01:00
+    """
+
+    check_time = dt.datetime.now()
+
+    if db == 'DWH-CoSo':
+        conn = connect_DWH_CoSo
+        prefix = '[DWH-CoSo]'
+        description = 'RunCoSoLui'
+        since = dt.datetime.now()-dt.timedelta(minutes=60)
+
+    elif db == 'DWH-PhaiSinh':
+        conn = connect_DWH_PhaiSinh
+        prefix = '[DWH-PhaiSinh]'
+        description = 'RunPhaiSinhLui'
+        since = dt.datetime.now()-dt.timedelta(minutes=60)
+
+    else:
+        raise ValueError('The module currently checks DWH-CoSo or DWH-PhaiSinh only')
+
+    hour = dt.datetime.now().hour
+    if 22 <= hour <= 24 or 0 <= hour <= 5:
+        days = 4
+    else:
+        days = 1
+
+    # check xem n phút vừa rồi có chạy chưa (n được quy định ở trên)
+    checkTable = pd.read_sql(
+        f"""
+        SELECT [ExecTaskLog].[STATUS]
+        FROM [ExecTaskLog]
+        WHERE [ExecTaskLog].[EXEC_DATE] >= '{since.strftime("%Y-%m-%d %H:%M:%S")}'
+            AND [ExecTaskLog].[DESCRIPTION] = '{description}'
+        """,
+        conn,
+    ).squeeze().value_counts().reindex(['START','END']).fillna(0)
+
+    if checkTable['START'] < days or checkTable['END'] < days:
+        content = f"""
+            <p style="font-family:Times New Roman; font-size:100%"><i>
+                UPDATE BACKDATE THẤT BẠI
+            </i></p>
+        """
+    else:
+        content = f"""
+            <p style="font-family:Times New Roman; font-size:100%"><i>
+                UPDATE BACKDATE THÀNH CÔNG
+            </i></p>
+        """
+
+    body = f"""
+    <html>
+        <head></head>
+        <body>
+            {content}
+            <p style="font-family:Times New Roman; font-size:90%"><i>
+                -- Generated by Reporting System
+            </i></p>
+        </body>
+    </html>
+    """
+
+    outlook = Dispatch('outlook.application')
+    mail = outlook.CreateItem(0)
+    mapi = outlook.GetNamespace("MAPI")
+
+    for account in mapi.Accounts:
+        print(f"Account {account.DeliveryStore.DisplayName} is being logged")
+
+    mail.To = 'hiepdang@phs.vn; tupham@phs.vn'
+    mail.Subject = f"{prefix} Check Update BackDate {check_time.strftime('%Y-%m-%d %H:%M:%S')}"
+    mail.HTMLBody = body
+    mail.Send()

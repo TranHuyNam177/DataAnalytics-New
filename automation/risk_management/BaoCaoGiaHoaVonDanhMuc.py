@@ -1,6 +1,6 @@
 from automation.risk_management import *
 from request.stock import ta
-from datawarehouse import DELETE, INSERT
+from datawarehouse import DELETE, BATCHINSERT
 
 # DONE
 def run(  # chạy daily sau batch cuối ngày
@@ -177,7 +177,7 @@ def run(  # chạy daily sau batch cuối ngày
     DELETE(connect_DWH_CoSo,'breakeven_price_portfolio',f"WHERE [date] = '{t0_date}'")
     table_for_sql = result.copy()
     table_for_sql.insert(0,'date',dt.datetime.strptime(t0_date,'%Y.%m.%d'))
-    INSERT(connect_DWH_CoSo,'breakeven_price_portfolio',table_for_sql)
+    BATCHINSERT(connect_DWH_CoSo,'breakeven_price_portfolio',table_for_sql)
 
     # filter điều kiện
     result = result.loc[(result['outstanding_net_cash'] > 0) & (result['max_price'] > 0)] # điều kiện lọc của RMD

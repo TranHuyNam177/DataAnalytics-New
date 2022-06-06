@@ -1,23 +1,3 @@
-"""
-1. daily
-2. table: trading_record, cash_balance
-3. Tiền Hoàn trả UTTB T0: mã giao dịch 8851
-4. Tiền đã ứng: mã giao dịch - 1153
-5. có thể dùng bảng RCI0015 thay cho RCF1002 (chị Tuyết)
-6. Số tiền UTTB nhận và phí UTTB truyền vào cột ngày nào (T-2, T-1 hay T0) dựa vào
-phần ngày đầu tiên nằm trong diễn giải
-7. Phần tử Ngày đầu tiên luôn luôn bé hơn phần tử ngày thứ 2, ko có trường hợp ngược lại (Chị Thu Anh)
-8. Giá trị của cột Số tiền UTTB nhận trong RCF1002 chưa thực hiện trừ phí UTTB
-9. TK bị lệch:
-                                            Số tiền UTTB KH     Phí UTTB ngày T0
-                                            đã nhận ngày T0
-    022C336888	0117002702	NGUYỄN THỊ TÀI	14,008,058,561	    7,786,581
-                            Giá trị tiền bán T-2
-                                                Thuế Cổ Tức
-    022C019179	0104001345	PHẠM THANH TÙNG     20,000
-    (đã check, do file mẫu sai)
-
-"""
 from automation.trading_service.thanhtoanbutru import *
 
 
@@ -71,7 +51,7 @@ def run(
                 [trading_record].[sub_account],
                 [trading_record].[value] [value],
                 [trading_record].[fee] [fee],
-                [trading_record].[tax_of_selling] [sell_tax],
+                ROUND([trading_record].[tax_of_selling],0) [sell_tax],
                 [trading_record].[tax_of_share_dividend] [dividend_tax]
             FROM 
                 [trading_record]
@@ -83,9 +63,9 @@ def run(
         [c] AS (
             SELECT 
                 CASE 
-                    WHEN [cash_balance].[date] = '{t2_date}' THEN 't2'
-                    WHEN [cash_balance].[date] = '{t1_date}' THEN 't1'
-                    WHEN [cash_balance].[date] = '{t0_date}' THEN 't0'
+                    WHEN [cash_balance].[remark] LIKE N'%UTTB%GD {t2_wildcard}%' THEN 't2'
+                    WHEN [cash_balance].[remark] LIKE N'%UTTB%GD {t1_wildcard}%' THEN 't1'
+                    WHEN [cash_balance].[remark] LIKE N'%UTTB%GD {t0_wildcard}%' THEN 't0'
                 END AS [date],
                 [cash_balance].[sub_account],
                 [cash_balance].[transaction_id],
@@ -199,7 +179,7 @@ def run(
             FROM 
                 [c]
             WHERE
-                [c].[transaction_id] = '1153' AND [c].[date] = 't2' AND [c].[remark] LIKE N'%UTTB%GD {t2_wildcard}%'
+                [c].[transaction_id] = '1153' AND [c].[date] = 't2'
             GROUP BY
                 [c].[sub_account]
         ) [d_t2]
@@ -215,7 +195,7 @@ def run(
             FROM 
                 [c]
             WHERE
-                [c].[transaction_id] = '1153' AND [c].[date] = 't1' AND [c].[remark] LIKE N'%UTTB%GD {t1_wildcard}%'
+                [c].[transaction_id] = '1153' AND [c].[date] = 't1'
             GROUP BY
                 [c].[sub_account]
         ) [d_t1]

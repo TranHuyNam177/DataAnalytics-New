@@ -1,5 +1,5 @@
 from request import *
-from datawarehouse import INSERT, DELETE, DROP_DUPLICATES
+from datawarehouse import BATCHINSERT, DROPDUPLICATES
 from news_analysis import get_news
 
 def update(hours):
@@ -17,6 +17,6 @@ def update(hours):
 
     newsTable = pd.concat([Table1,Table2,Table3,Table4])
 
-    INSERT(connect_DWH_ThiTruong,'TinChungKhoan',newsTable)
-    DROP_DUPLICATES(connect_DWH_ThiTruong,'TinChungKhoan','URL') # xóa dòng có URL trùng nhau
+    BATCHINSERT(connect_DWH_ThiTruong,'TinChungKhoan',newsTable)
+    DROPDUPLICATES(connect_DWH_ThiTruong,'TinChungKhoan','URL') # xóa dòng có URL trùng nhau
 

@@ -388,14 +388,14 @@ def runEIB(bankObject,fromDate,toDate):
     currentAccount = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
     action.click(currentAccount)
     action.perform()
-    time.sleep(1) # Chờ load xong
+    time.sleep(3) # Chờ load xong
     # Lấy danh sách tài khoản
     xpath = '//tbody/tr/th/a'
-    accountElems = bankObject.wait.until(EC.visibility_of_all_elements_located((By.XPATH,xpath)))
+    accountElems = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
     accounts = [e.text for e in accountElems]
     # Lấy danh sách currency
     xpath = '//*[text()="VND" or text()="USD"]'
-    currencyElems = bankObject.wait.until(EC.visibility_of_all_elements_located((By.XPATH,xpath)))
+    currencyElems = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
     currencies = [e.text for e in currencyElems]
     # Lấy số dư tài khoản
     records = []
@@ -589,7 +589,6 @@ def runTCB(bankObject,fromDate,toDate):
     for file in listdir(bankObject.downloadFolder):
         if 'enquiry' in file:
             os.remove(join(bankObject.downloadFolder,file))
-
     # Check tab "Tông tin tài khoản" có bung chưa (đã được click trước đó), phải bung rồi mới hiện tab "Truy vấn giao dịch tài khoản"
     xpath = '//*[contains(text(),"Truy vấn giao dịch tài khoản")]'
     queryElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
@@ -599,6 +598,7 @@ def runTCB(bankObject,fromDate,toDate):
         bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Click "Truy vấn giao dịch tài khoản"
     queryElement.click()
+    time.sleep(3)
     # Click dropdown button
     bankObject.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'dropdown_button'))).click()
     # Lấy danh sách tài khoản

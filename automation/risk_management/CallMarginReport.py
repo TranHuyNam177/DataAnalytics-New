@@ -8,7 +8,7 @@ def run(  # chạy hàng ngày
     start = time.time()
     info = get_info('daily',run_time)
     dataDate = info['end_date']
-    period = reportDate.replace('-','.')
+    period = dataDate.replace('-','.')
     folder_name = info['folder_name']
 
     # create folder
@@ -206,7 +206,6 @@ def run(  # chạy hàng ngày
     ]
 
     worksheet = workbook.add_worksheet('Sheet1')
-    worksheet.hide_gridlines(option=2)
     worksheet.set_column('A:ZZ',18)
     worksheet.set_column('A:A',4)
     worksheet.set_column('B:B',16)
@@ -220,11 +219,11 @@ def run(  # chạy hàng ngày
     worksheet.set_column('T:U',11)
     worksheet.set_column('V:V',8)
     worksheet.set_column('W:W',18)
-    worksheet.set_column('AA:AC',0)
+    worksheet.set_column('AA:AC',18,options={'hidden':1})
     worksheet.set_row(0,37)
 
     for col in 'CEFHKMOQSXYZ':
-        worksheet.set_column(f'{col}:{col}',0)
+        worksheet.set_column(f'{col}:{col}',18,options={'hidden':1})
 
     worksheet.write_row('A1',headers,headers_format)
     worksheet.write_column('A2',np.arange(table.shape[0])+1,stt_format)

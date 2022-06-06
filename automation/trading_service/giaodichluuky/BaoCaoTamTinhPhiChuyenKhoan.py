@@ -29,7 +29,7 @@ def run(
     Tháng nào lấy ngày sai thì hardcode ngày đúng tại dòng ngay dưới
     """
 
-    adj_start_date, adj_end_date = '2022-03-30', '2022-04-27' # adjust_time(start_date), adjust_time(end_date)  # thay đổi tại đây
+    adj_start_date, adj_end_date = adjust_time(start_date), adjust_time(end_date)  # thay đổi tại đây
 
     transfer_fee = pd.read_sql(
         f"""

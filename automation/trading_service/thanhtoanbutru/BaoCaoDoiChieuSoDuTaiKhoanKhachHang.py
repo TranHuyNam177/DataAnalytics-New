@@ -1,12 +1,12 @@
 from automation.trading_service.thanhtoanbutru import *
-from datawarehouse import EXEC
+from datawarehouse import EXEC, BDATE
 
 # DONE
-def initiate(
-    run_time = dt.datetime.now() - dt.timedelta(days=1)
+def generateTempData(
+    run_time = dt.datetime.now()
 ):
     """
-    Hàm này được chạy để khởi tạo file gốc tại ngày bất kỳ
+    Hàm này được chạy lưu file template sau batch cuối ngày
     """
 
     info = get_info('daily',run_time)
@@ -15,19 +15,11 @@ def initiate(
     table = pd.read_sql(
         f"""
         SELECT
-            [relationship].[sub_account],
+            [sub_account_deposit].[sub_account],
             [sub_account_deposit].[opening_balance],
             [sub_account_deposit].[closing_balance]
-        FROM 
-            [sub_account_deposit]
-        LEFT JOIN 
-            [relationship] 
-        ON 
-            [relationship].[sub_account] = [sub_account_deposit].[sub_account]
-            AND
-            [relationship].[date] = [sub_account_deposit].[date]
-        WHERE 
-            [sub_account_deposit].[date] ='{end_date}'
+        FROM [sub_account_deposit]
+        WHERE [sub_account_deposit].[date] ='{end_date}'
         """,
         connect_DWH_CoSo,
         index_col='sub_account'
@@ -43,8 +35,7 @@ def run(
     period = info['period']
     folder_name = info['folder_name']
     t0_date = info['start_date'].replace('/','-')
-    t1_date = bdate(t0_date,-1)
-
+    t1_date = BDATE(t0_date,-1)
     # create folder
     if not os.path.isdir(join(dept_folder,folder_name,period)):
         os.mkdir((join(dept_folder,folder_name,period)))
@@ -54,10 +45,6 @@ def run(
     ###################################################
 
     EXEC(connect_DWH_CoSo,'spsub_account_deposit',FrDate=t0_date,ToDate=t0_date)
-    EXEC(connect_DWH_CoSo,'sprelationship',FrDate=t0_date,ToDate=t0_date)
-    EXEC(connect_DWH_CoSo,'spaccount',FrDate=t0_date,ToDate=t0_date)
-    EXEC(connect_DWH_CoSo,'spbroker',FrDate=t0_date,ToDate=t0_date)
-    EXEC(connect_DWH_CoSo,'spbranch',FrDate=t0_date,ToDate=t0_date)
 
     # --------------------- Viết Query ---------------------
     info_table = pd.read_sql(
@@ -70,14 +57,10 @@ def run(
             [branch].[branch_name]
         FROM
             [relationship]
-        LEFT JOIN
-            [account] ON [account].[account_code] = [relationship].[account_code]
-        LEFT JOIN 
-            [branch] ON [branch].[branch_id] = [relationship].[branch_id]
-        LEFT JOIN 
-            [broker] ON [broker].[broker_id] = [relationship].[broker_id]
-        WHERE 
-            [relationship].[date] ='{t0_date}'
+        LEFT JOIN [account] ON [account].[account_code] = [relationship].[account_code]
+        LEFT JOIN [branch] ON [branch].[branch_id] = [relationship].[branch_id]
+        LEFT JOIN [broker] ON [broker].[broker_id] = [relationship].[broker_id]
+        WHERE [relationship].[date] = '{t1_date}'
         """,
         connect_DWH_CoSo,
         index_col='sub_account'
@@ -85,19 +68,11 @@ def run(
     t1_table = pd.read_sql(
         f"""
         SELECT
-            [relationship].[sub_account], 
+            [sub_account_deposit].[sub_account], 
             [sub_account_deposit].[opening_balance] AS [opening_balance_t1],
             [sub_account_deposit].[closing_balance] AS [closing_balance_t1]
-        FROM 
-            [sub_account_deposit]
-        LEFT JOIN 
-            [relationship] 
-        ON 
-            [relationship].[sub_account] = [sub_account_deposit].[sub_account]
-            AND
-            [relationship].[date] = [sub_account_deposit].[date]
-        WHERE 
-            [sub_account_deposit].[date] ='{t1_date}'
+        FROM [sub_account_deposit]
+        WHERE [sub_account_deposit].[date] = '{t1_date}'
         """,
         connect_DWH_CoSo,
         index_col='sub_account'
@@ -105,44 +80,29 @@ def run(
     t0_table = pd.read_sql(
         f"""
         SELECT
-            [relationship].[sub_account],
-            [sub_account_deposit].[opening_balance],
-            [sub_account_deposit].[closing_balance]
-        FROM 
-            [sub_account_deposit]
-        LEFT JOIN 
-            [relationship] 
-        ON 
-            [relationship].[sub_account] = [sub_account_deposit].[sub_account]
-            AND
-            [relationship].[date] = [sub_account_deposit].[date]
-        WHERE 
-            [sub_account_deposit].[date] ='{t0_date}'
+            [sub_account_deposit].[sub_account],
+            [sub_account_deposit].[opening_balance]
+        FROM [sub_account_deposit]
+        WHERE [sub_account_deposit].[date] = '{t0_date}'
         """,
         connect_DWH_CoSo,
         index_col='sub_account'
     )
+    # read file đã lưu sau batch cuối ngày hôm qua
     saved_folder = join(dirname(__file__),'sodutientaikhoankhachhang')
-    t0_table.to_pickle(join(saved_folder,f'{t0_date.replace("-","")}.pickle'))
-
-    # save xong ko cần cột closing_balance của T0 nữa
-    t0_table.drop('closing_balance',axis=1,inplace=True)
-    # read file đã lưu hôm qua
     t1_table_ref = pd.read_pickle(join(saved_folder,f'{t1_date.replace("-","")}.pickle'))
-    # rename columns`
+    # rename columns
     t1_table_ref = t1_table_ref.add_suffix('_t1_ref')
     t0_table = t0_table.add_suffix('_t0')
-
     # join
     table = pd.concat([info_table,t1_table,t0_table,t1_table_ref],join='outer',axis=1)
     table = table.loc[~table.iloc[:,-5:].isna().all(axis=1)]
     table.fillna(0,inplace=True)
-
     # check
     check_1 = table['opening_balance_t0']==table['closing_balance_t1']
     check_2 = table['opening_balance_t1']==table['opening_balance_t1_ref']
     check_3 = table['closing_balance_t1']==table['closing_balance_t1_ref']
-    check_4 = (table[['opening_balance_t0','opening_balance_t1','closing_balance_t1']] >= 0).all(axis=1)
+    check_4 = (table[['opening_balance_t0','opening_balance_t1','closing_balance_t1']]>=0).all(axis=1)
     table['check'] = check_1 & check_2 & check_3 & check_4
     table['check'] = table['check'].replace(True,'Khớp')
     table['check'] = table['check'].replace(False,'Bất thường')

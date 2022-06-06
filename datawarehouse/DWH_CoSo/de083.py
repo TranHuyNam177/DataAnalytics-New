@@ -36,7 +36,7 @@ def update(
             'ticker',
             'amount',
         ]]
-        INSERT(connect_DWH_CoSo,'de083',df)
+        BATCHINSERT(connect_DWH_CoSo,'de083',df)
 
 
 

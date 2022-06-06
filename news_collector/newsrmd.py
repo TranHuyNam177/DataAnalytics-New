@@ -238,6 +238,7 @@ class hnx:
         url = 'https://www.hnx.vn/thong-tin-cong-bo-ny-tcph.html'
         driver = webdriver.Chrome(executable_path=PATH)
         driver.get(url)
+        driver.maximize_window()
         wait = WebDriverWait(driver,max_wait_time,ignored_exceptions=ignored_exceptions)
         key_words = [
             'Cổ tức',
@@ -389,6 +390,7 @@ class hnx:
         from_time = now
         driver = webdriver.Chrome(executable_path=PATH)
         url = 'https://www.hnx.vn/thong-tin-cong-bo-ny-hnx.html'
+        driver.maximize_window()
         driver.get(url)
         wait = WebDriverWait(driver,max_wait_time,ignored_exceptions=ignored_exceptions)
         key_words = [
@@ -572,11 +574,10 @@ class hose:
             'giao dịch đầu tiên của cổ phiếu niêm yết',
         ]
         excl_keywords = ['ban', 'Ban', 'bầu', 'Bầu', 'nhắc nhở', 'Nhắc nhở', 'họp', 'Họp']
-        from_time = now
 
         frames = []
         page = 1
-        while from_time >= dt.datetime.strptime(bmk_time, '%Y-%m-%d %H:%M:%S'):
+        while True:
             pageFieldValue2 = now.strftime("%d.%m.%Y")
             pageFieldValue4 = '822d8a8c-fd19-4358-9fc9-d0b27a666611'
             web_url = 'https://www.hsx.vn/Modules/CMS/Web/ArticleInCategory/822d8a8c-fd19-4358-9fc9-d0b27a666611'
@@ -630,7 +631,8 @@ class hose:
 
         #######################################################################
 
-        while from_time >= dt.datetime.strptime(bmk_time,'%Y-%m-%d %H:%M:%S'):
+        page = 1
+        while True:
             pageFieldValue2 = now.strftime("%d.%m.%Y")
             pageFieldValue4 = 'dca0933e-a578-4eaf-8b29-beb4575052c5'
             web_url = 'https://www.hsx.vn/Modules/CMS/Web/ArticleInCategory/dca0933e-a578-4eaf-8b29-beb4575052c5'
@@ -662,6 +664,7 @@ class hose:
                 for row in range(len(get_cell)):
                     sub_pdfs = []
                     id_url,t,sub_title = get_content_from_row(row)
+                    print(sub_title)
                     check_1 = [word in sub_title for word in keywords]
                     check_2 = [word not in sub_title for word in excl_keywords]
                     if any(check_1) and all(check_2):
@@ -689,10 +692,10 @@ class hose:
                 if format_time < dt.datetime.strptime(bmk_time, '%Y-%m-%d %H:%M:%S'):
                     break
             page += 1
-        output_table = pd.concat(frames, ignore_index=True)
 
-        if output_table.empty is True:
+        if not frames is True:
             raise NoNewsFound(f'Không có tin trong {num_hours} giờ vừa qua')
+        output_table = pd.concat(frames,ignore_index=True)
         # select out tickers from headline
         output_table.insert(1,'Mã cổ phiếu',output_table['Tiêu đề'].str.split(': ').str.get(0))
         # check if ticker is in margin list

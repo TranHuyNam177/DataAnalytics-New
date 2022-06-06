@@ -77,7 +77,7 @@ class API(ServerError,MaximumRecords):
                 table[col] = table[col].astype(np.int64)
 
         # Insert to DWH-ThiTruong
-        INSERT(connect_DWH_ThiTruong,'KetQuaGiaoDichCoPhieu',table)
+        BATCHINSERT(connect_DWH_ThiTruong,'KetQuaGiaoDichCoPhieu',table)
         
 
 class Web:

@@ -1,6 +1,6 @@
 from request import *
 from request.stock import ta
-from datawarehouse import INSERT, DELETE
+from datawarehouse import BATCHINSERT, DELETE
 
 def run(
     fromDate:dt.datetime,
@@ -30,25 +30,29 @@ def run(
         connect_DWH_ThiTruong,
     ).squeeze()
 
-    frames = []
-    for ticker in tickers:
-        r = requests.post(
-            URL,
-            data=json.dumps({
-                'symbol':ticker,
-                'fromdate':fromDateString,
-                'todate':toDateString,
-            }),
-            headers={'content-type':'application/json'}
-        )
-        frame = pd.DataFrame(json.loads(r.json()['d']))
-        if not frame.empty:
-            frame.loc[frame['open_price']==0,'open_price'] = frame['prior_price']
-            frame.loc[frame['close_price']==0,'close_price'] = frame['prior_price']
-            frame.loc[frame['high']==0,'high'] = frame['prior_price']
-            frame.loc[frame['low']==0,'low'] = frame['prior_price']
-        print(f'Extracted {ticker}')
-        frames.append(frame)
+    with requests.Session() as session:
+        retry = requests.packages.urllib3.util.retry.Retry(connect=5,backoff_factor=1)
+        adapter = requests.adapters.HTTPAdapter(max_retries=retry)
+        session.mount('https://',adapter)
+        frames = []
+        for ticker in tickers:
+            r = session.post(
+                URL,
+                data=json.dumps({
+                    'symbol':ticker,
+                    'fromdate':fromDateString,
+                    'todate':toDateString,
+                }),
+                headers={'content-type':'application/json'}
+            )
+            frame = pd.DataFrame(json.loads(r.json()['d']))
+            if not frame.empty:
+                frame.loc[frame['open_price']==0,'open_price'] = frame['prior_price']
+                frame.loc[frame['close_price']==0,'close_price'] = frame['prior_price']
+                frame.loc[frame['high']==0,'high'] = frame['prior_price']
+                frame.loc[frame['low']==0,'low'] = frame['prior_price']
+            print(f'Extracted {ticker}')
+            frames.append(frame)
 
     table = pd.concat(frames)
     nameMapper = {
@@ -73,7 +77,7 @@ def run(
 
     print(f'Inserting to [DWH-ThiTruong]...')
     DELETE(connect_DWH_ThiTruong,'DuLieuGiaoDichNgay',f"""WHERE [Date] BETWEEN '{fromDateString}' AND '{toDateString}'""")
-    INSERT(connect_DWH_ThiTruong,'DuLieuGiaoDichNgay',table)
+    BATCHINSERT(connect_DWH_ThiTruong,'DuLieuGiaoDichNgay',table)
 
     if __name__=='__main__':
         print(f"{__file__.split('/')[-1].replace('.py','')}::: Finished")

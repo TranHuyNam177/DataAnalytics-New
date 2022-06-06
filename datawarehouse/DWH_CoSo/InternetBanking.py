@@ -80,12 +80,13 @@ def runBankCurrentBalance(bankObject,fromDate,toDate):
     fromDateString = fromDate.strftime('%Y-%m-%d')
     toDateString = toDate.strftime('%Y-%m-%d')
     DELETE(connect_DWH_CoSo,'BankCurrentBalance',f"""WHERE [Date] BETWEEN '{fromDateString}' AND '{toDateString}' AND [Bank] = '{bankObject.bank}'""")
-    INSERT(connect_DWH_CoSo,'BankCurrentBalance',balanceTable)
+    BATCHINSERT(connect_DWH_CoSo,'BankCurrentBalance',balanceTable)
 
     return bankObject # destroy the object to close opening Chrome driver (call __del__ magic method)
 
 @GetDataMonitor
 def runBankDepositBalance(bankObject):
+
     """
     :param bankObject: Bank Object (đã login)
     """
@@ -105,7 +106,7 @@ def runBankDepositBalance(bankObject):
 
     dateString = balanceTable['Date'].max().strftime('%Y-%m-%d')
     DELETE(connect_DWH_CoSo,'BankDepositBalance',f"""WHERE [Date] = '{dateString}' AND [Bank] = '{bankObject.bank}'""")
-    INSERT(connect_DWH_CoSo,'BankDepositBalance',balanceTable)
+    BATCHINSERT(connect_DWH_CoSo,'BankDepositBalance',balanceTable)
 
     return bankObject
 
@@ -125,7 +126,7 @@ def runBankTransactionHistory(bankObject,fromDate,toDate,cBankAccountsOnly):
     fromTimeString = fromDate.strftime('%Y-%m-%d 00:00:00')
     toTimeString = toDate.strftime('%Y-%m-%d 23:59:59')
     DELETE(connect_DWH_CoSo,'BankTransactionHistory',f"""WHERE [Time] BETWEEN '{fromTimeString}' AND '{toTimeString}' AND [Bank] = '{bankObject.bank}'""")
-    INSERT(connect_DWH_CoSo,'BankTransactionHistory',balanceTable)
+    BATCHINSERT(connect_DWH_CoSo,'BankTransactionHistory',balanceTable)
 
     return bankObject
 

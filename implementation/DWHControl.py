@@ -1,21 +1,11 @@
 from implementation import TaskMonitor
 
 @TaskMonitor
-def DWH_CoSoCheckTodayUpdate():
-    from datawarehouse.DWH_CoSo import CheckSyncUpdate
-    CheckSyncUpdate.CheckToday('DWH-CoSo').run()
+def DWH_NotifySyncStatusToday(db):
+    from datawarehouse import NOTIFYSYNCSTATUSTODAY
+    NOTIFYSYNCSTATUSTODAY(db)
 
 @TaskMonitor
-def DWH_PhaiSinhCheckTodayUpdate():
-    from datawarehouse.DWH_CoSo import CheckSyncUpdate
-    CheckSyncUpdate.CheckToday('DWH-PhaiSinh').run()
-
-@TaskMonitor
-def DWH_CoSoCheckBackDateUpdate():
-    from datawarehouse.DWH_CoSo import CheckSyncUpdate
-    CheckSyncUpdate.CheckBackDate('DWH-CoSo').run()
-
-@TaskMonitor
-def DWH_PhaiSinhCheckBackDateUpdate():
-    from datawarehouse.DWH_CoSo import CheckSyncUpdate
-    CheckSyncUpdate.CheckBackDate('DWH-PhaiSinh').run()
+def DWH_NotifySyncStatusBackDate(db):
+    from datawarehouse import NOTIFYSYNCSTATUSBACKDATE
+    NOTIFYSYNCSTATUSBACKDATE(db)

@@ -1,3 +1,5 @@
+import time
+
 from automation.finance import *
 
 def runBIDV(bankObject):
@@ -106,6 +108,7 @@ def runVTB(bankObject):
     bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Tài khoản'))).click()
     # Click sub-menu "Danh sách tài khoản"
     bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Danh sách tài khoản'))).click()
+    time.sleep(1)
     # Download File
     xpath = '//*[@src="/public/img/icon/icon-download.svg"]'
     _, downloadElement, _ = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
@@ -283,7 +286,6 @@ def runOCB(bankObject):
     xpath = '//*[@id="side-nav"]/ul/li[7]/div[2]/span'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     time.sleep(5) # chờ chuyển trang
-
     # Click download
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,'//*[@placeholder="Tải về"]'))).click()
     bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,'//*[@ng-click="downloadFile(option)"]'))).click()
@@ -306,12 +308,22 @@ def runOCB(bankObject):
     downloadTable['TermDays'] = (downloadTable['ExpireDate']-downloadTable['IssueDate']).dt.days
     downloadTable['TermMonths'] = round(downloadTable['TermDays']/30)
 
-    # Số dư
-    xpath = '//*[@class="above"]/div/*[@class!="num"]'
-    accountKeys = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
-    xpath = '//*[@amount="deposit.depositBalance"]/span[@class="bd-amount__value mg-right"]'
-    balanceValues = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
-    mapper = {k.text: float(v.text.replace(',','')) for k,v in zip(accountKeys,balanceValues)}
+    # Số dư: Tìm số lượng trang
+    xpath = '//*[@class="bd-pagination__number"]'
+    pageButtonElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+    pageNumbers = [elem.text for elem in pageButtonElements if elem.text in '0123456789' and elem.text]
+    mapper = dict()
+    for pageNumber in pageNumbers:
+        # Click chọn trang
+        xpath = f'//*[@class="bd-pagination__number" and text()="{pageNumber}"]'
+        bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        time.sleep(5)
+        xpath = '//*[@class="above"]/div/*[@class!="num"]'
+        accountKeys = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+        xpath = '//*[@amount="deposit.depositBalance"]/span[@class="bd-amount__value mg-right"]'
+        balanceValues = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+        for k,v in zip(accountKeys,balanceValues):
+            mapper[k.text] = float(v.text.replace(',',''))
     downloadTable['Balance'] = downloadTable['AccountNumber'].map(mapper)
     # Ngày
     now = dt.datetime.now()

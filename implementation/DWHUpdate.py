@@ -153,3 +153,17 @@ def DWHThiTruongUpdate_TinChungKhoan():
     from datawarehouse.DWH_ThiTruong.TinChungKhoan import update as Update_TinChungKhoan
     Update_TinChungKhoan(24)
 
+@TaskMonitor
+def DWHThiTruongUpdate_SecuritiesInfoVSD(): # mỗi ngày update 1000 ID -> một tháng 30,000
+    import datetime as dt
+    from datawarehouse.DWH_ThiTruong.SecuritiesInfoVSD import run as Update_SecuritiesInfoVSD
+    day = max(dt.datetime.now().day,30)
+    startID = (day-1) * 1000
+    endID = day * 1000
+    Update_SecuritiesInfoVSD(startID,endID)
+
+@TaskMonitor
+def DWHCoSoUpdate_DanhMucChoVayMargin():
+    import datetime as dt
+    from datawarehouse.DWH_CoSo.DanhMucChoVayMargin import run as Update_DanhMucChoVayMargin
+    Update_DanhMucChoVayMargin(dt.datetime(2022,5,21))

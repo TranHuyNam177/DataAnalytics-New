@@ -1,7 +1,7 @@
 from dependency import *
-from datawarehouse import INSERT, DELETE
+from market import __convertInteger__
 
-def security(d):
+def SECURITY(d):
 
     filePath = fr"Y:\BACKUP{__convertInteger__(d)}\SECURITY.DAT"
     sequenceLength = 294 # tested
@@ -82,3 +82,34 @@ def security(d):
             dataTable[col] = pd.to_datetime(dataTable[col],format='%d%m%y').replace({'':None,pd.NaT:None})
 
     return dataTable
+
+
+def CS_VN30():
+
+    filePath = r"X:\CS_VN30.DAT"
+    sequenceLength = 10 # tested
+
+    dataMap = {
+        'StockNo':'H',
+        'StockSymbol':'8s',
+    }
+    __pattern = '<' + ''.join(dataMap.values())
+
+    with open(filePath,'rb') as file:
+        data = file.read()
+        sequenceNumber = len(data) // sequenceLength
+        records = []
+        for sequence in range(sequenceNumber):
+            loc = sequence * sequenceLength
+            records.append(struct.unpack_from(__pattern,data,loc))
+
+    dataTable = pd.DataFrame(records,columns=dataMap.keys())
+    for col in dataTable.columns:
+        if dataTable[col].dtype == object: # Xử lý các cột string
+            dataTable[col] = dataTable[col].str.decode('utf8').str.rstrip().str.lstrip()
+    runDate = dt.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0)
+    dataTable.insert(0,'Date',runDate)
+
+    return dataTable
+
+
