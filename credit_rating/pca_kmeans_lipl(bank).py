@@ -467,13 +467,6 @@ def graph_tickers(tickers: list):
         plt.savefig(join(destination_dir,'Result',f'{ticker}_result.png'))
 
 
-def graph_crash(benchmark: float,
-                period: str,
-                exchange: str = 'all'):
-    crash = ta.crash(benchmark,'bank',exchange)
-    compare_rs(crash[period])
-
-
 def compare_industry(tickers: list):
     components = {
         'asset_':'Total Assets',

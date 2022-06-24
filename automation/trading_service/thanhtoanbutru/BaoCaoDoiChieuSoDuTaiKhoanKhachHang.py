@@ -1,5 +1,5 @@
 from automation.trading_service.thanhtoanbutru import *
-from datawarehouse import EXEC, BDATE
+from datawarehouse import SYNC, BDATE
 
 # DONE
 def generateTempData(
@@ -44,7 +44,7 @@ def run(
     ###################################################
     ###################################################
 
-    EXEC(connect_DWH_CoSo,'spsub_account_deposit',FrDate=t0_date,ToDate=t0_date)
+    SYNC(connect_DWH_CoSo,'spsub_account_deposit',FrDate=t0_date,ToDate=t0_date)
 
     # --------------------- Viết Query ---------------------
     info_table = pd.read_sql(
@@ -256,7 +256,7 @@ def run(
     worksheet.merge_range('C1:L1',CompanyName,company_name_format)
     worksheet.merge_range('C2:L2',CompanyAddress,company_info_format)
     worksheet.merge_range('C3:L3',CompanyPhoneNumber,company_info_format)
-    worksheet.write_row('A4',['']*14,empty_row_format)
+    worksheet.write_row('A4',['']*12,empty_row_format)
     worksheet.merge_range('A7:L7',sheet_title_name,sheet_title_format)
     worksheet.merge_range('A8:L8',sub_title_name,sub_title_date_format)
     worksheet.merge_range('A10:A11','STT',headers_format)

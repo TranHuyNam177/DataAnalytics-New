@@ -1,13 +1,13 @@
 from function import *
 
+with open(r'C:\Users\hiepdang\Desktop\Passwords\DataBase\DataBase.txt') as file:
+    user,password = file.readlines()
+    user = user.replace('\n','')
+
 # Risk Database Information
 driver_RMD = '{SQL Server}'
 server_RMD = 'SRV-RPT'
 db_RMD = 'RiskDb'
-
-with open(r'C:\Users\hiepdang\Desktop\Passwords\DataBase\DataBase.txt') as file:
-    user,password = file.readlines()
-    user = user.replace('\n','')
 
 connect_RMD = pyodbc.connect(
     f'Driver={driver_RMD};'

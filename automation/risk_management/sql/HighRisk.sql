@@ -182,7 +182,7 @@ WITH
         CASE
             WHEN [HighRisk].[Price] > [MR].[MaxPrice]
                 THEN (ISNULL([GeneralRoom].[GeneralRoom],0)+ISNULL([SpecialRoom].[SpecialRoom],0))*[MR].[MaxPrice]*[MR].[MRRatio]/100/1000000000
-            ELSE (ISNULL([GeneralRoom].[GeneralRoom],0)+ISNULL([SpecialRoom].[SpecialRoom],0))*[MR].[MaxPrice]*[MR].[MRRatio]/100/1000000000
+            ELSE (ISNULL([GeneralRoom].[GeneralRoom],0)+ISNULL([SpecialRoom].[SpecialRoom],0))*[HighRisk].[Price]*[MR].[MRRatio]/100/1000000000
         END [TotalPotentialOutstanding]
     FROM [HighRisk]
     LEFT JOIN [Info] ON [Info].[TaiKhoan] = [HighRisk].[Account] 

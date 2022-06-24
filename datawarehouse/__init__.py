@@ -124,15 +124,95 @@ def EXEC(
     Example: EXEC(connect_DWH_CoSo, 'spvrm6631', FrDate='2022-03-01', ToDate='2022-03-01')
     """
 
+    cursor = conn.cursor()
     sqlStatement = f'SET NOCOUNT ON; EXEC {sp}'
     for k,v in params.items():
         sqlStatement += f" @{k} = '{v}',"
-
     sqlStatement = sqlStatement.rstrip(',')
-    print(sqlStatement)
 
-    cursor = conn.cursor()
     cursor.execute(sqlStatement)
+    print(sqlStatement)
+    cursor.commit()
+    cursor.close()
+
+
+def SYNC(
+    conn,
+    StoredProcedure:str,
+    FrDate:str=None,
+    ToDate:str=None,
+    SoLanLui:str=None,
+):
+
+    """
+    This function runs the underlying stored procedure through Web Service to sync the associated table
+
+    :param conn: connection object of the Database
+    :param StoredProcedure: name of the stored procedure
+    :param FrDate: FrDate string
+    :param ToDate: ToDate string
+    :param SoLanLui: Số ngày lùi
+    """
+
+    dbName = conn.getinfo(pyodbc.SQL_DATABASE_NAME)
+    if dbName == 'DWH-CoSo':
+        action = 'RunStoreCoSo'
+    elif dbName == 'DWH-PhaiSinh':
+        action = 'RunStorePhaiSinh'
+    else:
+        raise ValueError('Invalid Connection Object')
+
+    URL = 'http://192.168.6.103/RunStoreDWH/RunStore.asmx'
+    hostName = '192.168.6.103'
+    key = 'abcdef123456'
+    body = f"""<?xml version="1.0" encoding="utf-8"?>
+        <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap:Body>
+                <{action} xmlns="http://tempuri.org/">
+                <StoreName>{StoredProcedure}</StoreName>
+                <FrDate>{FrDate}</FrDate>
+                <ToDate>{ToDate}</ToDate>
+                <SoLanLui>{str(SoLanLui)}</SoLanLui>
+                <Key>{key}</Key>
+            </{action}>
+            </soap:Body>
+        </soap:Envelope>"""
+    headers = {
+        'Content-Type': 'text/xml; charset=utf-8',
+        'Host': hostName,
+        'SOAPAction': f'http://tempuri.org/{action}',
+        'Content-Length': str(len(body))
+    }
+    r = requests.post(URL,data=body,headers=headers)
+    if r.status_code != 200:
+        raise RuntimeError('Không thể chạy Stored Procedure qua Web Service')
+    if 'thành công' not in r.text:
+        raise RuntimeError(r.text)
+
+
+def CONFIG(
+    conn,
+    StoreName:str,
+    **kwargs,
+):
+
+    """
+    This function changes the config table that controls the running rules of stored procedures
+
+    :param conn: connection object of the Database
+    :param StoreName: name of the stored procedure
+    :param kwargs: name of the attribute to change
+    """
+
+    dbName = conn.getinfo(pyodbc.SQL_DATABASE_NAME)
+    cursor = conn.cursor()
+    sqlStatement = f'USE [{dbName}]; UPDATE [StoreConfig] SET'
+    for k,v in kwargs.items():
+        sqlStatement += f" [{k}] = '{v}',"
+    sqlStatement = sqlStatement.rstrip(',')
+    sqlStatement += f" WHERE [StoreName] = '{StoreName}'"
+    cursor.execute(sqlStatement)
+    print(sqlStatement)
     cursor.commit()
     cursor.close()
 
@@ -198,10 +278,31 @@ def BDATE(
         return f'{date[:4]}-{date[5:7]}-{date[-2:]}'
 
 
+def LASTBATCH(conn,batchType:int):
+    dbName = conn.getinfo(pyodbc.SQL_DATABASE_NAME)
+    if dbName == 'DWH-CoSo':
+        return pd.read_sql(
+            f"""
+            SELECT MAX([batch_end]) FROM [batch] 
+            WHERE [batch_type] = {batchType}
+            """,
+            conn,
+        ).squeeze().to_pydatetime()
+    elif dbName == 'DWH-PhaiSinh':
+        return pd.read_sql(
+            f"""
+            SELECT MAX([batch_end]) FROM [batch] 
+            """,
+            conn,
+        ).squeeze().to_pydatetime()
+    else:
+        raise ValueError("Invalid Database")
+
+
 def CHECKBATCH(conn,batchType:int) -> bool:
 
     """
-    This function EXEC spbatch to see if batch job finishes.
+    This function SYNC spbatch to see if batch job finishes.
     Return True if batch finishes, False if not finishes
 
     :param conn: connection object of the Database
@@ -211,7 +312,7 @@ def CHECKBATCH(conn,batchType:int) -> bool:
     todayString = dt.datetime.now().strftime('%Y-%m-%d')
     dbName = conn.getinfo(pyodbc.SQL_DATABASE_NAME)
     if dbName == 'DWH-CoSo':
-        EXEC(conn,'spbatch',FrDate=todayString,ToDate=todayString)
+        SYNC(conn,'spbatch',FrDate=todayString,ToDate=todayString)
         batchTable = pd.read_sql(
             f"""
             SELECT * FROM [batch] WHERE [batch].[date] = '{todayString}' AND [batch].[batch_type] = {batchType}
@@ -219,7 +320,7 @@ def CHECKBATCH(conn,batchType:int) -> bool:
             conn,
         )
     elif dbName == 'DWH-PhaiSinh':
-        EXEC(conn,'spbatch',FrDate=todayString,ToDate=todayString)
+        SYNC(conn,'spbatch',FrDate=todayString,ToDate=todayString)
         batchTable = pd.read_sql(
             f"""
             SELECT * FROM [batch] WHERE [batch].[date] = '{todayString}'
@@ -227,7 +328,7 @@ def CHECKBATCH(conn,batchType:int) -> bool:
             conn,
         )
     else:
-        raise ValueError(f'Invalid database: {dbName}')
+        raise ValueError(f'Invalid Database')
 
     if batchTable.shape[0]:
         print(f"Batch done at: {batchTable.loc[batchTable.index[-1],'batch_end']}")
@@ -258,7 +359,12 @@ def AFTERBATCH(conn,batchType): # decorator
 
 def LASTSYNC(conn,tableName=None):
 
-    if conn == connect_DWH_CoSo:
+    """
+    Last sync time of a table. If tableName = None, return last run time of RunCoSo, RunPhaiSinh
+    """
+
+    dbName = conn.getinfo(pyodbc.SQL_DATABASE_NAME)
+    if dbName == 'DWH-CoSo':
         if tableName is None:
             return pd.read_sql(
                 f"""
@@ -277,7 +383,7 @@ def LASTSYNC(conn,tableName=None):
                 """,
                 conn,
             ).squeeze().to_pydatetime()
-    elif conn == connect_DWH_PhaiSinh:
+    elif dbName == 'DWH-PhaiSinh':
         if tableName is None:
             return pd.read_sql(
                 f"""
@@ -298,6 +404,22 @@ def LASTSYNC(conn,tableName=None):
             ).squeeze().to_pydatetime()
     else:
         raise ValueError("Invalid Database")
+
+
+def CHECKSYNC(
+    conn,
+    batchType:int,
+    tableName:str=None,
+):
+
+    """
+    Check if the sync process has been done following the batch job. If tableName = None, return last run time of RunCoSo, RunPhaiSinh
+    """
+
+    lastBatchTime = LASTBATCH(conn,batchType)
+    lastSyncTime = LASTSYNC(conn,tableName)
+
+    return lastSyncTime.time() > lastBatchTime.time() and lastSyncTime.date() == lastBatchTime.date()
 
 
 def NOTIFYSYNCSTATUSTODAY(db):
@@ -465,13 +587,13 @@ def NOTIFYSYNCSTATUSBACKDATE(db):
     if checkTable['START'] < days or checkTable['END'] < days:
         content = f"""
             <p style="font-family:Times New Roman; font-size:100%"><i>
-                UPDATE BACKDATE THẤT BẠI
+                SYNC BACKDATE THẤT BẠI
             </i></p>
         """
     else:
         content = f"""
             <p style="font-family:Times New Roman; font-size:100%"><i>
-                UPDATE BACKDATE THÀNH CÔNG
+                SYNC BACKDATE THÀNH CÔNG
             </i></p>
         """
 

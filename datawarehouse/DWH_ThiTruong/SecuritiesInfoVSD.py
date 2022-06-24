@@ -7,7 +7,7 @@ def __cleanText__(x):
         x = x.replace(char,'')
     return x.replace('\n','').strip()
 
-def run(idStart=1,idEnd=20000):
+def run(idStart=1,idEnd=30000):
 
     """
     This function updates data to table [DWH-ThiTruong].[dbo].[SecuritiesInFoVSD]

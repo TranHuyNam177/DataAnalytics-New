@@ -1,5 +1,5 @@
 from automation.trading_service.thanhtoanbutru import *
-from datawarehouse import EXEC
+from datawarehouse import SYNC
 
 # DONE
 def run(
@@ -31,7 +31,7 @@ def run(
 
     if run_time is None or run_time.date() == dt.datetime.now().date(): # chạy vào hiện tại
         # Update data:
-        EXEC(connect_DWH_CoSo,'spvrm6631',FrDate=t0_date,ToDate=t0_date)
+        SYNC(connect_DWH_CoSo,'spvrm6631',FrDate=t0_date,ToDate=t0_date)
 
     # Query
     def get_full_list(account_type):

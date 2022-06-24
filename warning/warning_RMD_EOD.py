@@ -1,119 +1,114 @@
-from request.stock import *
+import datetime as dt
+import pandas as pd
+import time
+from datawarehouse import connect_DWH_CoSo, BDATE
+from function import fc_price
 
 
 def run(
-    mlist:bool=True,
-    exchange:str='HOSE',
-    segment:str='all'
-) \
-        -> pd.DataFrame:
-    """
-    This method returns list of tickers that up ceil (fc_type='ceil')
-    or down floor (fc_type='floor') in a given exchange of a given segment
-    in n consecutive trading days
-
-    :param mlist: report margin list only (True) or not (False)
-    :param exchange: allow values in fa.exchanges. Do not allow 'all'
-    :param segment: allow values in fa.segments or 'all'.
-    For mlist=False only, if mlist=True left as default
-
-    :return: pd.DataFrame (columns: 'Ticker', 'Exchange', 'Consecutive Days'
-    """
+    run_time=dt.datetime.now()
+) -> pd.DataFrame:
 
     start_time = time.time()
-    now = dt.datetime.now().strftime('%Y-%m-%d')
-    # xét 3 tháng gần nhất, nếu sửa ở đây thì phải sửa dòng ngay dưới
-    since = bdate(now,-22*3)
-    three_month_ago = since
-
-    mrate_series = internal.margin['mrate']
-    drate_series = internal.margin['drate']
-    maxprice_series = internal.margin['max_price']
-    general_room_seires = internal.margin['general_room']
-    special_room_series = internal.margin['special_room']
-    total_room_series = internal.margin['total_room']
-
-    if mlist is True:
-        full_tickers = internal.mlist(exchanges=[exchange])
-    else:
-        full_tickers = fa.tickers(segment,exchange)
-
-    records = []
-    for ticker in full_tickers:
-        df = ta.hist(ticker,fromdate=since,todate=now)[['trading_date','ref','close','total_volume']]
-        df.set_index('trading_date',drop=True,inplace=True)
-        df[['ref','close']] = (df[['ref','close']]*1000).round(0).astype(np.int64)
-        df['total_volume'] = df['total_volume'].astype(np.int64)
-        df['floor'] = df['ref'].apply(
-            fc_price,
-            price_type='floor',
-            exchange=exchange
+    _rundate = run_time.strftime('%Y-%m-%d')
+    # xét 3 tháng gần nhất
+    _3M_ago = BDATE(_rundate,-66)
+    _12D_ago = BDATE(_rundate,-12)
+    
+    table = pd.read_sql(
+        f"""
+        WITH 
+        [RawTable] AS (
+            SELECT
+                [DanhMuc].[Ngay],
+                [DanhMuc].[MaCK],
+                [DanhMuc].[SanGiaoDich],
+                MAX([DanhMuc].[Ngay]) OVER (PARTITION BY [MaCK]) [LastMarinDate],
+                [DanhMuc].[TyLeVayKyQuy],
+                [DanhMuc].[TyLeVayTheChap],
+                [DanhMuc].[GiaVayGiaTaiSanDamBaoToiDa],
+                [DanhMuc].[RoomChung],
+                [DanhMuc].[RoomRieng],
+                [DanhMuc].[TongRoom],
+                [ThiTruong].[Ref] * 1000 [RefPrice],
+                [ThiTruong].[Close] * 1000 [ClosePrice],
+                [ThiTruong].[Volume],
+                AVG([ThiTruong].[Volume]) OVER (PARTITION BY [Ticker] ORDER BY [Ngay] ROWS BETWEEN 65 PRECEDING AND CURRENT ROW) [AvgVolume3M],
+                AVG([ThiTruong].[Volume]) OVER (PARTITION BY [Ticker] ORDER BY [Ngay] ROWS BETWEEN 21 PRECEDING AND CURRENT ROW) [AvgVolume1M],	
+                AVG([ThiTruong].[Volume]) OVER (PARTITION BY [Ticker] ORDER BY [Ngay] ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) [AvgVolume1W],
+                CASE
+                    WHEN [ThiTruong].[Volume] < AVG([ThiTruong].[Volume]) OVER (PARTITION BY [Ticker] ORDER BY [Ngay] ROWS BETWEEN 21 PRECEDING AND CURRENT ROW)
+                        THEN 1
+                    ELSE 0
+                END [FlagIlliquidity1M]
+            FROM [DWH-CoSo].[dbo].[DanhMucChoVayMargin] [DanhMuc]
+            LEFT JOIN [DWH-ThiTruong].[dbo].[DuLieuGiaoDichNgay] [ThiTruong]
+                ON [DanhMuc].[MaCK] = [ThiTruong].[Ticker]
+                AND [DanhMuc].[Ngay] = [ThiTruong].[Date]
+            WHERE [DanhMuc].[Ngay] BETWEEN '{_3M_ago}' AND '{_rundate}' 
+                AND [ThiTruong].[Ref] IS NOT NULL -- bỏ ngày nghỉ
         )
+        SELECT 
+            [RawTable].*,
+            CASE WHEN [AvgVolume3M] <> 0 THEN [RawTable].[TongRoom] / [RawTable].[AvgVolume3M] ELSE 0 END [ApprovedRoomOnAvgVolume3M],
+            CASE WHEN [AvgVolume3M] <> 0 THEN [RawTable].[Volume] / [RawTable].[AvgVolume1M] - 1 ELSE 0 END [LastDayVolumeOnAvgVolume1M],
+            SUM([RawTable].[FlagIlliquidity1M]) OVER (PARTITION BY [MaCK] ORDER BY [Ngay] ROWS BETWEEN 21 PRECEDING AND CURRENT ROW) [CountIlliquidity1M]
+        FROM [RawTable]
+        WHERE [RawTable].[AvgVolume1M] <> 0 -- 1 tháng vừa rồi có giao dịch (để đảm bảo không bị lỗi chia cho 0)
+            AND [LastMarinDate] = '{_rundate}' -- chỉ lấy các mã còn cho vay ở thời điểm chạy
+        ORDER BY [RawTable].[MaCK], [RawTable].[Ngay]
+        """,
+        connect_DWH_CoSo
+    )
+    table = table.drop('FlagIlliquidity1M',axis=1)
+    table = table.loc[table['Ngay']>=dt.datetime.strptime(_12D_ago,'%Y-%m-%d')] # 12 phiên gần nhất
+    table['FloorPrice'] = table.apply(
+        lambda x: fc_price(x['RefPrice'],'floor',x['SanGiaoDich']),
+        axis=1,
+    )
+    records = []
+    for stock in table['MaCK'].unique():
+        subTable = table[table['MaCK']==stock]
         # giam san lien tiep
         n_floor = 0
-        for i in range(df.shape[0]):
-            condition1 = (df.loc[df.index[-i-1:],'floor']==df.loc[df.index[-i-1:],'close']).all()
-            condition2 = (df.loc[df.index[-i-1:],'floor']!=df.loc[df.index[-i-1:],'ref']).all()
-            # the second condition is to ignore trash tickers whose price
-            # less than 1000 VND (a single price step equivalent to
-            # more than 7%(HOSE), 10%(HNX), 15%(UPCOM))
+        for i in range(subTable.shape[0]):
+            condition1 = (subTable.loc[subTable.index[-i-1:],'FloorPrice']==subTable.loc[subTable.index[-i-1:],'ClosePrice']).all()
+            condition2 = (subTable.loc[subTable.index[-i-1:],'FloorPrice']!=subTable.loc[subTable.index[-i-1:],'RefPrice']).all()
+            # condition2 is to ignore trash tickers in which a single price step leads to floor price
             if condition1 and condition2:
                 n_floor += 1
             else:
                 break
-        # mat thanh khoan trong 1 thang
-        avg_vol_1m = df.loc[df.index[-22]:,'total_volume'].mean()
-        n_illiquidity = (df.loc[df.index[-22]:,'total_volume']<avg_vol_1m).sum()
-        # thanh khoan ngay gan nhat so voi thanh khoan trung binh 1 thang
-        volume = df.loc[df.index[-1],'total_volume']
-        volume_change_1m = volume/avg_vol_1m-1
+        subTable = subTable.iloc[[-1]]
+        subTable.insert(subTable.shape[1],'ConsecutiveFloors',n_floor)
+        records.append(subTable)
+        print(stock,'::: Done')
 
-        n_illiquidity_bmk = 1
-        n_floor_bmk = 1
-
-        condition1 = n_floor>=n_floor_bmk
-        condition2 = n_illiquidity>=n_illiquidity_bmk
-
-        if condition1 or condition2:
-            print(ticker,'::: Warning')
-            mrate = mrate_series.loc[ticker]
-            drate = drate_series.loc[ticker]
-            avg_vol_1w = df.loc[df.index[-5]:,'total_volume'].mean()
-            avg_vol_1m = df.loc[df.index[-22]:,'total_volume'].mean()
-            avg_vol_3m = df.loc[three_month_ago:,'total_volume'].mean()  # để tránh out-of-bound error
-            max_price = maxprice_series.loc[ticker]
-            general_room = general_room_seires.loc[ticker]
-            special_room = special_room_series.loc[ticker]
-            total_room = total_room_series.loc[ticker]
-            room_on_avg_vol_3m = total_room/avg_vol_3m
-            record = pd.DataFrame({
-                'Stock':[ticker],
-                'Exchange':[exchange],
-                'Tỷ lệ vay KQ (%)':[mrate],
-                'Tỷ lệ vay TC (%)':[drate],
-                'Giá vay / Giá TSĐB tối đa (VND)':[max_price],
-                'General Room':[general_room],
-                'Special Room':[special_room],
-                'Total Room':[total_room],
-                'Consecutive Floor Days':[n_floor],
-                'Last day Volume':[volume],
-                '% Last day volume / 1M Avg.':[volume_change_1m],
-                '1W Avg. Volume':[avg_vol_1w],
-                '1M Avg. Volume':[avg_vol_1m],
-                '3M Avg. Volume':[avg_vol_3m],
-                'Approved Room / Avg. Liquidity 3 months':[room_on_avg_vol_3m],
-                '1M Illiquidity Days':[n_illiquidity],
-            })
-            records.append(record)
-        else:
-            print(ticker,'::: Success')
-
-        print('-------------------------')
-
+    print('-------------------------')
     result_table = pd.concat(records,ignore_index=True)
-    result_table.sort_values('Consecutive Floor Days',ascending=False,inplace=True)
+    result_table.sort_values('ConsecutiveFloors',ascending=False,inplace=True)
+    nameMapper = {
+        'MaCK':'Stock',
+        'SanGiaoDich':'Exchange',
+        'TyLeVayKyQuy':'Tỷ lệ vay KQ (%)',
+        'TyLeVayTheChap':'Tỷ lệ vay TC (%)',
+        'GiaVayGiaTaiSanDamBaoToiDa':'Giá vay / Giá TSĐB tối đa (VND)',
+        'RoomChung':'General Room',
+        'RoomRieng':'Special Room',
+        'TongRoom':'Total Room',
+        'ConsecutiveFloors':'Consecutive Floor Days',
+        'Volume':'Last day Volume',
+        'LastDayVolumeOnAvgVolume1M':'% Last day volume / 1M Avg.',
+        'AvgVolume1W':'1W Avg. Volume',
+        'AvgVolume1M':'1M Avg. Volume',
+        'AvgVolume3M':'3M Avg. Volume',
+        'ApprovedRoomOnAvgVolume3M':'Approved Room / Avg. Liquidity 3 months',
+        'CountIlliquidity1M':'1M Illiquidity Days',
+    }
+    result_table = result_table.reindex(nameMapper.keys(),axis=1)
+    result_table = result_table.rename(nameMapper,axis=1)
 
     print('Finished!')
-    print("Total execution time is: %s seconds"%np.round(time.time()-start_time,2))
+    print(f"Total execution time is: {round(time.time()-start_time,2)} seconds")
 
     return result_table

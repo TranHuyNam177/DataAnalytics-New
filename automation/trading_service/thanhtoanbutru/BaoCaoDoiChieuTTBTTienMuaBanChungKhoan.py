@@ -1,20 +1,3 @@
-"""
-I. RCF1002 -> cash_balance
-   ROD0040 -> trading_record
-II. Rule:
-    1. Phần Kết quả khớp lệnh (ROD0040):
-        - Nếu loại lệnh = MUA -> điều kiện ngày là T0
-        - Nếu loại lệnh = BÁN -> điều kiện ngày là T-2
-    2. Phần Theo giao dịch tiền (RCF1002)
-        - Điều kiện ngày là T0
-    3. Cột Ngày giao dịch
-        - Nếu Loại lệnh = MUA -> ngày giao dịch = T0
-        - Nếu loại lệnh = BÁN -> ngày giao dịch T-2
-    4. Cột Ngày thanh toán = T0
-    5. Cột thuế
-        - Thuế trong 'Kết quả khớp lệnh' (ROD0040) = tax_of_selling + tax_of_share_dividend
-        - Thuế trong 'Theo giao dịch tiền' (RCF1002) lấy giá trị của cột decrease với transaction_id = 0066 (lấy toàn bộ)
-"""
 from automation.trading_service.thanhtoanbutru import *
 
 

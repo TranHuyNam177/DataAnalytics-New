@@ -1,5 +1,3 @@
-import time
-
 from automation.finance import *
 
 def runBIDV(bankObject):
@@ -163,8 +161,8 @@ def runIVB(bankObject):
     # Click subtab "Thông tin tài khoản"
     bankObject.wait.until(EC.visibility_of_element_located((By.ID,'1_1'))).click()
     # Click "Tài khoản tiền gửi có kỳ hạn"
+    bankObject.driver.switch_to.frame('mainframe')
     while True:
-        bankObject.driver.switch_to.frame('mainframe')
         xpath = '//*[@id="sa_layer_pan"]/span'
         bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,xpath))).click()
         # Lấy thông tin
@@ -341,4 +339,156 @@ def runOCB(bankObject):
     os.remove(join(bankObject.downloadFolder,downloadFile))
 
     return balanceTable
+
+def runFUBON(bankObject):
+
+    """
+    :param bankObject: Bank Object (đã login)
+    """
+
+    # Dọn dẹp folder trước khi download
+    today = dt.datetime.now().strftime('%Y%m%d')
+    for file in listdir(bankObject.downloadFolder):
+        if file.startswith(today):
+            os.remove(join(bankObject.downloadFolder,file))
+    # Click "Deposit Account"
+    bankObject.driver.switch_to.frame('topmenu')
+    xpath = "//*[contains(text(),'Deposit Account')]"
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    # Click "Account Overview"
+    bankObject.driver.switch_to.default_content()
+    bankObject.driver.switch_to.frame('menu')
+    bankObject.driver.switch_to.frame('area')
+    bankObject.driver.switch_to.frame('info')
+    xpath = "//*[contains(text(),'Account Overview')]"
+    _, clickObject = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+    clickObject.click()
+    # Click "EXCEL File Download"
+    bankObject.driver.switch_to.default_content()
+    bankObject.driver.switch_to.frame('main')
+    bankObject.driver.switch_to.frame('Data3')
+    xpath = '//*[contains(@value,"EXCEL File Download")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    # Đọc file
+    while True:
+        downloadFile = first(listdir(bankObject.downloadFolder),lambda x: x.startswith(today) and 'download' not in x)
+        if downloadFile:  # download xong -> có file
+            break
+        time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
+    downloadTable = pd.read_excel(
+        join(bankObject.downloadFolder,downloadFile),
+        usecols='A,C,E:J',
+    )
+    startRow = downloadTable.loc[downloadTable.iloc[:,0].map(lambda x: isinstance(x,str) and 'Time Deposit Account' in x)].index[0] + 2
+    endRow = downloadTable.loc[downloadTable.iloc[:,0].map(lambda x: isinstance(x,str) and 'Time Deposit Total' in x)].index[0]
+    balanceTable = balanceTable.iloc[startRow:endRow,1:]
+    balanceTable.columns = [
+        'AccountNumber',
+        'Currency',
+        'Balance',
+        'InterestRate',
+        'TermDays',
+        'IssueDate',
+        'ExpireDate',
+    ]
+    # Date
+    now = dt.datetime.now()
+    if now.hour >= 12:
+        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+    else:
+        d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+    balanceTable.insert(0,'Date',d)
+    # Bank
+    balanceTable.insert(1,'Bank',bankObject.bank)
+    # Balance
+    balanceTable['Balance'] = balanceTable['Balance'].str.replace('(,|\.\d*)','',regex=True).astype(np.int64)
+    # TermDays
+    balanceTable['TermDays'] = balanceTable['TermDays'].str.replace('[^0-9]','',regex=True).astype(np.int64)
+    # TermMonths
+    balanceTable['TermMonths'] = round(balanceTable['TermDays']/30)
+    # Interest Rate
+    balanceTable['InterestRate'] = balanceTable['InterestRate'].astype(np.float64) / 100
+    # Issue Date
+    balanceTable['IssueDate'] = balanceTable['IssueDate'].map(lambda x: dt.datetime.strptime(x,'%Y/%m/%d'))
+    # Expire Date
+    balanceTable['ExpireDate'] = balanceTable['ExpireDate'].map(lambda x: dt.datetime.strptime(x,'%Y/%m/%d'))
+    # Interest Amount
+    balanceTable['InterestAmount'] = None
+    # Xóa file
+    os.remove(join(bankObject.downloadFolder,downloadFile))
+
+    return balanceTable
+
+def runFIRST(bankObject):
+
+    """
+    :param bankObject: Bank Object (đã login)
+    """
+
+    # Dọn dẹp folder trước khi download
+    for file in listdir(bankObject.downloadFolder):
+        if 'COSDATDQU' in file:
+            os.remove(join(bankObject.downloadFolder,file))
+    # Click "Account Inquiry"
+    bankObject.driver.switch_to.default_content()
+    bankObject.driver.switch_to.frame('iFrameID')
+    xpath = '//*[contains(text(),"Account Inquiry")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    # Click "Time Deposit Detail"
+    time.sleep(0.5)
+    xpath = '//*[contains(text(),"Time Deposit Detail")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    # Chọn từng tài khoản từ dropdown list
+    bankObject.driver.switch_to.frame('mainFrame')
+    xpath = '//*[contains(text(),"Deposit certificate number")]/following-sibling::td/*//select'
+    selectObject = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+    select = Select(selectObject)
+    frames = []
+    for option in select.options:
+        select.select_by_visible_text(option.text)
+        xpath = '//*[text()="Inquiry"]'
+        bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        # Download file (.csv)
+        xpath = '//*[@class="dl_icons download_csv"]'
+        bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        # Đọc file
+        while True:
+            downloadFile = first(listdir(bankObject.downloadFolder),lambda x: 'COSDATDQU' in x and 'download' not in x)
+            if downloadFile:  # download xong -> có file
+                break
+            time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
+        downloadTable = pd.read_csv(
+            join(bankObject.downloadFolder,downloadFile),
+            usecols=[1,2,3,4,6,7,8],
+            skiprows=1,
+            names=['AccountNumber','Currency','Balance','TermMonths','InterestRate','IssueDate','ExpireDate']
+        )
+        # TermMonths
+        downloadTable['TermMonths'] = downloadTable['TermMonths'].map(lambda x: int(x.replace('M','')))
+        # TermDays
+        downloadTable['TermDays'] = downloadTable['TermMonths'] * 30
+        # Interest Rate
+        downloadTable['InterestRate'] = downloadTable['InterestRate'].map(lambda x: float(x.replace('%',''))) / 100
+        # Issue Date
+        downloadTable['IssueDate'] = downloadTable['IssueDate'].map(lambda x: dt.datetime.strptime(x,'%Y/%m/%d'))
+        # Expire Date
+        downloadTable['ExpireDate'] = downloadTable['ExpireDate'].map(lambda x: dt.datetime.strptime(x,'%Y/%m/%d'))
+        # Date
+        now = dt.datetime.now()
+        if now.hour >= 12:
+            d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+        else:
+            d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        downloadTable.insert(0,'Date',d)
+        # Bank
+        downloadTable.insert(1,'Bank',bankObject.bank)
+        # Interest Amount
+        downloadTable['InterestAmount'] = None
+        # Append
+        frames.append(downloadTable)
+
+    balanceTable = pd.concat(frames)
+    return balanceTable
+
+
 

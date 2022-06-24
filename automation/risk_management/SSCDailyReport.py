@@ -90,18 +90,22 @@ def run(  # chạy hàng ngày sau batch giữa ngày
             SELECT
                 {equityPHS} AS [VCSH],
                 [DanhMuc].[MaCK],
-                [Room].[TongRoomDaSuDung],
-                [Room].[TongRoomDaSuDung] * [ThiTruong].[GiaDongCua] [TaiSanTheoCoPhieu],
-                [Room].[TongRoomDaSuDung] * [ThiTruong].[GiaDongCua] / SUM([Room].[TongRoomDaSuDung] * [ThiTruong].[GiaDongCua]) OVER (PARTITION BY [QuanHe].[TaiKhoan]) [TyTrong],
+                ISNULL([Room].[TongRoomDaSuDung],0) [TongRoomDaSuDung],
+                ISNULL([Room].[TongRoomDaSuDung],0) * [ThiTruong].[GiaDongCua] [TaiSanTheoCoPhieu],
                 CASE
-                    WHEN [DuNo].[DuNoGoc] - [Tien].[TienMat] > 0
-                        THEN [DuNo].[DuNoGoc] - [Tien].[TienMat]
+                    WHEN SUM(ISNULL([Room].[TongRoomDaSuDung],0) * [ThiTruong].[GiaDongCua]) OVER (PARTITION BY [QuanHe].[TaiKhoan]) = 0
+                        THEN 0
+                    ELSE ISNULL([Room].[TongRoomDaSuDung],0) * [ThiTruong].[GiaDongCua] / SUM(ISNULL([Room].[TongRoomDaSuDung],0) * [ThiTruong].[GiaDongCua]) OVER (PARTITION BY [QuanHe].[TaiKhoan])
+                END [TyTrong],
+                CASE
+                    WHEN ISNULL([DuNo].[DuNoGoc],0) - ISNULL([Tien].[TienMat],0) > 0
+                        THEN ISNULL([DuNo].[DuNoGoc],0) - ISNULL([Tien].[TienMat],0)
                     ELSE 0
                 END [DuNoRong]
             FROM [DanhMuc]
             LEFT JOIN [Room] ON [Room].[MaCK] = [DanhMuc].[MaCK]
             LEFT JOIN [QuanHe] ON [QuanHe].[TieuKhoan] = [Room].[TieuKhoan]
-            LEFT JOIN [ThiTruong] ON [ThiTruong].[MaCK] = [Room].[MaCK]
+            LEFT JOIN [ThiTruong] ON [ThiTruong].[MaCK] = [DanhMuc].[MaCK]
             LEFT JOIN [DuNo] ON [DuNo].[TaiKhoan] = [QuanHe].[TaiKhoan]
             LEFT JOIN [Tien] ON [Tien].[TaiKhoan] = [QuanHe].[TaiKhoan]
         )

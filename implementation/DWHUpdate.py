@@ -3,12 +3,27 @@ from implementation import TaskMonitor
 
 @TaskMonitor
 def DWH_CoSo_Update_Today():
-    from datawarehouse.DWH_CoSo import UPDATE
-    UPDATE()
+    from datawarehouse.DWH_CoSo import SYNCTODAY
+    from datawarehouse import CHECKBATCH
+    from request import connect_DWH_CoSo
+    import datetime as dt
+    now = dt.datetime.now()
+    if now.hour < 15:
+        SYNCTODAY() # cho phép chạy buổi trưa
+    else:
+        if now.hour >= 19:
+            batchType = 2
+        else:
+            batchType = 1
+        while True:
+            if CHECKBATCH(connect_DWH_CoSo,batchType):
+                break
+            time.sleep(30)
+        SYNCTODAY()
 
 @TaskMonitor
 def DWH_CoSo_Update_BackDate():
-    from datawarehouse.DWH_CoSo import UPDATEBACKDATE
+    from datawarehouse.DWH_CoSo import SYNCBACKDATE
     import datetime as dt
     hour = dt.datetime.now().hour
     if 22 <= hour <= 24 or 0 <= hour <= 5:
@@ -16,7 +31,7 @@ def DWH_CoSo_Update_BackDate():
     else:
         days = 1
     for day in range(1,days+1): # 1,2,3,...,day
-        UPDATEBACKDATE(day)
+        SYNCBACKDATE(day)
 
 # không dùng @TaskMonitor vì hàm này đã có sẵn một lớp Monitor rồi
 def DWHCoSo_InternetBanking_EOD(bank,func='all'):
@@ -121,12 +136,23 @@ def DWHCoSo_InternetBanking_RT(bank,func='runBankTransactionHistory'):
 
 @TaskMonitor
 def DWH_PhaiSinh_Update_Today():
-    from datawarehouse.DWH_PhaiSinh import UPDATE
-    UPDATE()
+    from datawarehouse.DWH_CoSo import SYNCTODAY
+    from datawarehouse import CHECKBATCH
+    from request import connect_DWH_PhaiSinh
+    import datetime as dt
+    now = dt.datetime.now()
+    if now.hour < 15:
+        SYNCTODAY() # cho phép chạy buổi trưa
+    else:
+        while True:
+            if CHECKBATCH(connect_DWH_PhaiSinh):
+                break
+            time.sleep(30)
+        SYNCTODAY()
 
 @TaskMonitor
 def DWH_PhaiSinh_Update_BackDate():
-    from datawarehouse.DWH_PhaiSinh import UPDATEBACKDATE
+    from datawarehouse.DWH_PhaiSinh import SYNCBACKDATE
     import datetime as dt
     hour = dt.datetime.now().hour
     if 22 <= hour <= 24 or 0 <= hour <= 5:
@@ -134,7 +160,7 @@ def DWH_PhaiSinh_Update_BackDate():
     else:
         days = 1
     for day in range(1,days+1): # 1,2,3,...,day
-        UPDATEBACKDATE(day)
+        SYNCBACKDATE(day)
 
 @TaskMonitor
 def DWH_ThiTruong_Update_DanhSachMa():
@@ -166,4 +192,4 @@ def DWHThiTruongUpdate_SecuritiesInfoVSD(): # mỗi ngày update 1000 ID -> mộ
 def DWHCoSoUpdate_DanhMucChoVayMargin():
     import datetime as dt
     from datawarehouse.DWH_CoSo.DanhMucChoVayMargin import run as Update_DanhMucChoVayMargin
-    Update_DanhMucChoVayMargin(dt.datetime(2022,5,21))
+    Update_DanhMucChoVayMargin()

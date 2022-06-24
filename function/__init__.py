@@ -194,7 +194,11 @@ def period_cal(period: str,years: int = 0,quarters: int = 0) -> str:
     return period_new
 
 
-def fc_price(ref_price: Union[float,int],price_type: str,exchange: str) -> int:
+def fc_price(
+    ref_price:Union[float,int],
+    price_type:str,
+    exchange:str
+) -> int:
     """
     This function returns ceil/floor price given a reference price
   

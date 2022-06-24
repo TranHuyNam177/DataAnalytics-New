@@ -10,9 +10,9 @@ def generateTempData():
 
     info = get_info('daily',dt.datetime.now())
     dataDate = info['end_date']
-    EXEC(connect_DWH_CoSo,'spVMR0001',FrDate=dataDate,ToDate=dataDate)
-    EXEC(connect_DWH_CoSo,'spVMR9003',FrDate=dataDate,ToDate=dataDate)
-    EXEC(connect_DWH_CoSo,'sprelationship',FrDate=dataDate,ToDate=dataDate)
+    SYNC(connect_DWH_CoSo,'spVMR0001',FrDate=dataDate,ToDate=dataDate)
+    SYNC(connect_DWH_CoSo,'spVMR9003',FrDate=dataDate,ToDate=dataDate)
+    SYNC(connect_DWH_CoSo,'sprelationship',FrDate=dataDate,ToDate=dataDate)
     table = pd.read_sql(
         f"""
         WITH 
@@ -265,7 +265,7 @@ def run(
                 else:
                     fmt = violated_account_format
             else:
-                if pd.isnull(table.loc[table.index[rowNum],'RLN0006']): # không có giá trị
+                if pd.isnull(table.loc[table.index[rowNum],'DuNoBaoLanh']): # không có giá trị
                     fmt = normal_account_format
                 else: # có giá trị
                     fmt = violated_account_format
@@ -274,11 +274,10 @@ def run(
                 if table.loc[table.index[rowNum],'TLMRThucTe'] >= 100:
                     fmt = suspected_account_format
                 else:
-                    if table.loc[table.index[rowNum],'RLN0006'] > 0:
-                        if table.loc[table.index[rowNum],'TLTCThucTe'] < 100:
-                            fmt = violated_account_format
+                    if pd.isnull(table.loc[table.index[rowNum],'RLN0006']): # không có giá trị
+                        fmt = violated_account_format
                     else:
-                        if table.loc[table.index[rowNum],'TLMRThucTe'] < 100:
+                        if table.loc[table.index[rowNum],'TLTCThucTe'] < 100:
                             fmt = violated_account_format
             else:
                 fmt = normal_account_format

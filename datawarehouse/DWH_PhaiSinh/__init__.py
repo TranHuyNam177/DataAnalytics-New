@@ -1,22 +1,24 @@
-from datawarehouse import connect_DWH_PhaiSinh, EXEC
+from datawarehouse import connect_DWH_PhaiSinh, SYNC, AFTERBATCH
 from request import *
 
-def UPDATE():
+def SYNCTODAY():
 
     """
-    This function EXEC the stored procedures to update all tables
+    This function sync all tables from OLTP with today's data
     """
 
-    EXEC(connect_DWH_PhaiSinh,'spRunPhaiSinh')
+    SYNC(connect_DWH_PhaiSinh,StoredProcedure='spRunPhaiSinh')
 
 
-def UPDATEBACKDATE(
-    days: int
+def SYNCBACKDATE(
+    days:int
 ):
+
     """
-    This function EXEC spRunPhaiSinhBack to update all table back date
+    This function sync all tables from OLTP back date
 
     :param days: number of back days
     """
 
-    EXEC(connect_DWH_PhaiSinh,'spRunPhaiSinhBack',Ngaylui=days)
+    SYNC(connect_DWH_PhaiSinh,StoredProcedure='spRunPhaiSinhBack',SoLanLui=days)
+

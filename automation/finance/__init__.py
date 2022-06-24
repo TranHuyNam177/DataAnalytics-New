@@ -725,7 +725,7 @@ class SCSB(Base):
             manualCAPTCHA = self.__GetCaptchaFromMail__(captchaElement)
             firstGO(manualCAPTCHA)
             secondGO()
-        except (selenium.common.exceptions.NoAlertPresentException,): # Màn hình login đầu tiên thành công
+        except (NoAlertPresentException,): # Màn hình login đầu tiên thành công
             secondGO()
 
         return self
@@ -847,6 +847,16 @@ class FIRST(Base):
             captchaElement = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
             manualCAPTCHA = self.__GetCaptchaFromMail__(captchaElement)
             GO(manualCAPTCHA)
+
+        # Đóng popup window báo repeated login nếu có
+        time.sleep(2)
+        self.driver.switch_to.default_content()
+        self.driver.switch_to.frame(self.driver.find_element_by_tag_name("iframe"))
+        self.driver.switch_to.frame(self.driver.find_element_by_tag_name("iframe"))
+        xpath = '//*[text()="Confirm"]'
+        confirmButtons = self.driver.find_elements(By.XPATH,xpath)
+        if confirmButtons:
+            confirmButtons[0].click()
 
         return self
 

@@ -1,6 +1,6 @@
 from automation.risk_management import *
 from request.stock import ta
-from datawarehouse import DELETE, BATCHINSERT
+from datawarehouse import DELETE, BATCHINSERT, BDATE
 
 # DONE
 def run(  # chạy daily sau batch cuối ngày
@@ -37,6 +37,21 @@ def run(  # chạy daily sau batch cuối ngày
                 AND [vmr9004].[total_volume] > 0
                 AND [sub_account].[account_code] LIKE '022C%'
             -- ORDER BY account_code, ticker
+        ),
+        [m] AS (
+            SELECT 
+                [ticker], 
+                [close_price] 
+            FROM (
+                SELECT
+                    [Date] [date],
+                    MAX([Date]) OVER (PARTITION BY [Ticker]) [last_trade_date],
+                    [Ticker] [ticker],
+                    [Close] * 1000 [close_price]
+                FROM [DWH-ThiTruong].[dbo].[DuLieuGiaoDichNgay]
+                WHERE [date] >= '{BDATE(t0_date,-5)}'
+            ) [x]
+            WHERE [date] = [last_trade_date]
         )
         SELECT
             [t].*,
@@ -46,7 +61,8 @@ def run(  # chạy daily sau batch cuối ngày
             END [outstanding_net_cash],
             ISNULL([vpr0109].[margin_max_price],0) [max_price],
             ISNULL([vpr0109].[margin_ratio],0) [m_ratio],
-            ISNULL([vpr0109].[margin_max_price],0) * ISNULL([vpr0109].[margin_ratio],0) / 100 [breakeven_price_of_stock]
+            ISNULL([vpr0109].[margin_max_price],0) * ISNULL([vpr0109].[margin_ratio],0) / 100 [breakeven_price_of_stock],
+            [m].[close_price]
         FROM [t]
         LEFT JOIN (
             SELECT 
@@ -60,24 +76,12 @@ def run(  # chạy daily sau batch cuối ngày
             ON [outstanding].[account_code] = [t].[account_code]
         LEFT JOIN [rmr0062] ON [rmr0062].[account_code] = [t].[account_code] AND [rmr0062].[date] = '{t0_date}' AND [rmr0062].[loan_type] = 1
         LEFT JOIN [vpr0109] ON [vpr0109].[ticker_code] = [t].[ticker] AND [vpr0109].[date] = '{t0_date}'AND [vpr0109].[room_code] LIKE 'TC01%'
+        LEFT JOIN [m] ON [t].[ticker] = [m].[ticker]
+        WHERE [m].[close_price] IS NOT NULL
         ORDER BY [t].[account_code], [t].[ticker]
         """,
         connect_DWH_CoSo,
     )
-
-    # Lấy giá
-    priceSeries = pd.Series(index=table['ticker'].unique(),dtype=np.float64)
-    startDate = bdate(t0_date,-5)
-    endDate = t0_date
-    for ticker in priceSeries.index:
-        try:
-            priceFull = ta.hist(ticker,startDate,endDate)
-            closePrice = priceFull.iloc[-1,priceFull.columns.get_loc('close')] * 1000
-            priceSeries.loc[ticker] = closePrice
-        except KeyError:
-            pass # ko có giá do hủy niêm yết
-    table['close_price'] = table['ticker'].map(priceSeries)
-    table = table.dropna(subset=['close_price'])# loại các mã đã hủy niêm yết (ko cần tính giá HV)
 
     # Credit Rating
     rating_path = join(realpath(dirname(dirname(dirname(__file__)))),'credit_rating','result')

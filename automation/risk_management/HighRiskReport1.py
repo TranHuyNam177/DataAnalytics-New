@@ -1,5 +1,3 @@
-import pandas as pd
-
 from automation.risk_management import *
 from datawarehouse import BDATE
 

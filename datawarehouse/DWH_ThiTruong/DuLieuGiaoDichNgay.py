@@ -67,7 +67,7 @@ def run(
         'total_value':'Value',
     }
     table.rename(columns=nameMapper,inplace=True)
-    table = table[nameMapper.values()]
+    table = table.reindex(nameMapper.values(),axis=1)
     table[['Volume','Value']] = table[['Volume','Value']].astype(np.float64)
 
     def converter(date_str:str):

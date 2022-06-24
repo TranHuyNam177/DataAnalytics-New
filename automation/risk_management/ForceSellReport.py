@@ -70,8 +70,9 @@ def run(  # chạy hàng ngày
                 MAX(DATEDIFF(DAY,[VLN0001].[NgayGiaiNgan],[VLN0001].[NgayDHKyHan2])) [SoNgayQuaHan]
             FROM [VLN0001]
             LEFT JOIN [sub_account] ON [sub_account].[sub_account] = [VLN0001].[TieuKhoan]
-            WHERE [Ngay] = '{dataDate}' AND [GocQuaHan] <> 0 AND [MonVay] IN ('Credit line','Delayed payment')
+            WHERE [Ngay] = '{dataDate}' AND [MonVay] IN ('Credit line','Delayed payment')
             GROUP BY [sub_account].[account_code], [VLN0001].[MonVay]
+            HAVING SUM([VLN0001].[GocQuaHan]) + SUM([VLN0001].[LaiQuaHan]) <> 0
         ),
         [TongHop] AS (
             SELECT
@@ -430,7 +431,7 @@ def run(  # chạy hàng ngày
             else:
                 if NoHanMuc != 0:
                     condition1 = TLThucTeMR >= 85 and colName in ('NoHanMuc',)
-                    condition2 = TLThucTeMR < 85 and colName in ('TLThucTeMR','TienMatVe100','TienMatVe85')
+                    condition2 = TLThucTeMR < 85 and colName in ('NoHanMuc','TLThucTeMR','TienMatVe100','TienMatVe85')
                     if condition1 or condition2:
                         value = table.loc[table.index[row],colName]
                         worksheet.write(writtenRow,col,value,money_red_format)

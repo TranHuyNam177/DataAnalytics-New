@@ -18,161 +18,161 @@ def run(
 
     account_open = pd.read_sql(
         f"""
-            WITH
-            [m] AS (
-                SELECT DISTINCT
-                    [sub_account].[account_code]
-                FROM [vcf0051] 
-                LEFT JOIN [sub_account] ON [vcf0051].[sub_account] = [sub_account].[sub_account]
-                WHERE [vcf0051].[contract_type] NOT LIKE N'%Thường%' AND [vcf0051].[date] = '{end_date}'
-            )
-            SELECT
-                ROW_NUMBER() OVER (ORDER BY [a].[account_type], [a].[account_code], [a].[date_of_open]) [no.],
-                [a].[account_type],
-                [a].[account_code],
-                [a].[customer_name],
-                [a].[nationality],
-                [a].[address],
-                [a].[customer_id_number],
-                [a].[date_of_issue],
-                [a].[place_of_issue],
-                [a].[date_of_open],
-                [a].[date_of_close],
-                CASE
-                    WHEN [m].[account_code] IS NULL THEN '' ELSE 'TKKQ' END [remark],
-                CASE 
-                    WHEN [a].[account_type] LIKE N'%Cá nhân%' THEN 'CN'
-                    WHEN [a].[account_type] LIKE N'%Tổ chức%' THEN 'TC'
-                END [entity_type]
-            FROM [account] [a]
-            LEFT JOIN [m] ON [m].[account_code] = [a].[account_code]
-            WHERE [a].[date_of_open] BETWEEN '{start_date}' AND '{end_date}'
-            ORDER BY [a].[account_type], [a].[account_code], [a].[date_of_open]
+        WITH
+        [m] AS (
+            SELECT DISTINCT
+                [sub_account].[account_code]
+            FROM [vcf0051] 
+            LEFT JOIN [sub_account] ON [vcf0051].[sub_account] = [sub_account].[sub_account]
+            WHERE [vcf0051].[contract_type] NOT LIKE N'%Thường%' AND [vcf0051].[date] = '{end_date}'
+        )
+        SELECT
+            ROW_NUMBER() OVER (ORDER BY [a].[account_type], [a].[account_code], [a].[date_of_open]) [no.],
+            [a].[account_type],
+            [a].[account_code],
+            [a].[customer_name],
+            [a].[nationality],
+            [a].[address],
+            [a].[customer_id_number],
+            [a].[date_of_issue],
+            [a].[place_of_issue],
+            [a].[date_of_open],
+            [a].[date_of_close],
+            CASE
+                WHEN [m].[account_code] IS NULL THEN '' ELSE 'TKKQ' END [remark],
+            CASE 
+                WHEN [a].[account_type] LIKE N'%Cá nhân%' THEN 'CN'
+                WHEN [a].[account_type] LIKE N'%Tổ chức%' THEN 'TC'
+            END [entity_type]
+        FROM [account] [a]
+        LEFT JOIN [m] ON [m].[account_code] = [a].[account_code]
+        WHERE [a].[date_of_open] BETWEEN '{start_date}' AND '{end_date}'
+        ORDER BY [a].[account_type], [a].[account_code], [a].[date_of_open]
         """,
         connect_DWH_CoSo
     )
     account_close = pd.read_sql(
         f"""
-            WITH
-            [m] AS (
-                SELECT DISTINCT
-                    [sub_account].[account_code]
-                FROM [vcf0051] 
-                LEFT JOIN [sub_account] ON [vcf0051].[sub_account] = [sub_account].[sub_account]
-                WHERE [vcf0051].[contract_type] NOT LIKE N'%Thường%' AND [vcf0051].[date] = '{end_date}'
-            )
-            SELECT
-                ROW_NUMBER() OVER (ORDER BY [a].[account_type], [a].[account_code], [a].[date_of_close]) [no.],
-                [a].[account_type],
-                [a].[account_code],
-                [a].[customer_name],
-                [a].[nationality],
-                [a].[address],
-                [a].[customer_id_number],
-                [a].[date_of_issue],
-                [a].[place_of_issue],
-                [a].[date_of_open],
-                [a].[date_of_close],
-                CASE
-                    WHEN [m].[account_code] IS NULL THEN '' ELSE 'TKKQ' END [remark],
-                CASE 
-                    WHEN [a].[account_type] LIKE N'%Cá nhân%' THEN 'CN'
-                    WHEN [a].[account_type] LIKE N'%Tổ chức%' THEN 'TC'
-                END [entity_type]
-            FROM [account] [a]
-            LEFT JOIN [m] ON [m].[account_code] = [a].[account_code]
-            WHERE [a].[date_of_close] BETWEEN '{start_date}' AND '{end_date}'
-            ORDER BY [a].[account_type], [a].[account_code], [a].[date_of_close]
+        WITH
+        [m] AS (
+            SELECT DISTINCT
+                [sub_account].[account_code]
+            FROM [vcf0051] 
+            LEFT JOIN [sub_account] ON [vcf0051].[sub_account] = [sub_account].[sub_account]
+            WHERE [vcf0051].[contract_type] NOT LIKE N'%Thường%' AND [vcf0051].[date] = '{end_date}'
+        )
+        SELECT
+            ROW_NUMBER() OVER (ORDER BY [a].[account_type], [a].[account_code], [a].[date_of_close]) [no.],
+            [a].[account_type],
+            [a].[account_code],
+            [a].[customer_name],
+            [a].[nationality],
+            [a].[address],
+            [a].[customer_id_number],
+            [a].[date_of_issue],
+            [a].[place_of_issue],
+            [a].[date_of_open],
+            [a].[date_of_close],
+            CASE
+                WHEN [m].[account_code] IS NULL THEN '' ELSE 'TKKQ' END [remark],
+            CASE 
+                WHEN [a].[account_type] LIKE N'%Cá nhân%' THEN 'CN'
+                WHEN [a].[account_type] LIKE N'%Tổ chức%' THEN 'TC'
+            END [entity_type]
+        FROM [account] [a]
+        LEFT JOIN [m] ON [m].[account_code] = [a].[account_code]
+        WHERE [a].[date_of_close] BETWEEN '{start_date}' AND '{end_date}'
+        ORDER BY [a].[account_type], [a].[account_code], [a].[date_of_close]
         """,
         connect_DWH_CoSo
     )
     customer_information_change = pd.read_sql(
         f"""
-            SELECT 
-                CONCAT('(',(ROW_NUMBER() OVER (ORDER BY [z].[account_code], [z].[date_of_change])),')') [no.],
-                *
-            FROM (
-                SELECT
-                DISTINCT
-                    ISNULL([t].[account_code],'') [account_code],
-                    ISNULL([a].[customer_name],'') [customer_name],
-                    ISNULL([t].[date_of_change],'') [date_of_change],
-                    ISNULL([t].[old_id_number],'') [old_id_number],
-                    ISNULL([t].[new_id_number],'') [new_id_number],
-                    ISNULL([t].[old_date_of_issue],'') [old_date_of_issue],
-                    ISNULL([t].[new_date_of_issue],'') [new_date_of_issue],
-                    ISNULL([t].[old_place_of_issue],'') [old_place_of_issue],
-                    ISNULL([t].[new_place_of_issue],'') [new_place_of_issue],
-                    ISNULL([t].[old_address],'') [old_address],
-                    ISNULL([t].[new_address],'') [new_address],
-                    ISNULL([t].[old_nationality],'') [old_nationality],
-                    ISNULL([t].[new_nationality],'') [new_nationality],
-                    '' [old_note],
-                    '' [new_note]
-                FROM [rcf0005] [t]
-                LEFT JOIN [account] [a] ON [a].[account_code] = [t].[account_code]
-                WHERE [t].[date_of_change] BETWEEN '{start_date}' AND '{end_date}'
-            ) [z]
+        SELECT 
+            CONCAT('(',(ROW_NUMBER() OVER (ORDER BY [z].[account_code], [z].[date_of_change])),')') [no.],
+            *
+        FROM (
+            SELECT
+            DISTINCT
+                ISNULL([t].[account_code],'') [account_code],
+                ISNULL([a].[customer_name],'') [customer_name],
+                ISNULL([t].[date_of_change],'') [date_of_change],
+                ISNULL([t].[old_id_number],'') [old_id_number],
+                ISNULL([t].[new_id_number],'') [new_id_number],
+                ISNULL([t].[old_date_of_issue],'') [old_date_of_issue],
+                ISNULL([t].[new_date_of_issue],'') [new_date_of_issue],
+                ISNULL([t].[old_place_of_issue],'') [old_place_of_issue],
+                ISNULL([t].[new_place_of_issue],'') [new_place_of_issue],
+                ISNULL([t].[old_address],'') [old_address],
+                ISNULL([t].[new_address],'') [new_address],
+                ISNULL([t].[old_nationality],'') [old_nationality],
+                ISNULL([t].[new_nationality],'') [new_nationality],
+                '' [old_note],
+                '' [new_note]
+            FROM [rcf0005] [t]
+            LEFT JOIN [account] [a] ON [a].[account_code] = [t].[account_code]
+            WHERE [t].[date_of_change] BETWEEN '{start_date}' AND '{end_date}'
+        ) [z]
         """,
         connect_DWH_CoSo
     )
     authorization = pd.read_sql(
         f"""
-            SELECT
-                ROW_NUMBER() OVER (ORDER BY [authorization].[account_code]) [no.],
-                ISNULL([authorization].[account_code],'') [account_code],
-                ISNULL([authorization].[authorizing_person_id],'') [authorizing_person_id],
-                ISNULL([authorization].[authorizing_person_name],'') [authorizing_person_name],
-                ISNULL([authorization].[authorizing_person_address],'') [authorizing_person_address],
-                ISNULL([authorization].[authorized_person_id],'') [authorized_person_id],
-                ISNULL([authorization].[authorized_person_name],'') [authorized_person_name],
-                CASE
-                    WHEN [authorization].[authorized_person_name] = N'CTY CP CHỨNG KHOÁN PHÚ HƯNG'
-                        THEN N'{CompanyAddress}'
-                    ELSE [authorization].[authorized_person_address]
-                END [authorized_person_address],
-                [authorization].[date_of_authorization],
-                'I,II,IV,V,VII,IX,X' [scope_of_authorization]
-            FROM [authorization]  
-            WHERE [authorization].[date_of_authorization] BETWEEN '{start_date}' AND '{end_date}'
-                AND [authorization].[scope_of_authorization] IS NOT NULL
-                AND [authorization].[scope_of_authorization] <> 'I,IV,V'
+        SELECT
+            ROW_NUMBER() OVER (ORDER BY [authorization].[account_code]) [no.],
+            ISNULL([authorization].[account_code],'') [account_code],
+            ISNULL([authorization].[authorizing_person_id],'') [authorizing_person_id],
+            ISNULL([authorization].[authorizing_person_name],'') [authorizing_person_name],
+            ISNULL([authorization].[authorizing_person_address],'') [authorizing_person_address],
+            ISNULL([authorization].[authorized_person_id],'') [authorized_person_id],
+            ISNULL([authorization].[authorized_person_name],'') [authorized_person_name],
+            CASE
+                WHEN [authorization].[authorized_person_name] = N'CTY CP CHỨNG KHOÁN PHÚ HƯNG'
+                    THEN N'{CompanyAddress}'
+                ELSE [authorization].[authorized_person_address]
+            END [authorized_person_address],
+            [authorization].[date_of_authorization],
+            'I,II,IV,V,VII,IX,X' [scope_of_authorization]
+        FROM [authorization]  
+        WHERE [authorization].[date_of_authorization] BETWEEN '{start_date}' AND '{end_date}'
+            AND [authorization].[scope_of_authorization] IS NOT NULL
+            AND [authorization].[scope_of_authorization] <> 'I,IV,V'
             """,
         connect_DWH_CoSo
     )
     # Highlight cac uy quyen duoc mo moi chi de dang ky uy quyen them (rule ben DVKH)
     highlight_account = pd.read_sql(
         f"""
-            SELECT
-                [authorization_change].[account_code]
-            FROM 
-                [authorization_change]
-            WHERE 
-                [authorization_change].[new_end_date] BETWEEN '{start_date}' AND '{end_date}'
+        SELECT
+            [authorization_change].[account_code]
+        FROM 
+            [authorization_change]
+        WHERE 
+            [authorization_change].[new_end_date] BETWEEN '{start_date}' AND '{end_date}'
         """,
         connect_DWH_CoSo
     )
     authorization_change = pd.read_sql(
         f"""
-            SELECT 
-                ROW_NUMBER() OVER (ORDER BY [account_code],[date_of_change]) [no.],
-                ISNULL([c].[account_code],'') [account_code],
-                ISNULL([c].[authorizing_person_id],'') [authorizing_person_id],
-                ISNULL([c].[authorizing_person_name],'') [authorizing_person_name],
-                ISNULL(CONVERT(VARCHAR(20),[c].[date_of_authorization],103),'') [date_of_authorization],
-                ISNULL(CONVERT(VARCHAR(20),[c].[date_of_termination],103),'') [date_of_termination],
-                [c].[date_of_change],
-                ISNULL([c].[authorized_person_name],'') [authorized_person_name],
-                ISNULL([c].[old_authorized_person_id],'') [old_authorized_person_id],
-                ISNULL([c].[new_authorized_person_id],'') [new_authorized_person_id],
-                ISNULL([c].[old_authorized_person_address],'') [old_authorized_person_address],
-                ISNULL([c].[new_authorized_person_address],'') [new_authorized_person_address],
-                ISNULL([c].[old_scope_of_authorization],'') [old_scope_of_authorization],
-                ISNULL([c].[new_scope_of_authorization],'') [new_scope_of_authorization],
-                ISNULL(CONVERT(VARCHAR(20),[c].[old_end_date],103),'') [old_end_date],
-                ISNULL(CONVERT(VARCHAR(20),[c].[new_end_date],103),'') [new_end_date]
-            FROM [authorization_change] [c]
-            WHERE [c].[date_of_change] BETWEEN '{start_date}' AND '{end_date}'
+        SELECT 
+            ROW_NUMBER() OVER (ORDER BY [account_code],[date_of_change]) [no.],
+            ISNULL([c].[account_code],'') [account_code],
+            ISNULL([c].[authorizing_person_id],'') [authorizing_person_id],
+            ISNULL([c].[authorizing_person_name],'') [authorizing_person_name],
+            ISNULL(CONVERT(VARCHAR(20),[c].[date_of_authorization],103),'') [date_of_authorization],
+            ISNULL(CONVERT(VARCHAR(20),[c].[date_of_termination],103),'') [date_of_termination],
+            [c].[date_of_change],
+            ISNULL([c].[authorized_person_name],'') [authorized_person_name],
+            ISNULL([c].[old_authorized_person_id],'') [old_authorized_person_id],
+            ISNULL([c].[new_authorized_person_id],'') [new_authorized_person_id],
+            ISNULL([c].[old_authorized_person_address],'') [old_authorized_person_address],
+            ISNULL([c].[new_authorized_person_address],'') [new_authorized_person_address],
+            ISNULL([c].[old_scope_of_authorization],'') [old_scope_of_authorization],
+            ISNULL([c].[new_scope_of_authorization],'') [new_scope_of_authorization],
+            ISNULL(CONVERT(VARCHAR(20),[c].[old_end_date],103),'') [old_end_date],
+            ISNULL(CONVERT(VARCHAR(20),[c].[new_end_date],103),'') [new_end_date]
+        FROM [authorization_change] [c]
+        WHERE [c].[date_of_change] BETWEEN '{start_date}' AND '{end_date}'
         """,
         connect_DWH_CoSo
     )

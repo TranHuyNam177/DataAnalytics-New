@@ -1,5 +1,3 @@
-import time
-
 from automation.finance import *
 
 def runBIDV(bankObject,fromDate,toDate):

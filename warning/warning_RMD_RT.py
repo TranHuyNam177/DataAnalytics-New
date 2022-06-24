@@ -106,7 +106,7 @@ def __SendMailRetry__(func): # Decorator
 
             outlook = Dispatch('outlook.application')
             mail = outlook.CreateItem(0)
-            mail.To = 'vando@phs.vn; anhnguyenthu@phs.vn; huyhuynh@phs.vn;'
+            mail.To = 'anhnguyenthu@phs.vn; huyhuynh@phs.vn;'
             mail.CC = 'hiepdang@phs.vn'
             mail.Subject = f"Market Alert {now.strftime('%H:%M:%S %d.%m.%Y')}"
             mail.HTMLBody = html_str
@@ -116,12 +116,10 @@ def __SendMailRetry__(func): # Decorator
             print('Quét lần: ',n)
 
             """
-
             Chỗ này chấp nhận một bug là nếu lần quét cuối cùng mà ko có Warnings thì
             vòng while sẽ tiếp tục chạy cho đến khi được tắt thủ công. Chấp nhận bug này
             để hàm này có feature là khi chạy hàm này ngoài giờ giao dịch thì nó vẫn quét
             1 lần
-            
             """
 
             # set các điều kiện break:

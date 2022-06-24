@@ -693,7 +693,7 @@ class hose:
                     break
             page += 1
 
-        if not frames is True:
+        if not frames:
             raise NoNewsFound(f'Không có tin trong {num_hours} giờ vừa qua')
         output_table = pd.concat(frames,ignore_index=True)
         # select out tickers from headline
