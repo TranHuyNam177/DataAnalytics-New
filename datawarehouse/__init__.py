@@ -162,9 +162,12 @@ def SYNC(
     else:
         raise ValueError('Invalid Connection Object')
 
+    with open(r'C:\Users\hiepdang\Desktop\Passwords\DataBase\DataBase.txt') as file:
+        _, _, key = file.readlines()
+        key = key.replace('\n','')
+
     URL = 'http://192.168.6.103/RunStoreDWH/RunStore.asmx'
     hostName = '192.168.6.103'
-    key = 'abcdef123456'
     body = f"""<?xml version="1.0" encoding="utf-8"?>
         <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
             <soap:Body>
@@ -177,13 +180,17 @@ def SYNC(
             </{action}>
             </soap:Body>
         </soap:Envelope>"""
+
     headers = {
         'Content-Type': 'text/xml; charset=utf-8',
         'Host': hostName,
         'SOAPAction': f'http://tempuri.org/{action}',
         'Content-Length': str(len(body))
     }
+    OPENCONFIG(conn)
     r = requests.post(URL,data=body,headers=headers)
+    CLOSECONFIG(conn)
+
     if r.status_code != 200:
         raise RuntimeError('Không thể chạy Stored Procedure qua Web Service')
     if 'thành công' not in r.text:
@@ -215,6 +222,49 @@ def CONFIG(
     print(sqlStatement)
     cursor.commit()
     cursor.close()
+
+
+def OPENCONFIG(
+    conn,
+):
+    """
+    This function changes the config table that removes time restriction
+
+    :param conn: connection object of the Database
+    """
+
+    dbName = conn.getinfo(pyodbc.SQL_DATABASE_NAME)
+    cursor = conn.cursor()
+    sqlStatement = f"""
+        USE [{dbName}];
+        UPDATE [StoreConfig] 
+        SET [TimeStart] = '00:00:00', [TimeEnd] = '23:59:59', [TimeNum] = 0;
+    """
+    cursor.execute(sqlStatement)
+    print(sqlStatement)
+    cursor.commit()
+    cursor.close()
+
+
+def CLOSECONFIG(
+    conn,
+):
+    """
+    This function changes the config table that sets back time restriction
+
+    :param conn: connection object of the Database
+    """
+
+    dbName = conn.getinfo(pyodbc.SQL_DATABASE_NAME)
+    if dbName == 'DWH-CoSo':
+        configTable = pd.read_csv(join(dirname(__file__),'DWH_CoSo','configTable.csv'))
+    elif dbName == 'DWH-PhaiSinh':
+        configTable = pd.read_csv(join(dirname(__file__),'DWH_PhaiSinh','configTable.csv'))
+    else:
+        raise ValueError('Invalid Database')
+
+    DELETE(conn,'StoreConfig','')
+    BATCHINSERT(conn,'StoreConfig',configTable)
 
 
 def BDATE(

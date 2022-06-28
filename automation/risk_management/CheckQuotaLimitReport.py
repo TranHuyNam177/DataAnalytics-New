@@ -5,7 +5,7 @@ from datawarehouse import *
 def generateTempData():
 
     """
-    Chạy lúc 16:10 chiều mỗi ngày, nếu ngày thường thì save file, nếu là ngày nghỉ thì không làm gì cả
+    Chạy lúc 16:10 chiều mỗi ngày, nếu ngày thường thì save file
     """
 
     info = get_info('daily',dt.datetime.now())

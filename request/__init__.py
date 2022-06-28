@@ -1,8 +1,9 @@
 from function import *
 
 with open(r'C:\Users\hiepdang\Desktop\Passwords\DataBase\DataBase.txt') as file:
-    user,password = file.readlines()
+    user, password, _ = file.readlines()
     user = user.replace('\n','')
+    password = password.replace('\n','')
 
 # Risk Database Information
 driver_RMD = '{SQL Server}'
@@ -32,7 +33,7 @@ connect_DWH_ThiTruong = pyodbc.connect(
     f'uid={user};'
     f'pwd={password}'
 )
-TableNames_DWH_CoSo = pd.read_sql(
+TableNames_DWH_ThiTruong = pd.read_sql(
     'SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES',
     connect_DWH_ThiTruong
 )

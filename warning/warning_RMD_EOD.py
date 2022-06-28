@@ -14,54 +14,58 @@ def run(
     # xét 3 tháng gần nhất
     _3M_ago = BDATE(_rundate,-66)
     _12D_ago = BDATE(_rundate,-12)
+    _1D_ago = BDATE(_rundate,-1)
     
     table = pd.read_sql(
         f"""
-        WITH 
+        WITH
+        [DanhMuc] AS (
+            SELECT
+                [MaCK],
+                [SanGiaoDich],
+                [TyLeVayKyQuy],
+                [TyLeVayTheChap],
+                [GiaVayGiaTaiSanDamBaoToiDa],
+                [RoomChung],
+                [RoomRieng],
+                [TongRoom]
+            FROM [DWH-CoSo].[dbo].[DanhMucChoVayMargin] 
+            WHERE [Ngay] = '{_1D_ago}'
+        ),
         [RawTable] AS (
             SELECT
-                [DanhMuc].[Ngay],
-                [DanhMuc].[MaCK],
-                [DanhMuc].[SanGiaoDich],
-                MAX([DanhMuc].[Ngay]) OVER (PARTITION BY [MaCK]) [LastMarinDate],
-                [DanhMuc].[TyLeVayKyQuy],
-                [DanhMuc].[TyLeVayTheChap],
-                [DanhMuc].[GiaVayGiaTaiSanDamBaoToiDa],
-                [DanhMuc].[RoomChung],
-                [DanhMuc].[RoomRieng],
-                [DanhMuc].[TongRoom],
+		        [ThiTruong].[Date],
+                [DanhMuc].*,
                 [ThiTruong].[Ref] * 1000 [RefPrice],
                 [ThiTruong].[Close] * 1000 [ClosePrice],
                 [ThiTruong].[Volume],
-                AVG([ThiTruong].[Volume]) OVER (PARTITION BY [Ticker] ORDER BY [Ngay] ROWS BETWEEN 65 PRECEDING AND CURRENT ROW) [AvgVolume3M],
-                AVG([ThiTruong].[Volume]) OVER (PARTITION BY [Ticker] ORDER BY [Ngay] ROWS BETWEEN 21 PRECEDING AND CURRENT ROW) [AvgVolume1M],	
-                AVG([ThiTruong].[Volume]) OVER (PARTITION BY [Ticker] ORDER BY [Ngay] ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) [AvgVolume1W],
+                AVG([ThiTruong].[Volume]) OVER (PARTITION BY [Ticker] ORDER BY [Date] ROWS BETWEEN 65 PRECEDING AND CURRENT ROW) [AvgVolume3M],
+                AVG([ThiTruong].[Volume]) OVER (PARTITION BY [Ticker] ORDER BY [Date] ROWS BETWEEN 21 PRECEDING AND CURRENT ROW) [AvgVolume1M],	
+                AVG([ThiTruong].[Volume]) OVER (PARTITION BY [Ticker] ORDER BY [Date] ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) [AvgVolume1W],
                 CASE
-                    WHEN [ThiTruong].[Volume] < AVG([ThiTruong].[Volume]) OVER (PARTITION BY [Ticker] ORDER BY [Ngay] ROWS BETWEEN 21 PRECEDING AND CURRENT ROW)
+                    WHEN [ThiTruong].[Volume] < AVG([ThiTruong].[Volume]) OVER (PARTITION BY [Ticker] ORDER BY [Date] ROWS BETWEEN 21 PRECEDING AND CURRENT ROW)
                         THEN 1
                     ELSE 0
                 END [FlagIlliquidity1M]
-            FROM [DWH-CoSo].[dbo].[DanhMucChoVayMargin] [DanhMuc]
+            FROM [DanhMuc]
             LEFT JOIN [DWH-ThiTruong].[dbo].[DuLieuGiaoDichNgay] [ThiTruong]
                 ON [DanhMuc].[MaCK] = [ThiTruong].[Ticker]
-                AND [DanhMuc].[Ngay] = [ThiTruong].[Date]
-            WHERE [DanhMuc].[Ngay] BETWEEN '{_3M_ago}' AND '{_rundate}' 
+            WHERE [ThiTruong].[Date] BETWEEN '{_3M_ago}' AND '{_rundate}' 
                 AND [ThiTruong].[Ref] IS NOT NULL -- bỏ ngày nghỉ
         )
         SELECT 
             [RawTable].*,
             CASE WHEN [AvgVolume3M] <> 0 THEN [RawTable].[TongRoom] / [RawTable].[AvgVolume3M] ELSE 0 END [ApprovedRoomOnAvgVolume3M],
             CASE WHEN [AvgVolume3M] <> 0 THEN [RawTable].[Volume] / [RawTable].[AvgVolume1M] - 1 ELSE 0 END [LastDayVolumeOnAvgVolume1M],
-            SUM([RawTable].[FlagIlliquidity1M]) OVER (PARTITION BY [MaCK] ORDER BY [Ngay] ROWS BETWEEN 21 PRECEDING AND CURRENT ROW) [CountIlliquidity1M]
+            SUM([RawTable].[FlagIlliquidity1M]) OVER (PARTITION BY [MaCK] ORDER BY [Date] ROWS BETWEEN 21 PRECEDING AND CURRENT ROW) [CountIlliquidity1M]
         FROM [RawTable]
         WHERE [RawTable].[AvgVolume1M] <> 0 -- 1 tháng vừa rồi có giao dịch (để đảm bảo không bị lỗi chia cho 0)
-            AND [LastMarinDate] = '{_rundate}' -- chỉ lấy các mã còn cho vay ở thời điểm chạy
-        ORDER BY [RawTable].[MaCK], [RawTable].[Ngay]
+        ORDER BY [RawTable].[MaCK], [RawTable].[Date]
         """,
         connect_DWH_CoSo
     )
     table = table.drop('FlagIlliquidity1M',axis=1)
-    table = table.loc[table['Ngay']>=dt.datetime.strptime(_12D_ago,'%Y-%m-%d')] # 12 phiên gần nhất
+    table = table.loc[table['Date']>=dt.datetime.strptime(_12D_ago,'%Y-%m-%d')] # 12 phiên gần nhất
     table['FloorPrice'] = table.apply(
         lambda x: fc_price(x['RefPrice'],'floor',x['SanGiaoDich']),
         axis=1,

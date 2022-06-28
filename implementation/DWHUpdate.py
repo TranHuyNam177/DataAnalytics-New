@@ -7,6 +7,7 @@ def DWH_CoSo_Update_Today():
     from datawarehouse import CHECKBATCH
     from request import connect_DWH_CoSo
     import datetime as dt
+    import time
     now = dt.datetime.now()
     if now.hour < 15:
         SYNCTODAY() # cho phép chạy buổi trưa
@@ -136,16 +137,17 @@ def DWHCoSo_InternetBanking_RT(bank,func='runBankTransactionHistory'):
 
 @TaskMonitor
 def DWH_PhaiSinh_Update_Today():
-    from datawarehouse.DWH_CoSo import SYNCTODAY
+    from datawarehouse.DWH_PhaiSinh import SYNCTODAY
     from datawarehouse import CHECKBATCH
     from request import connect_DWH_PhaiSinh
     import datetime as dt
+    import time
     now = dt.datetime.now()
     if now.hour < 15:
         SYNCTODAY() # cho phép chạy buổi trưa
     else:
         while True:
-            if CHECKBATCH(connect_DWH_PhaiSinh):
+            if CHECKBATCH(connect_DWH_PhaiSinh,2):
                 break
             time.sleep(30)
         SYNCTODAY()
@@ -193,3 +195,14 @@ def DWHCoSoUpdate_DanhMucChoVayMargin():
     import datetime as dt
     from datawarehouse.DWH_CoSo.DanhMucChoVayMargin import run as Update_DanhMucChoVayMargin
     Update_DanhMucChoVayMargin()
+
+@TaskMonitor
+def DWH_NotifySyncStatusToday(db):
+    from datawarehouse import NOTIFYSYNCSTATUSTODAY
+    NOTIFYSYNCSTATUSTODAY(db)
+
+@TaskMonitor
+def DWH_NotifySyncStatusBackDate(db):
+    from datawarehouse import NOTIFYSYNCSTATUSBACKDATE
+    NOTIFYSYNCSTATUSBACKDATE(db)
+

@@ -1,3 +1,3 @@
 cd C:\Users\hiepdang\PycharmProjects\DataAnalytics\
 C:\Users\hiepdang\PycharmProjects\DataAnalytics\.venv\Scripts\python.exe ^
--c "from implementation.DWHUpdate import DWH_NotifySyncStatusBackDate; DWH_NotifySyncStatusBackDate('DWH-PhaiSinh')"
+-c "from implementation.ReportProduct import PR_EmailHoTroMoiGioi; PR_EmailHoTroMoiGioi()"

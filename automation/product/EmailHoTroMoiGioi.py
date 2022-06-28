@@ -1,6 +1,7 @@
 from automation.product import *
 from abc import ABC, abstractmethod
 from datawarehouse import BDATE
+from tqdm import tqdm
 
 class AbstractTable(ABC):
 
@@ -104,8 +105,8 @@ class ThongTinTaiKhoanThayDoiGiaTriGiaoDich(AbstractTable):
             LEFT JOIN [broker] ON [broker].[broker_id] = [relationship].[broker_id]
             LEFT JOIN [branch] ON [branch].[branch_id] = [relationship].[branch_id]
             WHERE [Portfolio].[GiaTriChungKhoan] <> 0 
-                AND [AssetT1].[TaiSanRong] <> 0 AND [Portfolio].[GiaVon] <> 0
-                AND [broker].[broker_id] LIKE 'A%'
+                AND [AssetT1].[TaiSanRong] <> 0 
+                AND [Portfolio].[GiaVon] <> 0
             """,
             connect_DWH_CoSo
         )
@@ -269,7 +270,6 @@ class ThongTinTaiKhoanChuyenChungKhoan(AbstractTable):
                     AND [RSA0004].[transaction_id] = [010015].[transaction_id]
                 WHERE [010015].[transaction_id] IN ('2255','2257')
                     AND [010015].[trading_date] = '{self.t0_date}'
-                    -- AND [010015].[trading_date] >= '2022-01-01'
             )
             SELECT
                 [branch].[branch_name] [TenChiNhanh],
@@ -326,10 +326,15 @@ class Container:
 
     @staticmethod
     def _findBrokerName(*subTables): # tìm tên môi giới trong subTables
+        brokerNameList = []
         for table in subTables:
             if not table.empty:
-                brokerName = table.loc[table.index[0],'TenMoiGioi'].title()
-                return brokerName
+                brokerNameList.extend(table['TenMoiGioi'].str.title().unique())
+        brokerNameSet = set(brokerNameList)
+        if len(brokerNameSet) > 5: # chỉ hiện tối đa 5 người
+            return ', '.join(list(brokerNameSet)[:5]) + ',...'
+        else:
+            return ', '.join(list(brokerNameSet))
 
     @staticmethod
     def _findBranchName(*subTables): # tìm chi nhánh của môi giới trong subTables
@@ -658,14 +663,15 @@ class Container:
         workbook = excel.Workbooks.Open(self.filePath)
         workbook.SaveAs(self.filePath,51,self.workbookPassword) # 51 means .xlsx
         workbook.Close()
+        excel.Quit()
         return self
 
     def sendMail(self):
 
         outlook = Dispatch('outlook.application')
         mail = outlook.CreateItem(0)
-        mail.To = 'hiepdang@phs.vn' # = self.email
-        mail.Subject = f"Biến động giao dịch của khách hàng, ngày {self.dateString}_NVQLTK: {self.email}"
+        mail.To = 'data-analytics@phs.vn' # self.email
+        mail.Subject = f"Biến động giao dịch của khách hàng, ngày {self.dateString}_NVQLTK: {self.brokerName}"
         body = f"""
             <html>
                 <head></head>
@@ -681,7 +687,7 @@ class Container:
                     </p>
                     <p></p>
                     <p style="font-family:Arial; font-size:90%">
-                        Mọi thắc mắc Anh/Chị vui lòng liên hệ với ...
+                        Mọi thắc mắc Anh/Chị vui lòng phản hồi lại email này.
                     </p>
                     <p></p>
                     <p style="font-family:Arial; font-size:90%">
@@ -698,6 +704,14 @@ class Container:
         mail.Attachments.Add(self.filePath)
         mail.Send()
 
+        # Delete sent mails
+        sentMails = outlook.GetNamespace("MAPI").GetDefaultFolder(5).Items
+        sentMails = sentMails.Restrict(f"[ReceivedTime] >= '{dt.datetime.now().strftime('%m/%d/%Y 08:00 PM')}'")
+        sentMails.Sort("[ReceivedTime]",True)
+        for sentMail in sentMails:
+            if 'Biến động giao dịch của khách hàng' in sentMail.Subject:
+                sentMail.Delete()
+
 
 # client code
 def run(
@@ -707,11 +721,12 @@ def run(
 
     container = Container(runTime)
     emailList = container.findEmailList()
-    for email in list(emailList):
+    for email in tqdm(emailList,ncols=70):
         if send_mail:
             container.toExcel(email,protectSheet=True).encrypt().sendMail()
         else:
             container.toExcel(email,protectSheet=False)
+        time.sleep(1)
 
     return container.tableObject1, container.tableObject2, container.tableObject3
 

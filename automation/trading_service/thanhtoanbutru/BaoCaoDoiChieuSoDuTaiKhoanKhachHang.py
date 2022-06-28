@@ -44,7 +44,8 @@ def run(
     ###################################################
     ###################################################
 
-    SYNC(connect_DWH_CoSo,'spsub_account_deposit',FrDate=t0_date,ToDate=t0_date)
+    if dt.datetime.strptime(t0_date,'%Y-%m-%d').date() == dt.datetime.now().date():
+        SYNC(connect_DWH_CoSo,'spsub_account_deposit',FrDate=t0_date,ToDate=t0_date)
 
     # --------------------- Viết Query ---------------------
     info_table = pd.read_sql(
