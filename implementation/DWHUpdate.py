@@ -9,17 +9,21 @@ def DWH_CoSo_Update_Today():
     import datetime as dt
     import time
     now = dt.datetime.now()
-    if now.hour < 15:
-        SYNCTODAY() # cho phép chạy buổi trưa
-    else:
-        if now.hour >= 19:
-            batchType = 2
+    weekDay = now.weekday() + 2 # Thứ trong tuần
+    if weekDay in (7,8): # Thứ 7, CN -> run as called
+        SYNCTODAY()
+    else: # ngày thường
+        if now.hour < 13: # buổi trưa
+            pass
         else:
-            batchType = 1
-        while True:
-            if CHECKBATCH(connect_DWH_CoSo,batchType):
-                break
-            time.sleep(30)
+            if now.hour < 19:
+                batchType = 1
+            else:
+                batchType = 2
+            while True:
+                if CHECKBATCH(connect_DWH_CoSo,batchType):
+                    break
+                time.sleep(30)
         SYNCTODAY()
 
 @TaskMonitor
@@ -38,6 +42,7 @@ def DWH_CoSo_Update_BackDate():
 def DWHCoSo_InternetBanking_EOD(bank,func='all'):
 
     from datawarehouse.DWH_CoSo import InternetBanking
+    from datawarehouse.DWH_CoSo.InternetBanking import BankFailedException
     from automation.finance import BIDV,EIB,IVB,VTB,VCB,OCB,TCB
     import datetime as dt
     now = dt.datetime.now()
@@ -55,6 +60,7 @@ def DWHCoSo_InternetBanking_EOD(bank,func='all'):
     checkPairs = {
         'runBankCurrentBalance': ['BIDV','EIB','IVB','VTB','VCB','OCB','TCB',],
         'runBankDepositBalance': ['BIDV','IVB','VTB','VCB','OCB',],
+        'runBankTransactionHistory': ['BIDV','EIB','IVB','VTB','VCB','OCB','TCB',],
     }
     if func == 'all':
         checkList = []
@@ -90,48 +96,21 @@ def DWHCoSo_InternetBanking_EOD(bank,func='all'):
     # Chạy các hàm trên bankObject đã tạo
     if func == 'runBankCurrentBalance':
         InternetBanking.runBankCurrentBalance(bankObject,dataDate,dataDate)
+    elif func == 'runBankTransactionHistory':
+        InternetBanking.runBankTransactionHistory(bankObject,dataDate,dataDate)
     elif func == 'runBankDepositBalance':
         InternetBanking.runBankDepositBalance(bankObject)
     elif func == 'all':
-        bankObject = InternetBanking.runBankDepositBalance(bankObject) # chạy Deposit trước, giữ lại bankObject để dùng lại
-        InternetBanking.runBankCurrentBalance(bankObject,dataDate,dataDate) # chạy Current sau
+        for func in (InternetBanking.runBankDepositBalance,InternetBanking.runBankCurrentBalance,InternetBanking.runBankTransactionHistory):
+            try:
+                if func == InternetBanking.runBankDepositBalance:
+                    bankObject = func(bankObject)
+                else:
+                    bankObject = func(bankObject,dataDate,dataDate)
+            except (BankFailedException,): # any error orcurs -> send traceback email and move on.
+                pass
     else:
         raise ValueError(f'Invalid func {func}')
-    # Terminate Object
-    del bankObject
-
-# không dùng @TaskMonitor vì hàm này đã có sẵn một lớp Monitor rồi
-def DWHCoSo_InternetBanking_RT(bank,func='runBankTransactionHistory'):
-
-    from automation.finance import BIDV,EIB,IVB,VTB,VCB,OCB,TCB
-    from datawarehouse.DWH_CoSo import InternetBanking
-    import datetime as dt
-
-    # Tạo bankObject (Đã login sẵn)
-    if bank == 'BIDV':
-        bankObject = BIDV(True).Login()
-    elif bank == 'EIB':
-        bankObject = EIB(True).Login()
-    elif bank == 'IVB':
-        bankObject = IVB(True).Login()
-    elif bank == 'VTB':
-        bankObject = VTB(True).Login()
-    elif bank == 'VCB':
-        bankObject = VCB(True).Login()
-    elif bank == 'OCB':
-        bankObject = OCB(True).Login()
-    elif bank == 'TCB':
-        bankObject = TCB(True).Login()
-    else:
-        raise ValueError(f'Invalid bank name: {bank}')
-
-    if func == 'runBankTransactionHistory':
-        today = dt.datetime.today()
-        while True:
-            bankObject = InternetBanking.runBankTransactionHistory(bankObject,today,today,True)
-            if dt.datetime.now().time() > dt.time(16,50,0):
-                break
-            time.sleep(60) # quét 1 phút/lần
     # Terminate Object
     del bankObject
 
@@ -143,13 +122,17 @@ def DWH_PhaiSinh_Update_Today():
     import datetime as dt
     import time
     now = dt.datetime.now()
-    if now.hour < 15:
-        SYNCTODAY() # cho phép chạy buổi trưa
-    else:
-        while True:
-            if CHECKBATCH(connect_DWH_PhaiSinh,2):
-                break
-            time.sleep(30)
+    weekDay = now.weekday() + 2 # Thứ trong tuần
+    if weekDay in (7,8): # Thứ 7, CN -> run as called
+        SYNCTODAY()
+    else: # ngày thường
+        if now.hour < 13: # buổi trưa
+            pass
+        else:
+            while True:
+                if CHECKBATCH(connect_DWH_PhaiSinh,2):
+                    break
+                time.sleep(30)
         SYNCTODAY()
 
 @TaskMonitor
@@ -205,4 +188,9 @@ def DWH_NotifySyncStatusToday(db):
 def DWH_NotifySyncStatusBackDate(db):
     from datawarehouse import NOTIFYSYNCSTATUSBACKDATE
     NOTIFYSYNCSTATUSBACKDATE(db)
+
+@TaskMonitor
+def DWHBaseUpdate_Employee():
+    from datawarehouse.DWH_Base.Employee import run
+    run()
 

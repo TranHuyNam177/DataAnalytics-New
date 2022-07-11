@@ -1,3 +1,5 @@
+import pandas as pd
+
 from request import *
 
 
@@ -187,9 +189,10 @@ def SYNC(
         'SOAPAction': f'http://tempuri.org/{action}',
         'Content-Length': str(len(body))
     }
+    originalConfig = GETCONFIG(conn)
     OPENCONFIG(conn)
     r = requests.post(URL,data=body,headers=headers)
-    CLOSECONFIG(conn)
+    CLOSECONFIG(conn,originalConfig)
 
     if r.status_code != 200:
         raise RuntimeError('Không thể chạy Stored Procedure qua Web Service')
@@ -219,9 +222,20 @@ def CONFIG(
     sqlStatement = sqlStatement.rstrip(',')
     sqlStatement += f" WHERE [StoreName] = '{StoreName}'"
     cursor.execute(sqlStatement)
-    print(sqlStatement)
     cursor.commit()
     cursor.close()
+
+
+def GETCONFIG(
+    conn,
+):
+    """
+    This function returns the config table
+
+    :param conn: connection object of the Database
+    """
+
+    return pd.read_sql('SELECT * FROM [StoreConfig]',conn)
 
 
 def OPENCONFIG(
@@ -248,23 +262,17 @@ def OPENCONFIG(
 
 def CLOSECONFIG(
     conn,
+    originalConfig: pd.DataFrame
 ):
     """
     This function changes the config table that sets back time restriction
 
     :param conn: connection object of the Database
+    :param originalConfig:
     """
 
-    dbName = conn.getinfo(pyodbc.SQL_DATABASE_NAME)
-    if dbName == 'DWH-CoSo':
-        configTable = pd.read_csv(join(dirname(__file__),'DWH_CoSo','configTable.csv'))
-    elif dbName == 'DWH-PhaiSinh':
-        configTable = pd.read_csv(join(dirname(__file__),'DWH_PhaiSinh','configTable.csv'))
-    else:
-        raise ValueError('Invalid Database')
-
     DELETE(conn,'StoreConfig','')
-    BATCHINSERT(conn,'StoreConfig',configTable)
+    BATCHINSERT(conn,'StoreConfig',originalConfig)
 
 
 def BDATE(
@@ -503,14 +511,14 @@ def NOTIFYSYNCSTATUSTODAY(db):
         db_Tables = TableNames_DWH_CoSo.squeeze()
         prefix = '[DWH-CoSo]'
         description = 'RunCoSo'
-        since = dt.datetime.now()-dt.timedelta(minutes=30)
+        since = dt.datetime.now()-dt.timedelta(minutes=60)
 
     elif db == 'DWH-PhaiSinh':
         conn = connect_DWH_PhaiSinh
         db_Tables = TableNames_DWH_PhaiSinh.squeeze()
         prefix = '[DWH-PhaiSinh]'
         description = 'RunPhaiSinh'
-        since = dt.datetime.now()-dt.timedelta(minutes=30)
+        since = dt.datetime.now()-dt.timedelta(minutes=60)
 
     else:
         raise ValueError('The module currently checks DWH-CoSo or DWH-PhaiSinh only')

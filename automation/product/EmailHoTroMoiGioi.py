@@ -670,7 +670,8 @@ class Container:
 
         outlook = Dispatch('outlook.application')
         mail = outlook.CreateItem(0)
-        mail.To = 'data-analytics@phs.vn' # self.email
+        # mail.To = self.email
+        mail.To = 'data-analytics@phs.vn'
         mail.Subject = f"Biến động giao dịch của khách hàng, ngày {self.dateString}_NVQLTK: {self.brokerName}"
         body = f"""
             <html>
@@ -706,12 +707,14 @@ class Container:
 
         # Delete sent mails
         sentMails = outlook.GetNamespace("MAPI").GetDefaultFolder(5).Items
-        sentMails = sentMails.Restrict(f"[ReceivedTime] >= '{dt.datetime.now().strftime('%m/%d/%Y 08:00 PM')}'")
+        sentMails = sentMails.Restrict(f"[ReceivedTime] >= '{dt.datetime.now().strftime('%m/%d/%Y 09:00 PM')}'")
         sentMails.Sort("[ReceivedTime]",True)
         for sentMail in sentMails:
             if 'Biến động giao dịch của khách hàng' in sentMail.Subject:
-                sentMail.Delete()
-
+                try: # dễ có lỗi do server process không kịp -> bỏ qua để xử lý ở vòng lặp sau
+                    sentMail.Delete()
+                except (Exception,):
+                    pass
 
 # client code
 def run(

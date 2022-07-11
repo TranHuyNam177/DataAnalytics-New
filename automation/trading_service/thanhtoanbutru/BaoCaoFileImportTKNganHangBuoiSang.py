@@ -1,4 +1,5 @@
 from automation.trading_service.thanhtoanbutru import *
+from datawarehouse import SYNC
 
 
 # DONE
@@ -65,6 +66,7 @@ def run(
     bank_sent_balance = pd.concat([eib_sent_data,ocb_sent_data])
 
     # imported data
+    SYNC(connect_DWH_CoSo,'spimported_bank_balance',t0_date,t0_date)
     imported_balance = pd.read_sql(
         f"""
         SELECT 

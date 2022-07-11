@@ -22,6 +22,11 @@ def SS_BaoCaoDongMoUyQuyenTK_HOSEnew():
     BaoCaoDongMoUyQuyenTK_HOSEnew.run()
 
 @TaskMonitor
+def SS_BaoCaoDongMoUyQuyenTK_HOSEnew2022():
+    from automation.trading_service.giaodichluuky import BaoCaoDongMoUyQuyenTK_HOSEnew2022
+    BaoCaoDongMoUyQuyenTK_HOSEnew2022.run()
+
+@TaskMonitor
 def SS_BaoCaoDongMoUyQuyenTK_HOSEold():
     from automation.trading_service.giaodichluuky import BaoCaoDongMoUyQuyenTK_HOSEold
     BaoCaoDongMoUyQuyenTK_HOSEold.run()

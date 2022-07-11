@@ -21,83 +21,83 @@ def run(
 
     summary = pd.read_sql(
         f"""
-            WITH
-            [FlagTable] AS (
+        WITH
+        [FlagTable] AS (
+        SELECT 
+            [ao].[account_type] [Type],
+            CASE 
+                WHEN [ao].[account_type] = N'Cá nhân trong nước' THEN 2
+                WHEN [ao].[account_type] = N'Tổ chức trong nước' THEN 3
+                WHEN [ao].[account_type] = N'Cá nhân nước ngoài' THEN 5
+                WHEN [ao].[account_type] = N'Tổ chức nước ngoài' THEN 6
+            END [Number],
+            CASE WHEN [ao].[date_of_open] BETWEEN '{start_date}' AND '{end_date}' THEN 1 ELSE 0 END [Open],
+            CASE WHEN [ac].[date_of_close] BETWEEN '{start_date}' AND '{end_date}' THEN 1 ELSE 0 END [Close]
+        FROM [account] [ao] FULL JOIN [account] [ac] ON [ao].[account_code] = [ac].[account_code]
+        WHERE [ao].[account_type] IN (N'Cá nhân trong nước',N'Tổ chức trong nước',N'Cá nhân nước ngoài',N'Tổ chức nước ngoài')
+        ),
+        [AggregateTable] AS (
+        SELECT 
+            [FlagTable].[Number],
+            [FlagTable].[Type],
+            SUM([FlagTable].[Open]) [Open],
+            SUM([FlagTable].[Close]) [Close]
+        FROM [FlagTable]
+        GROUP BY [FlagTable].[Type], [FlagTable].[Number]
+        ),
+        [Change] AS (
             SELECT 
-                [ao].[account_type] [Type],
-                CASE 
-                    WHEN [ao].[account_type] = N'Cá nhân trong nước' THEN 2
-                    WHEN [ao].[account_type] = N'Tổ chức trong nước' THEN 3
-                    WHEN [ao].[account_type] = N'Cá nhân nước ngoài' THEN 5
-                    WHEN [ao].[account_type] = N'Tổ chức nước ngoài' THEN 6
-                END [Number],
-                CASE WHEN [ao].[date_of_open] BETWEEN '{start_date}' AND '{end_date}' THEN 1 ELSE 0 END [Open],
-                CASE WHEN [ac].[date_of_close] BETWEEN '{start_date}' AND '{end_date}' THEN 1 ELSE 0 END [Close]
-            FROM [account] [ao] FULL JOIN [account] [ac] ON [ao].[account_code] = [ac].[account_code]
-            WHERE [ao].[account_type] IN (N'Cá nhân trong nước',N'Tổ chức trong nước',N'Cá nhân nước ngoài',N'Tổ chức nước ngoài')
-            ),
-            [AggregateTable] AS (
+                1 [Number], 
+                N'Trong nước' [Type], 
+                SUM([AggregateTable].[Open]) [Open], 
+                SUM([AggregateTable].[Close]) [Close] 
+            FROM [AggregateTable] WHERE [AggregateTable].[Type] IN (N'Cá nhân trong nước',N'Tổ chức trong nước')
+            UNION 
+            SELECT *
+            FROM [AggregateTable]
+            UNION
             SELECT 
-                [FlagTable].[Number],
-                [FlagTable].[Type],
-                SUM([FlagTable].[Open]) [Open],
-                SUM([FlagTable].[Close]) [Close]
-            FROM [FlagTable]
-            GROUP BY [FlagTable].[Type], [FlagTable].[Number]
-            ),
-            [Change] AS (
-                SELECT 
-                    1 [Number], 
-                    N'Trong nước' [Type], 
-                    SUM([AggregateTable].[Open]) [Open], 
-                    SUM([AggregateTable].[Close]) [Close] 
-                FROM [AggregateTable] WHERE [AggregateTable].[Type] IN (N'Cá nhân trong nước',N'Tổ chức trong nước')
-                UNION 
-                SELECT *
-                FROM [AggregateTable]
-                UNION
-                SELECT 
-                    4 [Number], 
-                    N'Nước ngoài' [Type], 
-                    SUM([AggregateTable].[Open]) [Open], 
-                    SUM([AggregateTable].[Close]) [Close]
-                FROM [AggregateTable] WHERE [AggregateTable].[Type] IN (N'Cá nhân nước ngoài',N'Tổ chức nước ngoài')
-                UNION 
-                SELECT 
-                    7 [Number], 
-                    N'Tổng Cộng' [Type], 
-                    SUM([AggregateTable].[Open]) [Open], 
-                    SUM([AggregateTable].[Close]) [Close]
-                FROM [AggregateTable]
-            ),
-            [tempEnd] AS (
-                SELECT 
-                    COUNT([account].[account_code]) [count], 
-                    [account].[account_type]
-                FROM [account]
-                WHERE 
-                    [account].[date_of_open] <= '{end_date}'
-                    AND ([account].[date_of_close] IS NULL 
-                        OR ([account].[date_of_close] > '{end_date}' AND [account].[date_of_close] != '2099-12-31')
-                    ) -- mot so tai khoan dong rat lau roi duoc gan ngay dong la ngay nay
-                    AND [account].[account_type] IN (N'Cá nhân trong nước',N'Tổ chức trong nước',N'Cá nhân nước ngoài',N'Tổ chức nước ngoài')
-                GROUP BY [account].[account_type]
-            ),
-            [End] AS (
-                SELECT * FROM [tempEnd]
-                UNION SELECT SUM([tempEnd].[count]) [count], N'Trong nước' FROM [tempEnd] WHERE [tempEnd].[account_type] IN (N'Cá nhân trong nước',N'Tổ chức trong nước')
-                UNION SELECT SUM([tempEnd].[count]) [count], N'Nước ngoài' FROM [tempEnd] WHERE [tempEnd].[account_type] IN (N'Cá nhân nước ngoài',N'Tổ chức nước ngoài')
-                UNION SELECT SUM([tempEnd].[count]) [count], N'Tổng Cộng' FROM [tempEnd]
-            )
+                4 [Number], 
+                N'Nước ngoài' [Type], 
+                SUM([AggregateTable].[Open]) [Open], 
+                SUM([AggregateTable].[Close]) [Close]
+            FROM [AggregateTable] WHERE [AggregateTable].[Type] IN (N'Cá nhân nước ngoài',N'Tổ chức nước ngoài')
+            UNION 
             SELECT 
-                COALESCE([Change].[Type],[End].[account_type]) [Type],
-                [End].[count] + [Change].[Close] - [Change].[Open] [Start],
-                [Change].[Open],
-                [Change].[Close],
-                [End].[count] [End]
-            FROM [Change] 
-            FULL JOIN [End] ON [End].[account_type] = [Change].[Type]
-            ORDER BY [Change].[Number]
+                7 [Number], 
+                N'Tổng Cộng' [Type], 
+                SUM([AggregateTable].[Open]) [Open], 
+                SUM([AggregateTable].[Close]) [Close]
+            FROM [AggregateTable]
+        ),
+        [tempEnd] AS (
+            SELECT 
+                COUNT([account].[account_code]) [count], 
+                [account].[account_type]
+            FROM [account]
+            WHERE 
+                [account].[date_of_open] <= '{end_date}'
+                AND ([account].[date_of_close] IS NULL 
+                    OR ([account].[date_of_close] > '{end_date}' AND [account].[date_of_close] != '2099-12-31')
+                ) -- mot so tai khoan dong rat lau roi duoc gan ngay dong la ngay nay
+                AND [account].[account_type] IN (N'Cá nhân trong nước',N'Tổ chức trong nước',N'Cá nhân nước ngoài',N'Tổ chức nước ngoài')
+            GROUP BY [account].[account_type]
+        ),
+        [End] AS (
+            SELECT * FROM [tempEnd]
+            UNION SELECT SUM([tempEnd].[count]) [count], N'Trong nước' FROM [tempEnd] WHERE [tempEnd].[account_type] IN (N'Cá nhân trong nước',N'Tổ chức trong nước')
+            UNION SELECT SUM([tempEnd].[count]) [count], N'Nước ngoài' FROM [tempEnd] WHERE [tempEnd].[account_type] IN (N'Cá nhân nước ngoài',N'Tổ chức nước ngoài')
+            UNION SELECT SUM([tempEnd].[count]) [count], N'Tổng Cộng' FROM [tempEnd]
+        )
+        SELECT 
+            COALESCE([Change].[Type],[End].[account_type]) [Type],
+            [End].[count] + [Change].[Close] - [Change].[Open] [Start],
+            [Change].[Open],
+            [Change].[Close],
+            [End].[count] [End]
+        FROM [Change] 
+        FULL JOIN [End] ON [End].[account_type] = [Change].[Type]
+        ORDER BY [Change].[Number]
         """
         ,
         connect_DWH_CoSo
@@ -234,7 +234,11 @@ def run(
                     ELSE [authorization].[authorized_person_address]
                 END [authorized_person_address],
                 [authorization].[date_of_authorization],
-                'I,II,IV,V,VII,IX,X' [scope_of_authorization]
+                CASE 
+                    WHEN [authorization].[authorized_person_name] = N'CTY CP CHỨNG KHOÁN PHÚ HƯNG'
+                        THEN 'I,II,IV,V,VII,IX,X'
+                    ELSE [authorization].[scope_of_authorization]
+                END [scope_of_authorization]
             FROM [authorization]  
             WHERE [authorization].[date_of_authorization] BETWEEN '{start_date}' AND '{end_date}'
                 AND [authorization].[scope_of_authorization] IS NOT NULL

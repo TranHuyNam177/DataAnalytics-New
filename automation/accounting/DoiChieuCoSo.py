@@ -1,6 +1,5 @@
-from os.path import dirname, join
-import pandas as pd
 from tqdm import tqdm
+import string
 from automation.accounting import *
 
 
@@ -176,6 +175,7 @@ class Report:
 
     def __del__(self):
         self.writer.close()
+        print('Closed ExcelWriter')
 
     def run324(self):
 
@@ -183,7 +183,7 @@ class Report:
             join(self.bravoFolder,f'{self.bravoDateString}',f'Sổ tổng hợp công nợ 324_{self.bravoDateString}.xlsx'),
             skiprows=8,
             skipfooter=1,
-            names=['SoTaiKhoan','TenKhachHang','DuDauNoBravo','DuDauCoBravo','PhatSinhGiamBravo','PhatSinhTangBravo','DuCuoiNoBravo','DuCuoiCoBravo'],
+            names=['SoTaiKhoan','TenKhachHangBravo','DuDauNoBravo','DuDauCoBravo','PhatSinhGiamBravo','PhatSinhTangBravo','DuCuoiNoBravo','DuCuoiCoBravo'],
         )
         TaiKhoan324['DuDauBravo'] = TaiKhoan324['DuDauCoBravo'] - TaiKhoan324['DuDauNoBravo']
         TaiKhoan324['DuCuoiBravo'] = TaiKhoan324['DuCuoiCoBravo'] - TaiKhoan324['DuCuoiNoBravo']
@@ -191,18 +191,22 @@ class Report:
             f"""
             SELECT 
                 [sub_account].[account_code] [SoTaiKhoan],
+                MAX([account].[customer_name]) [TenKhachHangFlex],
                 SUM([sub_account_deposit].[opening_balance]) [DuDauFlex],
                 SUM([sub_account_deposit].[increase]) [PhatSinhTangFlex],
                 SUM([sub_account_deposit].[decrease]) [PhatSinhGiamFlex],
                 SUM([sub_account_deposit].[opening_balance]) [DuCuoiFlex]
             FROM [sub_account_deposit]
             LEFT JOIN [sub_account] ON [sub_account_deposit].[sub_account] = [sub_account].[sub_account]
+            LEFT JOIN [account] ON [account].[account_code] = [sub_account].[account_code]
             WHERE [sub_account_deposit].[date] = '{self.bravoDateString}'
             GROUP BY [sub_account].[account_code]
             """,
             connect_DWH_CoSo
         )
         table = pd.merge(TaiKhoan324,RCI0001,how='outer',on='SoTaiKhoan',)
+        table['TenKhachHang'] = table['TenKhachHangBravo'].fillna(table['TenKhachHangFlex'])
+        table = table.fillna(0)
         table['DuDauDiff'] = table['DuDauBravo'] - table['DuDauFlex']
         table['PhatSinhGiamDiff'] = table['PhatSinhGiamBravo'] - table['PhatSinhGiamFlex']
         table['PhatSinhTangDiff'] = table['PhatSinhTangBravo'] - table['PhatSinhTangFlex']
@@ -250,7 +254,7 @@ class Report:
         worksheet.write_row('M13',np.arange(13,17),self.headers_diff_format)
 
         worksheet.write_column('A14',table['SoTaiKhoan'],self.text_root_format)
-        worksheet.write_column('B14',table['TenKhachHang'],self.text_root_format)
+        worksheet.write_column('B14',table['TenKhachHang'].str.title(),self.text_root_format)
         worksheet.write_column('C14',table['DuDauNoBravo'],self.money_bravo_format)
         worksheet.write_column('D14',table['DuDauCoBravo'],self.money_bravo_format)
         worksheet.write_column('E14',table['PhatSinhGiamBravo'],self.money_bravo_format)
@@ -265,7 +269,16 @@ class Report:
         worksheet.write_column('N14',table['PhatSinhGiamDiff'],self.money_diff_format)
         worksheet.write_column('O14',table['PhatSinhTangDiff'],self.money_diff_format)
         worksheet.write_column('P14',table['DuCuoiDiff'],self.money_diff_format)
-
+        worksheet.merge_range(f'A{table.shape[0]+14}:B{table.shape[0]+14}','Tổng',self.headers_root_format)
+        for col in 'CDEFGHIJKLMNOP':
+            if col in 'CDEFGH':
+                fmt = self.money_bravo_format
+            elif col in 'IJKL':
+                fmt = self.money_flex_format
+            else:
+                fmt = self.money_diff_format
+            sumString = f'=SUM({col}14:{col}{table.shape[0]+13})'
+            worksheet.write(f'{col}{table.shape[0]+14}',sumString,fmt)
 
     def run1231(self):
 
@@ -275,7 +288,6 @@ class Report:
             skipfooter=1,
             names=['SoTaiKhoan','TenKhachHangBravo','DuDauNoBravo','DuDauCoBravo','PhatSinhNoBravo','PhatSinhCoBravo','DuCuoiNoBravo','DuCuoiCoBravo'],
         )
-
         RLN0006 = pd.read_sql(
             f"""
             SELECT
@@ -285,7 +297,7 @@ class Report:
             FROM [margin_outstanding]
             LEFT JOIN [account] ON [account].[account_code] = [margin_outstanding].[account_code]
             WHERE [margin_outstanding].[date] = '{self.bravoDateString}'
-                AND  [margin_outstanding].[type] <> N'Ứng trước cổ tức'
+                AND  [margin_outstanding].[type] IN (N'Margin',N'Bảo lãnh',N'Trả chậm')
             GROUP BY [margin_outstanding].[account_code]
             """,
             connect_DWH_CoSo
@@ -336,6 +348,16 @@ class Report:
         worksheet.write_column('H13',table['DuCuoiCoBravo'],self.money_bravo_format)
         worksheet.write_column('I13',table['DuCuoiNoFlex'],self.money_flex_format)
         worksheet.write_column('J13',table['DuCuoiNoDiff'],self.money_diff_format)
+        worksheet.merge_range(f'A{table.shape[0]+13}:B{table.shape[0]+13}','Tổng',self.headers_root_format)
+        for col in 'CDEFGHIJ':
+            if col in 'CDEFGH':
+                fmt = self.money_bravo_format
+            elif col in 'I':
+                fmt = self.money_flex_format
+            else:
+                fmt = self.money_diff_format
+            sumString = f'=SUM({col}13:{col}{table.shape[0]+12})'
+            worksheet.write(f'{col}{table.shape[0]+13}',sumString,fmt)
 
     def run13226(self):
 
@@ -354,7 +376,7 @@ class Report:
             FROM [margin_outstanding]
             LEFT JOIN [account] ON [account].[account_code] = [margin_outstanding].[account_code]
             WHERE [margin_outstanding].[date] = '{self.bravoDateString}'
-                AND  [margin_outstanding].[type] <> N'Ứng trước cổ tức'
+                AND  [margin_outstanding].[type] IN (N'Margin',N'Bảo lãnh',N'Trả chậm')
             GROUP BY [margin_outstanding].[account_code]
             """,
             connect_DWH_CoSo
@@ -405,3 +427,13 @@ class Report:
         worksheet.write_column('H13',table['DuCuoiCoBravo'],self.money_bravo_format)
         worksheet.write_column('I13',table['DuCuoiNoFlex'],self.money_flex_format)
         worksheet.write_column('J13',table['DuCuoiNoDiff'],self.money_diff_format)
+        worksheet.merge_range(f'A{table.shape[0]+13}:B{table.shape[0]+13}','Tổng',self.headers_root_format)
+        for col in 'CDEFGHIJ':
+            if col in 'CDEFGH':
+                fmt = self.money_bravo_format
+            elif col in 'I':
+                fmt = self.money_flex_format
+            else:
+                fmt = self.money_diff_format
+            sumString = f'=SUM({col}13:{col}{table.shape[0]+12})'
+            worksheet.write(f'{col}{table.shape[0]+13}',sumString,fmt)

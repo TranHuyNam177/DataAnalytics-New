@@ -47,19 +47,25 @@ def runBIDV(bankObject,fromDate,toDate):
         xpath = '//*[@aria-owns="accountNo_listbox"]'
         accountInput = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
         accountInput.clear()
+        # Đóng pop up nếu có
+        time.sleep(1)
+        xpath = '//*[@data-bb-handler="ok"]'
+        popupButtons = bankObject.driver.find_elements(By.XPATH,xpath)
+        if popupButtons:
+            popupButtons[0].click()
         i = 0
         while True:
             # Bấm mũi tên xuống để lấy từng TK (làm cách này để tránh lỗi)
             accountInput.send_keys(Keys.DOWN)
-            value = accountInput.get_attribute('value')
-            print(value)
-            account = re.search('[0-9]{14}',value).group()
-            time.sleep(0.5) # chờ pop up (nếu có)
             # Đóng pop up nếu có
+            time.sleep(1)  # chờ pop up (nếu có)
             xpath = '//*[@data-bb-handler="ok"]'
             popupButtons = bankObject.driver.find_elements(By.XPATH,xpath)
             if popupButtons:
                 popupButtons[0].click()
+            # Lấy số tài khoản
+            value = accountInput.get_attribute('value')
+            account = re.search('[0-9]{14}',value).group()
             # Download file excel
             bankObject.wait.until(EC.presence_of_element_located((By.ID,'btnExportExcel01'))).click()
             # Đọc file, record data
@@ -111,7 +117,7 @@ def runVTB(bankObject,fromDate,toDate):
     # Click sub-menu "Danh sách tài khoản"
     bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Danh sách tài khoản'))).click()
     # table Element
-    tableElement, _, _ = bankObject.wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME,'MuiTableBody-root')))
+    tableElement = bankObject.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'MuiTableBody-root')))
     tableElement.find_element(By.LINK_TEXT,'Xem thêm').click()
 
     # Create function to clear input box and send dates as string
@@ -142,7 +148,6 @@ def runVTB(bankObject,fromDate,toDate):
                     break
                 except (Exception,):
                     pass
-            # time.sleep(1) # chờ load data
             # Download file
             while True:
                 try:
@@ -314,6 +319,7 @@ def runVCB(bankObject,fromDate,toDate):
             startDateInput = bankObject.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'startDate')))
             bankObject.driver.execute_script(f'window.scrollTo(0,500)')
             sendDate(startDateInput,d)
+            time.sleep(0.5)
             endDateInput = bankObject.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'endDate')))
             sendDate(endDateInput,d)
             # Xuống cuối trang
@@ -387,6 +393,13 @@ def runEIB(bankObject,fromDate,toDate):
     action.click(currentAccount)
     action.perform()
     time.sleep(3) # Chờ load xong
+    # Đóng cửa sổ yêu cầu kích hoạt smart OTP (nếu có)
+    xpath = '//*[contains(text(),"Đồng ý")]'
+    Buttons = bankObject.driver.find_elements(By.XPATH,xpath)
+    if Buttons:
+        Buttons[0].click()
+        xpath = '//*[contains(text(),"Đóng")]'
+        bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Lấy danh sách tài khoản
     xpath = '//tbody/tr/th/a'
     accountElems = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))

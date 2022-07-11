@@ -107,7 +107,7 @@ def __SendMailRetry__(func): # Decorator
             outlook = Dispatch('outlook.application')
             mail = outlook.CreateItem(0)
             mail.To = 'anhnguyenthu@phs.vn; huyhuynh@phs.vn;'
-            mail.CC = 'hiepdang@phs.vn'
+            # mail.CC = 'hiepdang@phs.vn'
             mail.Subject = f"Market Alert {now.strftime('%H:%M:%S %d.%m.%Y')}"
             mail.HTMLBody = html_str
             mail.Send()

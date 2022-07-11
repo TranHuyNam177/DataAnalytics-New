@@ -30,7 +30,7 @@ def GetDataMonitor(func):
             mail.HTMLBody = body
             mail.Send()
         except (Exception,):
-            mail.Subject = f"BankCurrentBalance.{bank} Failed"
+            mail.Subject = f"{func.__name__}.{bank} Failed"
             traceback_message = traceback.format_exc()
             body = f"""
                 <html>
@@ -75,7 +75,8 @@ def runBankCurrentBalance(bankObject,fromDate,toDate):
     elif bankObject.bank == 'TCB':
         balanceTable = BankCurrentBalance.runTCB(bankObject,fromDate,toDate)
     else:
-        raise ValueError(f'Invalid bank name: {bankObject.bank}')
+        print(f'Invalid bank name: {bankObject.bank}')
+        return bankObject
 
     fromDateString = fromDate.strftime('%Y-%m-%d')
     toDateString = toDate.strftime('%Y-%m-%d')
@@ -102,7 +103,8 @@ def runBankDepositBalance(bankObject):
     elif bankObject.bank == 'OCB':
         balanceTable = BankDepositBalance.runOCB(bankObject)
     else:
-        raise ValueError(f'Invalid bank name: {bankObject.bank}')
+        print(f'Invalid bank name: {bankObject.bank}')
+        return bankObject
 
     dateString = balanceTable['Date'].max().strftime('%Y-%m-%d')
     DELETE(connect_DWH_CoSo,'BankDepositBalance',f"""WHERE [Date] = '{dateString}' AND [Bank] = '{bankObject.bank}'""")
@@ -111,22 +113,38 @@ def runBankDepositBalance(bankObject):
     return bankObject
 
 @GetDataMonitor
-def runBankTransactionHistory(bankObject,fromDate,toDate,cBankAccountsOnly):
+def runBankTransactionHistory(bankObject,fromDate,toDate):
     """
     :param bankObject: Bank Object (đã login)
     :param fromDate: Ngày bắt đầu lấy dữ liệu
     :param toDate: Ngày kết thúc lấy dữ liệu
-    :param cBankAccountsOnly: Chỉ lấy các tài khoản giao dịch với KH
     """
 
     if bankObject.bank == 'BIDV':
-        balanceTable = BankTransactionHistory.runBIDV(bankObject,fromDate,toDate,cBankAccountsOnly)
+        transactionTable = BankTransactionHistory.runBIDV(bankObject,fromDate,toDate)
+    elif bankObject.bank == 'IVB':
+        transactionTable = BankTransactionHistory.runIVB(bankObject,fromDate,toDate)
+    elif bankObject.bank == 'VCB':
+        transactionTable = BankTransactionHistory.runVCB(bankObject,fromDate,toDate)
+    elif bankObject.bank == 'VTB':
+        transactionTable = BankTransactionHistory.runVTB(bankObject,fromDate,toDate)
+    elif bankObject.bank == 'EIB':
+        transactionTable = BankTransactionHistory.runEIB(bankObject,fromDate,toDate)
+    elif bankObject.bank == 'OCB':
+        transactionTable = BankTransactionHistory.runOCB(bankObject,fromDate,toDate)
+    elif bankObject.bank == 'TCB':
+        transactionTable = BankTransactionHistory.runTCB(bankObject,fromDate,toDate)
     else:
-        raise ValueError(f'Invalid bank name: {bankObject.bank}')
-    fromTimeString = fromDate.strftime('%Y-%m-%d 00:00:00')
-    toTimeString = toDate.strftime('%Y-%m-%d 23:59:59')
-    DELETE(connect_DWH_CoSo,'BankTransactionHistory',f"""WHERE [Time] BETWEEN '{fromTimeString}' AND '{toTimeString}' AND [Bank] = '{bankObject.bank}'""")
-    BATCHINSERT(connect_DWH_CoSo,'BankTransactionHistory',balanceTable)
+        print(f'Invalid bank name: {bankObject.bank}')
+        return bankObject
+
+    if transactionTable.empty:
+        print('No data to insert')
+    else:
+        fromTimeString = fromDate.strftime('%Y-%m-%d 00:00:00')
+        toTimeString = toDate.strftime('%Y-%m-%d 23:59:59')
+        DELETE(connect_DWH_CoSo,'BankTransactionHistory',f"""WHERE [Time] BETWEEN '{fromTimeString}' AND '{toTimeString}' AND [Bank] = '{bankObject.bank}'""")
+        BATCHINSERT(connect_DWH_CoSo,'BankTransactionHistory',transactionTable)
 
     return bankObject
 
