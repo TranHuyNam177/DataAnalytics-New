@@ -446,8 +446,10 @@ def runEIB(bankObject,fromDate,toDate):
     Buttons = bankObject.driver.find_elements(By.XPATH,xpath)
     if Buttons:
         Buttons[0].click()
-        xpath = '//*[contains(text(),"Đóng")]'
-        bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    xpath = '//*[contains(text(),"Đóng")]'
+    Buttons = bankObject.driver.find_elements(By.XPATH,xpath)
+    if Buttons:
+        Buttons[0].click()
     # Lấy danh sách tài khoản
     xpath = '//tbody/tr/th/a'
     accountElems = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
@@ -755,3 +757,4 @@ def runTCB(bankObject,fromDate,toDate):
         transactionTable = pd.DataFrame(columns=['Time','Bank','AccountNumber','Debit','Credit','Balance','Content','TradingAccount'])
 
     return transactionTable
+

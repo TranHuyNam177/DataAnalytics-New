@@ -515,10 +515,13 @@ class EIB(Base):
         noticeWindow = self.driver.find_elements(By.XPATH,xpath)
         if noticeWindow:  # có popup
             xpath = '//*[contains(text(),"Đồng ý")]'
-            self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+            Buttons = self.driver.find_elements(By.XPATH,xpath)
+            if Buttons:
+                Buttons[0].click()
             xpath = '//*[contains(text(),"Đóng")]'
-            self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
-
+            Buttons = self.driver.find_elements(By.XPATH,xpath)
+            if Buttons:
+                Buttons[0].click()
         return self
 
 class OCB(Base):

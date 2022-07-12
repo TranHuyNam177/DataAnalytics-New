@@ -30,19 +30,6 @@ class AbstractTable(ABC):
     def createTable(self):
         pass
 
-    def findEmail(self,dataTable):
-        """
-        dataTable phải có cột 'BrokerID', 'EmailFromFlex'
-        """
-        table = pd.merge(dataTable,self.emailTable,left_on='BrokerID',right_on='employeeCode',how='left')
-        table = table.drop('employeeCode',axis=1).rename({'email':'EmailFromHR'},axis=1)
-        # Ưu tiên lấy mail từ HR trước, không có thì lấy mail từ Flex
-        table['Email'] = table['EmailFromHR']
-        table['Email'] = table['Email'].fillna(table['EmailFromFlex'])
-        # Bỏ các dòng không xác định được email
-        table = table.loc[table['Email'].notnull()]
-        return table
-
 
 class ThongTinTaiKhoanThayDoiGiaTriGiaoDich(AbstractTable):
 
@@ -53,6 +40,25 @@ class ThongTinTaiKhoanThayDoiGiaTriGiaoDich(AbstractTable):
         mainTable = pd.read_sql(
             f"""
             WITH
+            [Email] AS (
+                SELECT 
+                [MaUserMoiGioi] [MaUserMoiGioi], 
+                [MaUserTruongNhom] [MaUserTruongNhom],
+                [Employee1].[Email] [EmailMoiGioi],
+                [Employee2].[Email] [EmailTruongNhom],
+                CASE 
+                    WHEN [Employee1].[Email] IS NULL THEN [Employee2].[Email]
+                    ELSE [Employee1].[Email]
+                END [Email]
+            FROM [0383]
+            LEFT JOIN [DWH-Base].[dbo].[Employee] [Employee1] 
+                ON RIGHT([Employee1].[User],4) = [0383].[MaUserMoiGioi]
+            LEFT JOIN [DWH-Base].[dbo].[Employee] [Employee2] 
+                ON RIGHT([Employee2].[User],4) = [0383].[MaUserTruongNhom]
+            WHERE [MaUserTruongNhom] LIKE '[0-9][0-9][0-9][0-9]' 
+                AND [MaUserTruongNhom] IN (SELECT [broker_id] FROM [broker] WHERE [quit_date] IS NULL)
+                AND [MaUserMoiGioi] IN (SELECT [broker_id] FROM [broker] WHERE [quit_date] IS NULL)
+            ),
             [Portfolio] AS (
                 SELECT 
                     [SoTieuKhoan],
@@ -83,7 +89,7 @@ class ThongTinTaiKhoanThayDoiGiaTriGiaoDich(AbstractTable):
             SELECT
                 [branch].[branch_name] [TenChiNhanh],
                 [broker].[broker_id] [BrokerID],
-                [broker].[email] [EmailFromFlex],
+                [Email].[Email] [Email],
                 [broker].[broker_name] [TenMoiGioi],
                 [relationship].[account_code] [SoTaiKhoan],
                 [AssetT0].[SubAccount] [SoTieuKhoan],
@@ -104,6 +110,7 @@ class ThongTinTaiKhoanThayDoiGiaTriGiaoDich(AbstractTable):
             LEFT JOIN [account] ON [account].[account_code] = [relationship].[account_code]
             LEFT JOIN [broker] ON [broker].[broker_id] = [relationship].[broker_id]
             LEFT JOIN [branch] ON [branch].[branch_id] = [relationship].[branch_id]
+            LEFT JOIN [Email] ON [Email].[MaUserMoiGioi] = [relationship].[broker_id]
             WHERE [Portfolio].[GiaTriChungKhoan] <> 0 
                 AND [AssetT1].[TaiSanRong] <> 0 
                 AND [Portfolio].[GiaVon] <> 0
@@ -189,8 +196,7 @@ class ThongTinTaiKhoanThayDoiGiaTriGiaoDich(AbstractTable):
         condition2 = table['PhanTramThayDoiTaiSan'] <= -0.25
         condition3 = table['PhanTramLaiLoDuTinh'] <= -0.5
         condition4 = table['PhanTramMaGiamSan3Phien'] >= 0.5
-        table = table.loc[condition1 | condition2 | condition3 | condition4]
-        self.resultTable = self.findEmail(table)
+        self.resultTable = table.loc[condition1 | condition2 | condition3 | condition4]
 
         return self.resultTable
 
@@ -201,12 +207,32 @@ class ThongTinTieuKhoanDong(AbstractTable):
         super().__init__(runTime)
 
     def createTable(self):
-        table = pd.read_sql(
+        self.resultTable = pd.read_sql(
             f"""
+            WITH
+            [Email] AS (
+                SELECT 
+                [MaUserMoiGioi] [MaUserMoiGioi], 
+                [MaUserTruongNhom] [MaUserTruongNhom],
+                [Employee1].[Email] [EmailMoiGioi],
+                [Employee2].[Email] [EmailTruongNhom],
+                CASE 
+                    WHEN [Employee1].[Email] IS NULL THEN [Employee2].[Email]
+                    ELSE [Employee1].[Email]
+                END [Email]
+            FROM [0383]
+            LEFT JOIN [DWH-Base].[dbo].[Employee] [Employee1] 
+                ON RIGHT([Employee1].[User],4) = [0383].[MaUserMoiGioi]
+            LEFT JOIN [DWH-Base].[dbo].[Employee] [Employee2] 
+                ON RIGHT([Employee2].[User],4) = [0383].[MaUserTruongNhom]
+            WHERE [MaUserTruongNhom] LIKE '[0-9][0-9][0-9][0-9]' 
+                AND [MaUserTruongNhom] IN (SELECT [broker_id] FROM [broker] WHERE [quit_date] IS NULL)
+                AND [MaUserMoiGioi] IN (SELECT [broker_id] FROM [broker] WHERE [quit_date] IS NULL)
+            )
             SELECT 
                 [branch].[branch_name] [TenChiNhanh],
                 [broker].[broker_id] [BrokerID],
-                [broker].[email] [EmailFromFlex],
+                [Email].[Email] [Email],
                 [broker].[broker_name] [TenMoiGioi],
                 [relationship].[account_code] [SoTaiKhoan],
                 [account].[customer_name] [TenKhachHang],
@@ -229,13 +255,13 @@ class ThongTinTieuKhoanDong(AbstractTable):
             LEFT JOIN [vcf0051]
                 ON [vcf0051].[sub_account] = [RCF0002].[SoTieuKhoan]
                 AND [vcf0051].[date] = [RCF0002].[Ngay]
+            LEFT JOIN [Email]
+                ON [Email].[MaUserMoiGioi] = [relationship].[broker_id]
             WHERE [RCF0002].[Ngay] = '{self.t0_date}'
             -- WHERE [RCF0002].[Ngay] >= '2022-01-01'
             """,
             connect_DWH_CoSo
         )
-        self.resultTable = self.findEmail(table)
-
         return self.resultTable
 
 
@@ -245,9 +271,28 @@ class ThongTinTaiKhoanChuyenChungKhoan(AbstractTable):
         super().__init__(runTime)
 
     def createTable(self):
-        table = pd.read_sql(
+        self.resultTable  = pd.read_sql(
             f"""
             WITH
+            [Email] AS (
+                SELECT 
+                [MaUserMoiGioi] [MaUserMoiGioi], 
+                [MaUserTruongNhom] [MaUserTruongNhom],
+                [Employee1].[Email] [EmailMoiGioi],
+                [Employee2].[Email] [EmailTruongNhom],
+                CASE 
+                    WHEN [Employee1].[Email] IS NULL THEN [Employee2].[Email]
+                    ELSE [Employee1].[Email]
+                END [Email]
+            FROM [0383]
+            LEFT JOIN [DWH-Base].[dbo].[Employee] [Employee1] 
+                ON RIGHT([Employee1].[User],4) = [0383].[MaUserMoiGioi]
+            LEFT JOIN [DWH-Base].[dbo].[Employee] [Employee2] 
+                ON RIGHT([Employee2].[User],4) = [0383].[MaUserTruongNhom]
+            WHERE [MaUserTruongNhom] LIKE '[0-9][0-9][0-9][0-9]' 
+                AND [MaUserTruongNhom] IN (SELECT [broker_id] FROM [broker] WHERE [quit_date] IS NULL)
+                AND [MaUserMoiGioi] IN (SELECT [broker_id] FROM [broker] WHERE [quit_date] IS NULL)
+            ),
             [RawData] AS (
                 SELECT
                     [010015].[trading_date] [Ngay],
@@ -274,7 +319,7 @@ class ThongTinTaiKhoanChuyenChungKhoan(AbstractTable):
             SELECT
                 [branch].[branch_name] [TenChiNhanh],
                 [broker].[broker_id] [BrokerID],
-                [broker].[email] [EmailFromFlex],
+                [Email].[Email] [Email],
                 [broker].[broker_name] [TenMoiGioi],
                 [relationship].[account_code] [SoTaiKhoanChuyen],
                 [account].[customer_name] [TenKhachHang],
@@ -287,11 +332,10 @@ class ThongTinTaiKhoanChuyenChungKhoan(AbstractTable):
             LEFT JOIN [account] ON [account].[account_code] = [relationship].[account_code]
             LEFT JOIN [broker] ON [broker].[broker_id] = [relationship].[broker_id]
             LEFT JOIN [branch] ON [branch].[branch_id] = [relationship].[branch_id]
+            LEFT JOIN [Email] ON [Email].[MaUserMoiGioi] = [relationship].[broker_id]
             """,
             connect_DWH_CoSo,
         )
-        self.resultTable = self.findEmail(table)
-
         return self.resultTable
 
 class Container:
@@ -670,8 +714,8 @@ class Container:
 
         outlook = Dispatch('outlook.application')
         mail = outlook.CreateItem(0)
-        # mail.To = self.email
-        mail.To = 'data-analytics@phs.vn'
+        mail.To = self.email
+        # mail.To = 'data-analytics@phs.vn'
         mail.Subject = f"Biến động giao dịch của khách hàng, ngày {self.dateString}_NVQLTK: {self.brokerName}"
         body = f"""
             <html>
@@ -707,7 +751,7 @@ class Container:
 
         # Delete sent mails
         sentMails = outlook.GetNamespace("MAPI").GetDefaultFolder(5).Items
-        sentMails = sentMails.Restrict(f"[ReceivedTime] >= '{dt.datetime.now().strftime('%m/%d/%Y 09:00 PM')}'")
+        sentMails = sentMails.Restrict(f"[ReceivedTime] >= '{dt.datetime.now().strftime('%d/%m/%Y 05:00 PM')}'")
         sentMails.Sort("[ReceivedTime]",True)
         for sentMail in sentMails:
             if 'Biến động giao dịch của khách hàng' in sentMail.Subject:
@@ -724,11 +768,15 @@ def run(
 
     container = Container(runTime)
     emailList = container.findEmailList()
+    # emailList = list(emailList)[:50]
     for email in tqdm(emailList,ncols=70):
-        if send_mail:
-            container.toExcel(email,protectSheet=True).encrypt().sendMail()
-        else:
-            container.toExcel(email,protectSheet=False)
+        try:
+            if send_mail:
+                container.toExcel(email,protectSheet=True).encrypt().sendMail()
+            else:
+                container.toExcel(email,protectSheet=False)
+        except (Exception,): # fail email nào, bỏ qua email đó
+            pass
         time.sleep(1)
 
     return container.tableObject1, container.tableObject2, container.tableObject3

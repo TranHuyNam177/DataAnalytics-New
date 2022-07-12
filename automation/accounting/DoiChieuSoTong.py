@@ -9,7 +9,7 @@ def run(
     run_time=dt.datetime.now()
 ):
     report = Report(run_time)
-    for func in tqdm([report.runPhaiSinh,report.runCoSo,report.runTuDoanhLoLe],ncols=70):
+    for func in tqdm([report.runPhaiSinh,report.runCoSo,report.runTuDoanhLoLe,report.runNganHang],ncols=70):
         func()
 
 
@@ -755,5 +755,117 @@ class Report:
         worksheet.write_column('C17',table['SoLuongChungKhoanFlex'],self.number_system_format)
         worksheet.write_column('D17',table['SoLuongChungKhoanDiff'],self.number_diff_format)
 
-        
+    def runNganHang(self):
 
+        BangCanDoiSoPhatSinhBravo = pd.read_excel(
+            join(self.bravoFolder,f'{self.bravoDateString}',f'Bảng cân đối số phát sinh {self.file_date}.xls',),
+            skiprows=10,
+            skipfooter=1,
+            usecols='A,B,G',
+            names=['Item','TaiKhoanKeToan','BalanceBravo'],
+            dtype={
+                'Item':object,
+                'TaiKhoanKeToan':object,
+                'CuoiKyNo':np.int64,
+            }
+        )
+        accountingItems = (
+            '112101','112102','112103','112104','112129','112130',
+            '112131','112132','112133','112134','112137','112138',
+            '112211','114101','114102','114103','114104','114105',
+            '114106','114111','114112','114202','114301','116201',
+            '118101','118102','118201','118202','118301','118302',
+            '118401'
+        )
+        BangCanDoiSoPhatSinhBravo = BangCanDoiSoPhatSinhBravo.loc[BangCanDoiSoPhatSinhBravo['Item'].isin(accountingItems)]
+        BankBalanceIB = pd.read_sql(
+            """
+            SELECT * FROM (
+                SELECT 
+                    CASE [AccountNumber] 
+                        WHEN '11910000099729' THEN '112101'
+                        WHEN '0027100030789004' THEN '112102'
+                        WHEN '140114851021531' THEN '112103'
+                        WHEN '1017816-068' THEN '112104'
+                        WHEN '26110002588993' THEN '112129'
+                        WHEN '11910000456430' THEN '112130'
+                        WHEN '145001536554' THEN '112131'
+                        WHEN '144001536555' THEN '112132'
+                        WHEN '12210002186968' THEN '112133'
+                        WHEN '12211000003693' THEN '112134'
+                        WHEN '11910000496199' THEN '112137'
+                        WHEN '1022493265' THEN '112138'
+                        WHEN '141001536628' THEN '112211'
+                        WHEN '11910000132943' THEN '114101'
+                        WHEN '26110002677688' THEN '114102'
+                        WHEN '0021100002115004' THEN '114103'
+                        WHEN '140114851002285' THEN '114104'
+                        WHEN '160314851020212' THEN '114105'
+                        WHEN '1017816-069' THEN '114106'
+                        WHEN '0071001264078' THEN '114111'
+                        WHEN '147001536591' THEN '114112'
+                        WHEN '1017816-066' THEN '114202'
+                        WHEN '122000069726' THEN '114301'
+                        WHEN '11910000137939' THEN '116201'
+                        WHEN '11910000089331' THEN '118101'
+                        WHEN '11910000388287' THEN '118102'
+                        WHEN '11910000089340' THEN '118201'
+                        WHEN '11910000137948' THEN '118202'
+                        WHEN '11910000089359' THEN '118301'
+                        WHEN '11910000137957' THEN '118302'
+                        WHEN '123000069725' THEN '118401'
+                        ELSE ''
+                    END [Item],
+                    [Balance] [BalanceIB]
+                FROM [BankCurrentBalance]
+                WHERE [Date] = '2022-01-25'
+            ) [x]
+            WHERE [Item] <> ''
+            """,
+            connect_DWH_CoSo
+        )
+        table = pd.merge(BangCanDoiSoPhatSinhBravo,BankBalanceIB,how='left',on='Item').fillna(0)
+        table['BalanceDiff'] = table['BalanceBravo'] - table['BalanceIB']
+        table = table.sort_values('BalanceDiff',key=lambda series: series.abs(),ascending=False)
+
+        ###################################################
+        ###################################################
+        ###################################################
+
+        worksheet = self.workbook.add_worksheet('NganHang')
+        worksheet.hide_gridlines(option=2)
+        worksheet.set_column('A:A',8)
+        worksheet.set_column('B:B',100)
+        worksheet.set_column('C:E',19)
+
+        worksheet.merge_range('A1:E1',CompanyName,self.company_name_format)
+        worksheet.merge_range('A2:E2',CompanyAddress,self.company_info_format)
+        worksheet.merge_range('A3:E3',CompanyPhoneNumber,self.company_info_format)
+        worksheet.write_row('A4',['']*5,self.empty_row_format)
+        worksheet.merge_range('A6:E6','ĐỐI CHIẾU SỐ DƯ NGÂN HÀNG',self.sheet_title_format)
+        worksheet.merge_range('A7:E7',f'Date: {self.file_date}',self.sub_title_format)
+
+        worksheet.write('C9','Bravo',self.headers_bravo_format)
+        worksheet.write('D9','Internet Banking',self.headers_fds_format)
+        worksheet.write('E9','Đối chiếu (Bravo - IB)',self.headers_diff_format)
+
+        worksheet.merge_range('A9:A10','Số hiệu tài khoản',self.headers_root_format)
+        worksheet.merge_range('B9:B10','Tên tài khoản kế toán',self.headers_root_format)
+        worksheet.write('C10','Số dư cuối kỳ',self.headers_bravo_format)
+        worksheet.write('D10','Số dư cuối kỳ',self.headers_fds_format)
+        worksheet.write('E10','Số dư cuối kỳ',self.headers_diff_format)
+        worksheet.write_row('A11',[1,2],self.headers_root_format)
+        worksheet.write('C11',3,self.headers_bravo_format)
+        worksheet.write('D11',4,self.headers_fds_format)
+        worksheet.write('E11',5,self.headers_diff_format)
+
+        worksheet.write_column('A12',table['Item'],self.text_root_format)
+        worksheet.write_column('B12',table['TaiKhoanKeToan'],self.text_root_format)
+        worksheet.write_column('C12',table['BalanceBravo'],self.number_bravo_format)
+        worksheet.write_column('D12',table['BalanceIB'],self.number_system_format)
+        worksheet.write_column('E12',table['BalanceDiff'],self.number_diff_format)
+
+        worksheet.merge_range(f'A{table.shape[0]+12}:B{table.shape[0]+12}','Tổng',self.headers_root_format)
+        worksheet.write(f'C{table.shape[0]+12}',f'=SUM(C12:C{table.shape[0]+11})',self.number_bravo_format)
+        worksheet.write(f'D{table.shape[0]+12}',f'=SUM(D12:D{table.shape[0]+11})',self.number_system_format)
+        worksheet.write(f'E{table.shape[0]+12}',f'=SUM(E12:E{table.shape[0]+11})',self.number_diff_format)
