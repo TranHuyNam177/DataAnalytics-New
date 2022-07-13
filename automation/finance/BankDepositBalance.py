@@ -1,5 +1,57 @@
 from automation.finance import *
 
+def runTCB(bankObject):
+    # Lấy menu bên trái
+    menu = bankObject.wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME,'menuMargin')))
+    # Click Đầu tư
+    menu[2].find_element(By.CLASS_NAME,'clsHasKids').click()
+    # Click Hợp đồng tiền gửi
+    menu[2].find_element(By.CLASS_NAME,'MenuLinkLI').click()
+    # Tìm id của table chứa data
+    table = bankObject.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'enquirydata.wrap_words')))
+    get_id = table.get_attribute('id').split('_')[-1]
+    # Tìm id của từng dòng data
+    xpath = f'//*[@id="datadisplay_{get_id}"]/tbody/tr'
+    data_row_id = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+    records = []
+    for ID in data_row_id:
+        xpath = f'//*[@id="{ID.get_attribute("id")}"]'
+        rowElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+        now = dt.datetime.now()
+        if now.hour >= 12:
+            d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+        else:
+            d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        for element in rowElements:
+            elementString = element.text
+            # Số tài khoản
+            account = re.search('[A-Z]{2}[0-9]{10}', elementString).group()
+            # Ngày hiệu lực, Ngày đáo hạn
+            issueDateText, expireDate = re.findall('[0-9]{2}/[0-9]{2}/[0-9]{4}',elementString)
+            issueDate = dt.datetime.strptime(issueDateText,'%d/%m/%Y')
+            expireDate = dt.datetime.strptime(expireDate,'%d/%m/%Y')
+            # Term Days
+            termDays = (expireDate - issueDate).days
+            # Term Months
+            termMonths = int((expireDate.year - issueDate.year) * 12 + (expireDate.month - issueDate.month))
+            # Lãi suất
+            iText = elementString.split(issueDateText)[0].split()[-1]
+            iRate = round(float(iText) / 100, 5)
+            # Currency
+            currency = re.search('VND|USD',element.text).group()
+            # Số dư tiền
+            balanceString = elementString.split(currency)[1].split()[0]
+            balance = float(balanceString.replace(',',''))
+            # Số tiền Lãi
+            interest = termDays * (iRate / 365) * balance
+            records.append((d,bankObject.bank,account,termDays,termMonths,iRate,issueDate,expireDate,balance,interest,currency))
+    balanceTable = pd.DataFrame(
+        data=records,
+        columns=['Date', 'Bank', 'AccountNumber', 'TermDays', 'TermMonths', 'InterestRate', 'IssueDate',
+                 'ExpireDate', 'Balance', 'InterestAmount', 'Currency']
+    )
+    return balanceTable
+
 def runBIDV(bankObject):
 
     """
@@ -340,6 +392,7 @@ def runOCB(bankObject):
 
     return balanceTable
 
+
 def runFUBON(bankObject):
 
     """
@@ -438,7 +491,8 @@ def runFIRST(bankObject):
     time.sleep(0.5)
     xpath = '//*[contains(text(),"Time Deposit Detail")]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
-    # Chọn từng tài khoản từ dropdown list
+    # Chọn từng tài khoản từ
+    # dropdown list
     bankObject.driver.switch_to.frame('mainFrame')
     xpath = '//*[contains(text(),"Deposit certificate number")]/following-sibling::td/*//select'
     selectObject = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))

@@ -1,7 +1,7 @@
 from automation import *
 import cv2
 
-dept_folder = r'C:\Users\hiepdang\Shared Folder\Finance\Report'
+dept_folder = r'C:\Users\namtran\Share Folder\Finance\Report'
 
 def get_info(
     periodicity:str,
@@ -116,7 +116,7 @@ def get_bank_authentication(
     """
 
     resultDict = dict()
-    with open(fr'C:\Users\hiepdang\Desktop\Passwords\Bank\{bank}.txt') as file:
+    with open(fr'C:\Users\namtran\Desktop\Passwords\Bank\{bank}.txt') as file:
         if bank in ['BIDV','IVB','VCB','VTB','EIB','OCB','TCB']:
             resultDict['id'] = ''
             resultDict['user'], resultDict['password'], resultDict['URL'] = file.readlines()
@@ -156,7 +156,7 @@ class Base:
         self.user = infoDict['user']
         self.password = infoDict['password']
         self.URL = infoDict['URL']
-        self.downloadFolder = r'C:\Users\hiepdang\Downloads'
+        self.downloadFolder = r'C:\Users\namtran\Downloads'
 
         self.cBankAccounts = {
             'EIB': ['140114851002285','160314851020212'],
@@ -196,7 +196,7 @@ class Base:
         outlook = Dispatch('outlook.application')
         # Dọn dẹp folder mail
         mapi = outlook.GetNamespace("MAPI")
-        inbox = mapi.Folders.Item(1).Folders['Inbox'].Folders['CAPTCHA']
+        inbox = mapi.Folders.Item(1).Folders['Inbox']
         email_ids = []
         for i in range(len(inbox.Items)):
             if f're: captcha required: {self.bank.lower()}' in inbox.Items[i].Subject.lower():
@@ -213,9 +213,10 @@ class Base:
         # Gửi CAPTCHA qua bank
         mail = outlook.CreateItem(0)
         if self.debug: # Development Run
-            mail.To = 'hiepdang@phs.vn'
+            mail.To = 'namtran@phs.vn'
         else: # Production Run
-            mail.To = 'hiepdang@phs.vn; namtran@phs.vn; duynguyen@phs.vn; thaonguyenthanh@phs.vn'
+            # mail.To = 'namtran@phs.vn; duynguyen@phs.vn; thaonguyenthanh@phs.vn'
+            mail.To = 'namtran@phs.vn'
         mail.Subject = f"CAPTCHA Required: {self.bank}"
         mail.attachments.Add(imgPATH)
         html = f"""
@@ -237,7 +238,7 @@ class Base:
         mail.Send()
         # Chờ phản hồi để nhận CAPTCHA
         while True:
-            inbox = mapi.Folders.Item(1).Folders['Inbox'].Folders['CAPTCHA']
+            inbox = mapi.Folders.Item(1).Folders['Inbox']
             messages = inbox.Items
             for message in messages:
                 if f're: captcha required: {self.bank.lower()}' in message.Subject.lower():
@@ -583,7 +584,7 @@ class TCB(Base):
     def Login(self):
 
         self.driver = webdriver.Chrome(executable_path=self.PATH)
-        self.driver.maximize_window()
+        # self.driver.maximize_window()
         self.driver.get(self.URL)
         self.wait = WebDriverWait(self.driver,30,ignored_exceptions=self.ignored_exceptions)
 

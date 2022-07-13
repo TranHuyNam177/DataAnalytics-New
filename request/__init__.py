@@ -1,6 +1,6 @@
 from function import *
 
-with open(r'C:\Users\hiepdang\Desktop\Passwords\DataBase\DataBase.txt') as file:
+with open(r'C:\Users\namtran\Desktop\Passwords\DataBase\DataBase.txt') as file:
     user, password, _ = file.readlines()
     user = user.replace('\n','')
     password = password.replace('\n','')
@@ -22,21 +22,21 @@ TableNames_RMD = pd.read_sql(
     connect_RMD,
 )
 
-# DWH-Base Database Information
-driver_DWH_Base = '{SQL Server}'
-server_DWH_Base = 'SRV-RPT'
-db_DWH_Base = 'DWH-Base'
-connect_DWH_Base = pyodbc.connect(
-    f'Driver={driver_DWH_Base};'
-    f'Server={server_DWH_Base};'
-    f'Database={db_DWH_Base};'
-    f'uid={user};'
-    f'pwd={password}'
-)
-TableNames_DWH_Base = pd.read_sql(
-    'SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES',
-    connect_DWH_Base
-)
+# # DWH-Base Database Information
+# driver_DWH_Base = '{SQL Server}'
+# server_DWH_Base = 'SRV-RPT'
+# db_DWH_Base = 'DWH-Base'
+# connect_DWH_Base = pyodbc.connect(
+#     f'Driver={driver_DWH_Base};'
+#     f'Server={server_DWH_Base};'
+#     f'Database={db_DWH_Base};'
+#     f'uid={user};'
+#     f'pwd={password}'
+# )
+# TableNames_DWH_Base = pd.read_sql(
+#     'SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES',
+#     connect_DWH_Base
+# )
 
 
 # DWH-ThiTruong Database Information

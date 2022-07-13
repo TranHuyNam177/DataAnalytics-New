@@ -1,7 +1,6 @@
 from automation import *
-import cv2
 
-dept_folder = r'C:\Users\hiepdang\Shared Folder\Accounting\Report'
+dept_folder = r'C:\Users\namtran\Share Folder\Accounting\Report'
 
 def get_info(
     periodicity:str,
@@ -114,7 +113,7 @@ def get_bank_authentication(
     """
 
     resultDict = dict()
-    with open(fr'C:\Users\hiepdang\Desktop\Passwords\Bank\{bank}.txt') as file:
+    with open(fr'C:\Users\namtran\Desktop\Passwords\Bank\{bank}.txt') as file:
         if bank in ['BIDV','IVB','VCB','VTB','EIB','OCB','TCB']:
             resultDict['id'] = ''
             resultDict['user'], resultDict['password'], resultDict['URL'] = file.readlines()
