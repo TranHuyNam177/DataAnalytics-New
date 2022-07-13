@@ -2,13 +2,15 @@ from automation.finance import *
 
 def runTCB(bankObject):
     # Click Đầu tư
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, '//*[contains(text(),"Đầu tư")]'))).click()
+    xpath = '//*[contains(text(),"Đầu tư")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
     # Click Hợp đồng tiền gửi
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, '//*[contains(text(),"Hợp đồng tiền gửi")]'))).click()
+    xpath = '//*[contains(text(),"Hợp đồng tiền gửi")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
     xpath = '//tbody//*[@class="enquirydata wrap_words"]/tbody/tr[*]'
-    rowElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+    rowElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))[1:]  # bỏ dòng đầu tiên vì là header
     records = []
-    for element in rowElements[1:]:
+    for element in rowElements:
         now = dt.datetime.now()
         if now.hour >= 12:
             d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
