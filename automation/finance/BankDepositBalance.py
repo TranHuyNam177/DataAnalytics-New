@@ -1,77 +1,86 @@
 from automation.finance import *
 
 def runSINOPAC(bankObject):
+    # Dọn dẹp folder trước khi download
+    for file in listdir(bankObject.downloadFolder):
+        if 'COSDATDQU_0313642887_' in file:
+            os.remove(join(bankObject.downloadFolder,file))
     # Click Account Inquiry
     xpath = '//*[@id="MENU_CAO"]'
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Click Deposit inquiry
     xpath = '//*[@id="MENU_CAO001"]'
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Term Deposit Inquiry
     while True:
         xpath = '//*[@id="MENU_COSDATDQU"]'
         try:
-            bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+            bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
             break
         except (Exception,):
             continue
     # Reload frame
     bankObject.driver.switch_to.frame('mainFrame')
-    
+
     xpath = '//*[contains(@id,"accountCombo_input")]/option'
-    ListAccount = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH, xpath)))
+    ListAccount = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
     # Convert element in ListAccount to text and add to new list
     ListAccountText = [l.text for l in ListAccount]
-    records = []
-    for accountOption in ListAccountText[1:]:  # bỏ option đầu tiên vì ko khớp format với option khác (===SEL===)
+    balanceTable = pd.DataFrame()
+    for accountOption in ListAccountText[1:]:  # bỏ option đầu tiên (===SEL===)
         xpath = '//*[contains(@id,"accountCombo_input")]'
-        dropDownList = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+        dropDownList = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
         Select(dropDownList).select_by_visible_text(accountOption)
         accountText = Select(dropDownList).first_selected_option.text
         # Click "Search"
         xpath = '//*[contains(@id,"btnQuery")]'
-        bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+        bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
         time.sleep(1)
-        # Get data after click Search
-        xpath = '//*[contains(@id,"COSDATDQU_1_VNDataGrid_data")]/tr[*]'
-        rowElements = bankObject.driver.find_elements(By.XPATH, xpath)
-        if rowElements:
-            for element in rowElements:
-                now = dt.datetime.now()
-                if now.hour >= 12:
-                    d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
-                else:
-                    d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
-                                                             microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
-                elementString = element.text
-                # Số tài khoản
-                account = accountText.split()[0]
-                # Ngày hiệu lực, Ngày đáo hạn
-                issueDateText, expireDateText = re.findall('[0-9]{4}/[0-9]{2}/[0-9]{2}', elementString)
-                issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
-                expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
-                # Term Days
-                termDays = (expireDate - issueDate).days
-                # Term Months
-                termMonths = int((expireDate.year - issueDate.year) * 12 + (expireDate.month - issueDate.month))
-                # Lãi suất
-                iText = elementString.split()[-1]
-                iRate = round(float(iText) / 100, 5)
-                # Currency
-                currency = re.search('VND|USD', elementString).group()
-                # Số dư tiền
-                balanceString = elementString.split(issueDateText)[0].split()[-1]
-                balance = float(balanceString.replace(',', ''))
-                # Số tiền Lãi
-                interest = termDays * (iRate / 365) * balance
-                records.append((d, bankObject.bank, account, termDays, termMonths, iRate, issueDate, expireDate, balance, interest, currency))
+        # Download file Excel
+        xpath = '//*[@class="downloadBox"]/li/a'
+        listFileDownload = bankObject.driver.find_elements(By.XPATH, xpath)
+
+        if listFileDownload:
+            for f in listFileDownload:
+                if 'dl_icons download_xls' in f.get_attribute('class'):
+                    f.click()
+            # Đọc file download
+            while True:
+                checkFunc = lambda x: 'COSDATDQU_0313642887_' in x and 'download' not in x
+                downloadFile = first(listdir(bankObject.downloadFolder), checkFunc)
+                if downloadFile:  # download xong -> có file
+                    break
+                time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
+            downloadTable = pd.read_excel(
+                join(bankObject.downloadFolder, downloadFile),
+                names=['Currency','Balance','IssueDate','ExpireDate','InterestRate'],
+                skiprows=2,
+                usecols='B,D:F,H',
+                dtype={'Currency': object, 'InterestRate': np.float64}
+            )
+            downloadTable['Balance'] = downloadTable['Balance'].str.replace(',', '').astype(float)
+            downloadTable[['IssueDate','ExpireDate']] = downloadTable[['IssueDate','ExpireDate']].applymap(lambda x: dt.datetime.strptime(x,'%Y/%m/%d'))
+            downloadTable['AccountNumber'] = accountText.split()[0]
+            downloadTable['Bank'] = bankObject.bank
+            # Date
+            now = dt.datetime.now()
+            if now.hour >= 12:
+                d = now.replace(hour=0,minute=0,second=0, microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+            else:
+                d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+            downloadTable['Date'] = d
+            downloadTable['TermDays'] = (downloadTable['ExpireDate'] - downloadTable['IssueDate']).dt.days
+            month = downloadTable['ExpireDate'].dt.month - downloadTable['IssueDate'].dt.month
+            year = downloadTable['ExpireDate'].dt.year - downloadTable['IssueDate'].dt.year
+            downloadTable['TermMonths'] = year * 12 + month
+            downloadTable['InterestRate'] /= 100
+            downloadTable['InterestAmount'] = downloadTable['TermDays'] * (downloadTable['InterestRate'] / 365) * \
+                                              downloadTable['Balance']
+            cols = ['Date','Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate',
+                    'Balance', 'InterestAmount', 'Currency']
+            balanceTable = downloadTable[cols]
         else:
             continue
-    balanceTable = pd.DataFrame(
-        data=records,
-        columns=['Date', 'Bank', 'AccountNumber', 'TermDays', 'TermMonths', 'InterestRate', 'IssueDate',
-                 'ExpireDate', 'Balance', 'InterestAmount', 'Currency']
-    )
     return balanceTable
 
 def runMEGA(bankObject):
