@@ -1,5 +1,79 @@
 from automation.finance import *
 
+def runSINOPAC(bankObject):
+    # Click Account Inquiry
+    xpath = '//*[@id="MENU_CAO"]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+    # Click Deposit inquiry
+    xpath = '//*[@id="MENU_CAO001"]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+    # Term Deposit Inquiry
+    while True:
+        xpath = '//*[@id="MENU_COSDATDQU"]'
+        try:
+            bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+            break
+        except (Exception,):
+            continue
+    # Reload frame
+    bankObject.driver.switch_to.frame('mainFrame')
+    
+    xpath = '//*[contains(@id,"accountCombo_input")]/option'
+    ListAccount = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH, xpath)))
+    # Convert element in ListAccount to text and add to new list
+    ListAccountText = [l.text for l in ListAccount]
+    records = []
+    for accountOption in ListAccountText[1:]:  # bỏ option đầu tiên vì ko khớp format với option khác (===SEL===)
+        xpath = '//*[contains(@id,"accountCombo_input")]'
+        dropDownList = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+        Select(dropDownList).select_by_visible_text(accountOption)
+        accountText = Select(dropDownList).first_selected_option.text
+        # Click "Search"
+        xpath = '//*[contains(@id,"btnQuery")]'
+        bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+        time.sleep(1)
+        # Get data after click Search
+        xpath = '//*[contains(@id,"COSDATDQU_1_VNDataGrid_data")]/tr[*]'
+        rowElements = bankObject.driver.find_elements(By.XPATH, xpath)
+        if rowElements:
+            for element in rowElements:
+                now = dt.datetime.now()
+                if now.hour >= 12:
+                    d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+                else:
+                    d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
+                                                             microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+                elementString = element.text
+                # Số tài khoản
+                account = accountText.split()[0]
+                # Ngày hiệu lực, Ngày đáo hạn
+                issueDateText, expireDateText = re.findall('[0-9]{4}/[0-9]{2}/[0-9]{2}', elementString)
+                issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
+                expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
+                # Term Days
+                termDays = (expireDate - issueDate).days
+                # Term Months
+                termMonths = int((expireDate.year - issueDate.year) * 12 + (expireDate.month - issueDate.month))
+                # Lãi suất
+                iText = elementString.split()[-1]
+                iRate = round(float(iText) / 100, 5)
+                # Currency
+                currency = re.search('VND|USD', elementString).group()
+                # Số dư tiền
+                balanceString = elementString.split(issueDateText)[0].split()[-1]
+                balance = float(balanceString.replace(',', ''))
+                # Số tiền Lãi
+                interest = termDays * (iRate / 365) * balance
+                records.append((d, bankObject.bank, account, termDays, termMonths, iRate, issueDate, expireDate, balance, interest, currency))
+        else:
+            continue
+    balanceTable = pd.DataFrame(
+        data=records,
+        columns=['Date', 'Bank', 'AccountNumber', 'TermDays', 'TermMonths', 'InterestRate', 'IssueDate',
+                 'ExpireDate', 'Balance', 'InterestAmount', 'Currency']
+    )
+    return balanceTable
+
 def runMEGA(bankObject):
     # Click Accounts
     xpath = '//*[contains(text(),"Accounts")]'
