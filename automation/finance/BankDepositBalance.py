@@ -1,5 +1,58 @@
 from automation.finance import *
 
+def runMEGA(bankObject):
+    # Click Accounts
+    xpath = '//*[contains(text(),"Accounts")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+    # Click Deposit
+    xpath = '//*[contains(text(),"Deposit")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+    # Click Deposit balance
+    xpath = '//*[contains(text(),"Deposit balance")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+    # Reload frame
+    bankObject.driver.switch_to.frame('frame1')
+    # Get data in e-Time Deposit A/C
+    xpath = '//*[@class="tb5" and @id="form1:time_DataGridBody"]/tbody/tr[*]'
+    rowElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))[1:]  # bỏ dòng đầu tiên vì là header
+    records = []
+    for element in rowElements:
+        now = dt.datetime.now()
+        if now.hour >= 12:
+            d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+        else:
+            d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
+                                                     microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        elementString = element.text
+        # Số tài khoản
+        account = re.search('[0-9]{9}', elementString).group()
+        # Ngày hiệu lực, Ngày đáo hạn
+        expireDateText, issueDateText = re.findall('[0-9]{4}/[0-9]{2}/[0-9]{2}', elementString)
+        issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
+        expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = int((expireDate.year - issueDate.year) * 12 + (expireDate.month - issueDate.month))
+        # Lãi suất
+        iText = elementString.split(issueDateText)[1].split()[0]
+        iRate = round(float(iText) / 100, 5)
+        # Currency
+        currency = re.search('VND|USD', elementString).group()
+        # Số dư tiền
+        balanceString = elementString.split(currency)[1].split()[1]
+        balance = float(balanceString.replace(',', ''))
+        # Số tiền Lãi
+        interest = termDays * (iRate / 365) * balance
+        records.append((d, bankObject.bank, account, termDays, termMonths, iRate, issueDate, expireDate, balance,
+                        interest, currency))
+    balanceTable = pd.DataFrame(
+        data=records,
+        columns=['Date', 'Bank', 'AccountNumber', 'TermDays', 'TermMonths', 'InterestRate', 'IssueDate',
+                 'ExpireDate', 'Balance', 'InterestAmount', 'Currency']
+    )
+    return balanceTable
+
 def runTCB(bankObject):
     # Click Đầu tư
     xpath = '//*[contains(text(),"Đầu tư")]'
@@ -7,7 +60,7 @@ def runTCB(bankObject):
     # Click Hợp đồng tiền gửi
     xpath = '//*[contains(text(),"Hợp đồng tiền gửi")]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
-    xpath = '//tbody//*[@class="enquirydata wrap_words"]/tbody/tr[*]'
+    xpath = '//*[@class="enquirydata wrap_words"]/tbody/tr[*]'
     rowElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))[1:]  # bỏ dòng đầu tiên vì là header
     records = []
     for element in rowElements:
@@ -20,9 +73,9 @@ def runTCB(bankObject):
         # Số tài khoản
         account = re.search('[A-Z]{2}[0-9]{10}', elementString).group()
         # Ngày hiệu lực, Ngày đáo hạn
-        issueDateText, expireDate = re.findall('[0-9]{2}/[0-9]{2}/[0-9]{4}',elementString)
+        issueDateText, expireDateText = re.findall('[0-9]{2}/[0-9]{2}/[0-9]{4}',elementString)
         issueDate = dt.datetime.strptime(issueDateText,'%d/%m/%Y')
-        expireDate = dt.datetime.strptime(expireDate,'%d/%m/%Y')
+        expireDate = dt.datetime.strptime(expireDateText,'%d/%m/%Y')
         # Term Days
         termDays = (expireDate - issueDate).days
         # Term Months
@@ -31,7 +84,7 @@ def runTCB(bankObject):
         iText = elementString.split(issueDateText)[0].split()[-1]
         iRate = round(float(iText) / 100, 5)
         # Currency
-        currency = re.search('VND|USD',element.text).group()
+        currency = re.search('VND|USD',elementString).group()
         # Số dư tiền
         balanceString = elementString.split(currency)[1].split()[0]
         balance = float(balanceString.replace(',',''))
@@ -427,7 +480,7 @@ def runFUBON(bankObject):
     )
     startRow = downloadTable.loc[downloadTable.iloc[:,0].map(lambda x: isinstance(x,str) and 'Time Deposit Account' in x)].index[0] + 2
     endRow = downloadTable.loc[downloadTable.iloc[:,0].map(lambda x: isinstance(x,str) and 'Time Deposit Total' in x)].index[0]
-    balanceTable = balanceTable.iloc[startRow:endRow,1:]
+    balanceTable = downloadTable.iloc[startRow:endRow,1:]
     balanceTable.columns = [
         'AccountNumber',
         'Currency',
