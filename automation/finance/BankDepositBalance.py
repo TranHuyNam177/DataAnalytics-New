@@ -1,5 +1,64 @@
 from automation.finance import *
 
+def runESUN(bankObject):
+    # Dọn dẹp folder trước khi download
+    now = dt.datetime.now()
+    for file in listdir(bankObject.downloadFolder):
+        if f'COSDATDQU_{now.year}0{now.month}{now.day}' in file:
+            os.remove(join(bankObject.downloadFolder,file))
+    # Click Account Inquiry
+    xpath = '//*[contains(text(),"Deposits")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    # Click Time Deposit Detail Enquiry
+    xpath = '//*[contains(text(),"Time Deposit Detail Enquiry")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    # Click button Enquire
+    xpath = '//*[contains(text(),"Enquire")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    # Download file Excel
+    xpath = '//*[@class="dl_icons download_xls"]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    # Đọc file download
+    while True:
+        checkFunc = lambda x: f'COSDATDQU_{now.year}0{now.month}{now.day}' in x and 'download' not in x
+        downloadFile = first(listdir(bankObject.downloadFolder),checkFunc)
+        if downloadFile:  # download xong -> có file
+            break
+        time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
+    downloadTable = pd.read_excel(
+        join(bankObject.downloadFolder, downloadFile),
+        names=['AccountNumber','Date','Currency','Balance','InterestRate'],
+        skiprows=4,
+        skipfooter=2,
+        usecols='B:F',
+        dtype={'AccountNumber': object,'Currency': object,'InterestRate': np.float64}
+    )
+    downloadTable['AccountNumber'] = downloadTable['AccountNumber'].str.replace('\n','').str.split('\r')
+    downloadTable['AccountNumber'] = downloadTable['AccountNumber'].map(lambda x: x[0])
+    downloadTable['Date'] = downloadTable['Date'].str.replace('\n','').str.split('\r')
+    downloadTable['IssueDate'] = downloadTable['Date'].map(lambda x: x[0])
+    downloadTable['ExpireDate'] = downloadTable['Date'].map(lambda x: x[-1])
+    downloadTable[['IssueDate', 'ExpireDate']] = downloadTable[['IssueDate','ExpireDate']].applymap(lambda x: dt.datetime.strptime(x,'%Y/%m/%d'))
+    downloadTable['Balance'] = downloadTable['Balance'].str.replace(',','').astype(float)
+    downloadTable['Bank'] = bankObject.bank
+    # Date
+    now = dt.datetime.now()
+    if now.hour >= 12:
+        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+    else:
+        d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+    downloadTable['Date'] = d
+    downloadTable['TermDays'] = (downloadTable['ExpireDate'] - downloadTable['IssueDate']).dt.days
+    month = downloadTable['ExpireDate'].dt.month - downloadTable['IssueDate'].dt.month
+    year = downloadTable['ExpireDate'].dt.year - downloadTable['IssueDate'].dt.year
+    downloadTable['TermMonths'] = year * 12 + month
+    downloadTable['InterestRate'] /= 100
+    downloadTable['InterestAmount'] = downloadTable['TermDays'] * (downloadTable['InterestRate'] / 365) * downloadTable['Balance']
+    cols = ['Date','Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance',
+            'InterestAmount', 'Currency']
+    balanceTable = downloadTable[cols]
+    return balanceTable
+
 def runSINOPAC(bankObject):
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
@@ -42,7 +101,7 @@ def runSINOPAC(bankObject):
 
         if listFileDownload:
             for f in listFileDownload:
-                if 'dl_icons download_xls' in f.get_attribute('class'):
+                if 'xls' in f.get_attribute('class'):
                     f.click()
             # Đọc file download
             while True:
