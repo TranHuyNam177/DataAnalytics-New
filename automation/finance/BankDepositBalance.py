@@ -7,8 +7,6 @@ def runESUN(bankObject):
         if f'COSDATDQU_{now.year}0{now.month}{now.day}' in file:
             os.remove(join(bankObject.downloadFolder,file))
     # Show menu Deposits
-    # xpath = '//*[contains(text(),"Deposits")]'
-    # bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     xpath = '//*[@id="menuIndex_1"]'
     bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,xpath))).click()
     # Click Time Deposit Detail Enquiry
