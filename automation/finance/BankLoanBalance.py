@@ -14,7 +14,7 @@ def runIVB(bankObject):
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Click subtab "Thông tin tài khoản"
     bankObject.wait.until(EC.visibility_of_element_located((By.ID,'1_1'))).click()
-    # Click "Tài khoản tiền gửi có kỳ hạn"
+    # Click "Thông tin vay"
     bankObject.driver.switch_to.frame('mainframe')
     while True:
         xpath = '//*[@id="fd_layer_pan"]/span'
