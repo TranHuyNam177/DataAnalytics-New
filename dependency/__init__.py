@@ -77,7 +77,7 @@ from sklearn.decomposition import PCA
 ###############################################################################
 
 import pytesseract
-pytesseract.pytesseract.tesseract_cmd = join(dirname(__file__),'tesseract','tesseract')
+pytesseract.pytesseract.tesseract_cmd = r'C:\Users\namtran\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 
 ###############################################################################
 

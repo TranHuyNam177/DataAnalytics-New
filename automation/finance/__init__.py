@@ -752,7 +752,7 @@ class FIRST(Base):
     def Login(self):
 
         self.driver = webdriver.Chrome(executable_path=self.PATH)
-        self.driver.maximize_window()
+        # self.driver.maximize_window()
         self.driver.get(self.URL)
         self.wait = WebDriverWait(self.driver,30,ignored_exceptions=self.ignored_exceptions)
 
