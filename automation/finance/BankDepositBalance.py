@@ -6,9 +6,11 @@ def runESUN(bankObject):
     for file in listdir(bankObject.downloadFolder):
         if f'COSDATDQU_{now.year}0{now.month}{now.day}' in file:
             os.remove(join(bankObject.downloadFolder,file))
-    # Click Account Inquiry
-    xpath = '//*[contains(text(),"Deposits")]'
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    # Show menu Deposits
+    # xpath = '//*[contains(text(),"Deposits")]'
+    # bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    xpath = '//*[@id="menuIndex_1"]'
+    bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,xpath))).click()
     # Click Time Deposit Detail Enquiry
     xpath = '//*[contains(text(),"Time Deposit Detail Enquiry")]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
@@ -16,7 +18,7 @@ def runESUN(bankObject):
     xpath = '//*[contains(text(),"Enquire")]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Download file Excel
-    xpath = '//*[@class="dl_icons download_xls"]'
+    xpath = '//*[@class="dl_icons download_csv"]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Đọc file download
     while True:
@@ -25,33 +27,30 @@ def runESUN(bankObject):
         if downloadFile:  # download xong -> có file
             break
         time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
-    downloadTable = pd.read_excel(
+    downloadTable = pd.read_csv(
         join(bankObject.downloadFolder, downloadFile),
-        names=['AccountNumber','Date','Currency','Balance','InterestRate'],
-        skiprows=4,
-        skipfooter=2,
-        usecols='B:F',
-        dtype={'AccountNumber': object,'Currency': object,'InterestRate': np.float64}
+        names=['AccountNumber','IssueDate','ExpireDate','Currency','Balance','InterestRate'],
+        usecols=[1,3,4,5,6,7],
+        header=0,
+        dtype={'AccountNumber': object,'IssueDate': object,'ExpireDate':object,'Currency': object,'Balance':object}
     )
-    downloadTable['AccountNumber'] = downloadTable['AccountNumber'].str.replace('\n','').str.split('\r')
-    downloadTable['AccountNumber'] = downloadTable['AccountNumber'].map(lambda x: x[0])
-    downloadTable['Date'] = downloadTable['Date'].str.replace('\n','').str.split('\r')
-    downloadTable['IssueDate'] = downloadTable['Date'].map(lambda x: x[0])
-    downloadTable['ExpireDate'] = downloadTable['Date'].map(lambda x: x[-1])
-    downloadTable[['IssueDate', 'ExpireDate']] = downloadTable[['IssueDate','ExpireDate']].applymap(lambda x: dt.datetime.strptime(x,'%Y/%m/%d'))
+    downloadTable['IssueDate'] = pd.to_datetime(downloadTable['IssueDate'], format='%Y/%m/%d')
+    downloadTable['ExpireDate'] = pd.to_datetime(downloadTable['ExpireDate'], format='%Y/%m/%d')
     downloadTable['Balance'] = downloadTable['Balance'].str.replace(',','').astype(float)
     downloadTable['Bank'] = bankObject.bank
     # Date
-    now = dt.datetime.now()
     if now.hour >= 12:
         d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
     else:
         d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     downloadTable['Date'] = d
+    # TermDays
     downloadTable['TermDays'] = (downloadTable['ExpireDate'] - downloadTable['IssueDate']).dt.days
+    # Term months
     month = downloadTable['ExpireDate'].dt.month - downloadTable['IssueDate'].dt.month
     year = downloadTable['ExpireDate'].dt.year - downloadTable['IssueDate'].dt.year
     downloadTable['TermMonths'] = year * 12 + month
+    # InterestRate
     downloadTable['InterestRate'] /= 100
     downloadTable['InterestAmount'] = downloadTable['TermDays'] * (downloadTable['InterestRate'] / 365) * downloadTable['Balance']
     cols = ['Date','Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance',
@@ -60,6 +59,7 @@ def runESUN(bankObject):
     return balanceTable
 
 def runSINOPAC(bankObject):
+    now = dt.datetime.now()
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if 'COSDATDQU_0313642887_' in file:
@@ -82,64 +82,63 @@ def runSINOPAC(bankObject):
     bankObject.driver.switch_to.frame('mainFrame')
 
     xpath = '//*[contains(@id,"accountCombo_input")]/option'
-    ListAccount = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+    accountElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))[1:]   # bỏ option đầu tiên (===SEL===)
     # Convert element in ListAccount to text and add to new list
-    ListAccountText = [l.text for l in ListAccount]
-    balanceTable = pd.DataFrame()
-    for accountOption in ListAccountText[1:]:  # bỏ option đầu tiên (===SEL===)
+    accountElementText = [l.text for l in accountElements]
+    list_df = []
+    for accountOption in accountElementText:
         xpath = '//*[contains(@id,"accountCombo_input")]'
         dropDownList = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
         Select(dropDownList).select_by_visible_text(accountOption)
-        accountText = Select(dropDownList).first_selected_option.text
+        accountText = accountOption
         # Click "Search"
         xpath = '//*[contains(@id,"btnQuery")]'
         bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
         time.sleep(1)
         # Download file Excel
-        xpath = '//*[@class="downloadBox"]/li/a'
-        listFileDownload = bankObject.driver.find_elements(By.XPATH, xpath)
-
-        if listFileDownload:
-            for f in listFileDownload:
-                if 'xls' in f.get_attribute('class'):
-                    f.click()
-            # Đọc file download
-            while True:
-                checkFunc = lambda x: 'COSDATDQU_0313642887_' in x and 'download' not in x
-                downloadFile = first(listdir(bankObject.downloadFolder), checkFunc)
-                if downloadFile:  # download xong -> có file
-                    break
-                time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
-            downloadTable = pd.read_excel(
-                join(bankObject.downloadFolder, downloadFile),
-                names=['Currency','Balance','IssueDate','ExpireDate','InterestRate'],
-                skiprows=2,
-                usecols='B,D:F,H',
-                dtype={'Currency': object, 'InterestRate': np.float64}
-            )
-            downloadTable['Balance'] = downloadTable['Balance'].str.replace(',', '').astype(float)
-            downloadTable[['IssueDate','ExpireDate']] = downloadTable[['IssueDate','ExpireDate']].applymap(lambda x: dt.datetime.strptime(x,'%Y/%m/%d'))
-            downloadTable['AccountNumber'] = accountText.split()[0]
-            downloadTable['Bank'] = bankObject.bank
-            # Date
-            now = dt.datetime.now()
-            if now.hour >= 12:
-                d = now.replace(hour=0,minute=0,second=0, microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
-            else:
-                d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
-            downloadTable['Date'] = d
-            downloadTable['TermDays'] = (downloadTable['ExpireDate'] - downloadTable['IssueDate']).dt.days
-            month = downloadTable['ExpireDate'].dt.month - downloadTable['IssueDate'].dt.month
-            year = downloadTable['ExpireDate'].dt.year - downloadTable['IssueDate'].dt.year
-            downloadTable['TermMonths'] = year * 12 + month
-            downloadTable['InterestRate'] /= 100
-            downloadTable['InterestAmount'] = downloadTable['TermDays'] * (downloadTable['InterestRate'] / 365) * \
-                                              downloadTable['Balance']
-            cols = ['Date','Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate',
-                    'Balance', 'InterestAmount', 'Currency']
-            balanceTable = downloadTable[cols]
-        else:
+        xpath = '//*[@class="dl_icons download_csv"]'
+        download = bankObject.driver.find_element(By.XPATH, xpath)
+        if not download:
             continue
+        download.click()
+        # Đọc file download
+        while True:
+            checkFunc = lambda x: 'COSDATDQU_0313642887_' in x and 'download' not in x
+            downloadFile = first(listdir(bankObject.downloadFolder), checkFunc)
+            if downloadFile:  # download xong -> có file
+                break
+            time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
+        downloadTable = pd.read_csv(
+            join(bankObject.downloadFolder, downloadFile),
+            names=['Currency','Balance','IssueDate','ExpireDate','InterestRate'],
+            usecols=[1,3,4,5,7],
+            header=0,
+            dtype={'Currency': object,'IssueDate':object,'ExpireDate': object}
+        )
+        downloadTable['AccountNumber'] = accountText
+        downloadTable['IssueDate'] = pd.to_datetime(downloadTable['IssueDate'], format='%Y/%m/%d')
+        downloadTable['ExpireDate'] = pd.to_datetime(downloadTable['ExpireDate'], format='%Y/%m/%d')
+        downloadTable['Bank'] = bankObject.bank
+        # Date
+        if now.hour >= 12:
+            d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+        else:
+            d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        downloadTable['Date'] = d
+        # TermDays
+        downloadTable['TermDays'] = (downloadTable['ExpireDate'] - downloadTable['IssueDate']).dt.days
+        # Term months
+        month = downloadTable['ExpireDate'].dt.month - downloadTable['IssueDate'].dt.month
+        year = downloadTable['ExpireDate'].dt.year - downloadTable['IssueDate'].dt.year
+        downloadTable['TermMonths'] = year * 12 + month
+        # InterestRate
+        downloadTable['InterestRate'] /= 100
+        downloadTable['InterestAmount'] = downloadTable['TermDays'] * (downloadTable['InterestRate'] / 365) * downloadTable['Balance']
+        cols = ['Date','Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate',
+                'Balance','InterestAmount', 'Currency']
+        balanceTable = downloadTable[cols]
+        list_df.append(balanceTable)
+    balanceTable = pd.concat(list_df)
     return balanceTable
 
 def runMEGA(bankObject):
@@ -158,8 +157,8 @@ def runMEGA(bankObject):
     xpath = '//*[@class="tb5" and @id="form1:time_DataGridBody"]/tbody/tr[*]'
     rowElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))[1:]  # bỏ dòng đầu tiên vì là header
     records = []
+    now = dt.datetime.now()
     for element in rowElements:
-        now = dt.datetime.now()
         if now.hour >= 12:
             d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
         else:
@@ -205,8 +204,8 @@ def runTCB(bankObject):
     xpath = '//*[@class="enquirydata wrap_words"]/tbody/tr[*]'
     rowElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))[1:]  # bỏ dòng đầu tiên vì là header
     records = []
+    now = dt.datetime.now()
     for element in rowElements:
-        now = dt.datetime.now()
         if now.hour >= 12:
             d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
         else:
@@ -280,13 +279,13 @@ def runBIDV(bankObject):
 
     # Click từng tài khoản
     records = []
+    now = dt.datetime.now()
     for accountNumber in accountNumbers:
         xpath = f'//*[text()="{accountNumber}"]'
         accountElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
         accountElement.click()
         time.sleep(0.5) # chờ animation
         # Ngày
-        now = dt.datetime.now()
         if now.hour >= 12:
             d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
         else:
@@ -369,7 +368,8 @@ def runVTB(bankObject):
         usecols='B,D:I,L',
         dtype={'AccountNumber':object,'Balance':np.float64,'InterestAmount':np.float64}
     )
-    downloadTable[['IssueDate','ExpireDate']] = downloadTable[['IssueDate','ExpireDate']].applymap(lambda x: dt.datetime.strptime(x,'%d-%m-%Y'))
+    downloadTable['IssueDate'] = pd.to_datetime(downloadTable['IssueDate'], format='%d-%m-%Y')
+    downloadTable['ExpireDate'] = pd.to_datetime(downloadTable['ExpireDate'], format='%d-%m-%Y')
     downloadTable['TermMonths']  = np.int64(downloadTable['TermMonths'].str.replace('D','').str.split('M').str.get(0))
     downloadTable['TermDays'] = (downloadTable['ExpireDate']-downloadTable['IssueDate']).dt.days
     downloadTable['InterestRate'] /= 100
@@ -410,10 +410,11 @@ def runIVB(bankObject):
         rowElements = bankObject.driver.find_elements(By.XPATH,'//*[@id="SAccount"]/tbody/tr')[:-1] # bỏ dòng Tổng
         if rowElements[0].text != '':
             break
+
+    now = dt.datetime.now()
     for element in rowElements:
         elementString = element.text
         # Date
-        now = dt.datetime.now()
         if now.hour >= 12:
             d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
         else:
@@ -464,11 +465,11 @@ def runVCB(bankObject):
     URLs = [e.get_attribute('href') for e in accountElems]
 
     records = []
+    now = dt.datetime.now()
     for URL in URLs:
         bankObject.driver.get(URL)
         time.sleep(1)  # chờ để hiện số tài khoản (bắt buộc)
         # Ngày
-        now = dt.datetime.now()
         if now.hour >= 12:
             d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
         else:
@@ -540,7 +541,8 @@ def runOCB(bankObject):
         names=['AccountNumber','Currency','IssueDate','ExpireDate','InterestRate','InterestAmount'],
         dtype={'AccountNumber':object}
     )
-    downloadTable[['IssueDate','ExpireDate']] = downloadTable[['IssueDate','ExpireDate']].applymap(lambda x: dt.datetime.strptime(x,'%d/%m/%Y'))
+    downloadTable['IssueDate'] = pd.to_datetime(downloadTable['IssueDate'], format='%d/%m/%Y')
+    downloadTable['ExpireDate'] = pd.to_datetime(downloadTable['ExpireDate'], format='%d/%m/%Y')
     downloadTable['InterestRate'] = downloadTable['InterestRate'].map(lambda x: float(x.replace(' %',''))) / 100
     downloadTable['InterestAmount'] = downloadTable['InterestAmount'].map(lambda x: float(x.replace(',','')))
     downloadTable['TermDays'] = (downloadTable['ExpireDate']-downloadTable['IssueDate']).dt.days
@@ -650,9 +652,9 @@ def runFUBON(bankObject):
     # Interest Rate
     balanceTable['InterestRate'] = balanceTable['InterestRate'].astype(np.float64) / 100
     # Issue Date
-    balanceTable['IssueDate'] = balanceTable['IssueDate'].map(lambda x: dt.datetime.strptime(x,'%Y/%m/%d'))
+    balanceTable['IssueDate'] = pd.to_datetime(balanceTable['IssueDate'], format='%Y/%m/%d')
     # Expire Date
-    balanceTable['ExpireDate'] = balanceTable['ExpireDate'].map(lambda x: dt.datetime.strptime(x,'%Y/%m/%d'))
+    balanceTable['ExpireDate'] = pd.to_datetime(balanceTable['ExpireDate'], format='%Y/%m/%d')
     # Interest Amount
     balanceTable['InterestAmount'] = None
     # Xóa file
@@ -686,6 +688,7 @@ def runFIRST(bankObject):
     selectObject = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
     select = Select(selectObject)
     frames = []
+    now = dt.datetime.now()
     for option in select.options:
         select.select_by_visible_text(option.text)
         xpath = '//*[text()="Inquiry"]'
@@ -712,11 +715,10 @@ def runFIRST(bankObject):
         # Interest Rate
         downloadTable['InterestRate'] = downloadTable['InterestRate'].map(lambda x: float(x.replace('%',''))) / 100
         # Issue Date
-        downloadTable['IssueDate'] = downloadTable['IssueDate'].map(lambda x: dt.datetime.strptime(x,'%Y/%m/%d'))
+        downloadTable['IssueDate'] = pd.to_datetime(downloadTable['IssueDate'], format='%Y/%m/%d')
         # Expire Date
-        downloadTable['ExpireDate'] = downloadTable['ExpireDate'].map(lambda x: dt.datetime.strptime(x,'%Y/%m/%d'))
+        downloadTable['ExpireDate'] = pd.to_datetime(downloadTable['ExpireDate'], format='%Y/%m/%d')
         # Date
-        now = dt.datetime.now()
         if now.hour >= 12:
             d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
         else:
