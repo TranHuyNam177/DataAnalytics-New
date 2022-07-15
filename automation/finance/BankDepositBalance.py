@@ -30,7 +30,8 @@ def runESUN(bankObject):
         names=['AccountNumber','IssueDate','ExpireDate','Currency','Balance','InterestRate'],
         usecols=[1,3,4,5,6,7],
         header=0,
-        dtype={'AccountNumber': object,'IssueDate': object,'ExpireDate':object,'Currency': object,'Balance':object}
+        dtype={'AccountNumber': object,'IssueDate': object,'ExpireDate':object,
+               'Currency': object,'Balance':object,'InterestRate':np.float64}
     )
     downloadTable['IssueDate'] = pd.to_datetime(downloadTable['IssueDate'], format='%Y/%m/%d')
     downloadTable['ExpireDate'] = pd.to_datetime(downloadTable['ExpireDate'], format='%Y/%m/%d')
@@ -368,7 +369,7 @@ def runVTB(bankObject):
     )
     downloadTable['IssueDate'] = pd.to_datetime(downloadTable['IssueDate'], format='%d-%m-%Y')
     downloadTable['ExpireDate'] = pd.to_datetime(downloadTable['ExpireDate'], format='%d-%m-%Y')
-    downloadTable['TermMonths']  = np.int64(downloadTable['TermMonths'].str.replace('D','').str.split('M').str.get(0))
+    downloadTable['TermMonths'] = np.int64(downloadTable['TermMonths'].str.replace('D','').str.split('M').str.get(0))
     downloadTable['TermDays'] = (downloadTable['ExpireDate']-downloadTable['IssueDate']).dt.days
     downloadTable['InterestRate'] /= 100
     downloadTable['Bank'] = bankObject.bank
