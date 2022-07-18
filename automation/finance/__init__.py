@@ -1,3 +1,5 @@
+import time
+
 from automation import *
 import cv2
 
@@ -120,7 +122,7 @@ def get_bank_authentication(
         if bank in ['BIDV','IVB','VCB','VTB','EIB','OCB','TCB']:
             resultDict['id'] = ''
             resultDict['user'], resultDict['password'], resultDict['URL'] = file.readlines()
-        elif bank in ['FUBON','SCSB','FIRST','MEGA','SINOPAC','ESUN']:
+        elif bank in ['FUBON','SCSB','FIRST','MEGA','SINOPAC','ESUN','HUANAN']:
             resultDict['id'], resultDict['user'], resultDict['password'], resultDict['URL'] = file.readlines()
         else:
             raise ValueError(f'Invalid bank name: {bank}')
@@ -1036,3 +1038,49 @@ class ESUN(Base):
 
         return self
 
+class HUANAN(Base):
+
+    def __init__(self,debug=True):
+        super().__init__('HUANAN',debug)
+        self.driver = None
+        self.wait = None
+
+    def __repr__(self):
+        return f'<BankObject_HUANAN>'
+
+    def __del__(self):
+        self.driver.quit()
+        print('Destructor: Chrome Driver has quit')
+
+    def Login(self):
+
+        self.driver = webdriver.Chrome(executable_path=self.PATH)
+        self.driver.maximize_window()
+        self.driver.get(self.URL)
+        self.wait = WebDriverWait(self.driver,30,ignored_exceptions=self.ignored_exceptions)
+
+        # Đổi ngôn ngữ sang tiếng anh
+        xpath = "//*[@class='language']//*[contains(text(), 'English')]"
+        self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        time.sleep(1)
+        # Customer ID
+        xpath = '//*[@id="USERID"]'
+        idInput = self.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+        idInput.click()
+        idInput.send_keys(self.id)
+        # User Name
+        xpath = '//*[@id="NICKNAME"]'
+        userInput = self.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+        userInput.click()
+        userInput.send_keys(self.user)
+        # Password
+        xpath = '//*[@id="password"]'
+        passwordInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        passwordInput.click()
+        passwordInput.send_keys(self.password)
+        # # Click "Login"
+        # xpath = '//*[@id="WannaLogin"]/a'
+        # self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        time.sleep(3) # chờ animation
+
+        return self
