@@ -85,15 +85,14 @@ def runMEGA(bankObject):
     records = []
     # Xử lý data trong tab Balance Overview
     if now.hour >= 12:
-        d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
-                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     for element in rowElements:
         elementString = element.text
-        accountText = re.search('VND [0-9]{4}-[0-9]{4}-[0-9]{10}', elementString).group().replace('000000', '')
+        accountNumber = re.search(r'[A-Z]{3} [0-9]{4}-[0-9]{4}-[0-9]{10}', elementString).group().replace('000000', '')
         # Ngày hiệu lực, Ngày đáo hạn
-        issueDateText, expireDateText = re.findall('[0-9]{4}/[0-9]{2}/[0-9]{2}', elementString)
+        issueDateText, expireDateText = re.findall(r'\b\d{4}/\d{2}/\d{2}\b', elementString)
         issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
         expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
         # Term Days
@@ -104,13 +103,13 @@ def runMEGA(bankObject):
         iText = elementString.split(expireDateText)[1].split()[0]
         iRate = round(float(iText) / 100, 5)
         # Currency
-        currency = re.search('VND|USD', elementString).group()
+        currency = re.search(r'VND|USD', elementString).group()
         # Số tiền vay
         amountString = elementString.split(iText)[1].split()[0]
         amount = float(amountString.replace(',', ''))
         # Số tiền Lãi
         interest = termDays * (iRate / 360) * amount
-        records.append([d, bankObject.bank, accountText, termDays, termMonths, iRate, issueDate,
+        records.append([d, bankObject.bank, accountNumber, termDays, termMonths, iRate, issueDate,
                         expireDate, amount, interest, currency])
     # Chuyển sang tab Financing
     # Reload frame
@@ -122,7 +121,7 @@ def runMEGA(bankObject):
         except bankObject.ignored_exceptions:
             continue
     # Click Financing
-    xpath = "//*[@id='menu']//*[contains(text(), 'Financing')]"
+    xpath = "//*[contains(text(), 'Financing')]"
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
     # Click Loan details
     xpath = "//*[contains(text(), 'Loan details')]"
