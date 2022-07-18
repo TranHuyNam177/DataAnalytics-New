@@ -1,7 +1,4 @@
-import pandas as pd
-
 from automation.finance import *
-
 
 def runIVB(bankObject):
     """
@@ -70,7 +67,6 @@ def runIVB(bankObject):
         records.append(table)
     balanceTable = pd.concat(records, ignore_index=True)
     return balanceTable
-
 
 def runMEGA(bankObject):
     now = dt.datetime.now()
@@ -167,4 +163,65 @@ def runMEGA(bankObject):
         columns=['Date', 'Bank', 'TermDays', 'TermMonths', 'InterestRate', 'IssueDate', 'ExpireDate',
                  'Amount', 'InterestAmount', 'Currency', 'ContractNumber', 'Paid', 'Remaining']
     )
+    return balanceTable
+
+def runSINOPAC(bankObject):
+    # Dọn dẹp folder trước khi download
+    for file in listdir(bankObject.downloadFolder):
+        if re.search(r'\bCOSLABAQU_\d+_\d+\b', file):
+            os.remove(join(bankObject.downloadFolder, file))
+    # Click Account Inquiry
+    bankObject.wait.until(EC.presence_of_element_located((By.ID, 'MENU_CAO'))).click()
+    # Click Loan inquiry
+    bankObject.wait.until(EC.presence_of_element_located((By.ID, 'MENU_CAO002'))).click()
+    # Click Loan Balance Inquiry
+    bankObject.wait.until(EC.visibility_of_element_located((By.ID, 'MENU_COSLABAQU'))).click()
+    # Swtich frame
+    bankObject.driver.switch_to.frame('mainFrame')
+    # Click Search
+    xpath = '//*[contains(text(),"Search")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+    time.sleep(3)  # chờ load data
+    # Click download file csv
+    xpath = '//*[contains(@class,"download_csv")]'
+    bankObject.driver.find_element(By.XPATH, xpath).click()
+    # Đọc file download
+    while True:
+        checkFunc = lambda x: (re.search(r'\bCOSLABAQU_\d+_\d+\b', x) is not None) and ('download' not in x)
+        downloadFile = first(listdir(bankObject.downloadFolder), checkFunc)
+        if downloadFile:  # download xong -> có file
+            break
+        time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
+    balanceTable = pd.read_csv(
+        join(bankObject.downloadFolder, downloadFile),
+        usecols=[1, 3, 5, 6, 7, 8],
+        names=['ContractNumber', 'IssueDate', 'Currency', 'Amount', 'Remaining', 'ExpireDate'],
+        skiprows=1,
+        dtype={
+            'ContractNumber': object,
+            'IssueDate': object,
+            'Currency': object,
+            'Amount': np.float64,
+            'Remaining': np.float64,
+            'ExpireDate': object
+        }
+    )
+    balanceTable['IssueDate'] = pd.to_datetime(balanceTable['IssueDate'], format='%Y/%m/%d')
+    balanceTable['ExpireDate'] = pd.to_datetime(balanceTable['ExpireDate'], format='%Y/%m/%d')
+    # Date
+    now = dt.datetime.now()
+    if now.hour >= 12:
+        d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+    else:
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
+                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+    balanceTable['Date'] = d
+    balanceTable['Bank'] = bankObject.bank
+    # TermDays
+    balanceTable['TermDays'] = (balanceTable['ExpireDate'] - balanceTable['IssueDate']).dt.days
+    # Term months
+    balanceTable['TermMonths'] = (balanceTable['TermDays'] / 30).round()
+    # Paid
+    balanceTable['Paid'] = balanceTable['Amount'] - balanceTable['Remaining']
+
     return balanceTable
