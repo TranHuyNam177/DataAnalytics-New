@@ -704,6 +704,7 @@ def runSINOPAC(bankObject):
         d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
                                                  microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0, 'Date', d)
+    balanceTable.insert(1, 'Bank', bankObject.bank)
 
     return balanceTable
 
