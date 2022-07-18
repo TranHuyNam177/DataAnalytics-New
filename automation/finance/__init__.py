@@ -1078,9 +1078,9 @@ class HUANAN(Base):
         passwordInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
         passwordInput.click()
         passwordInput.send_keys(self.password)
-        # # Click "Login"
-        # xpath = '//*[@id="WannaLogin"]/a'
-        # self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        # Click "Login"
+        xpath = '//*[@id="WannaLogin"]/a'
+        self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
         time.sleep(3) # chờ animation
 
         return self
