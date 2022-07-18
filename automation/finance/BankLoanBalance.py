@@ -145,7 +145,7 @@ def runMEGA(bankObject):
         xpath = "//*[contains(text(), 'Inquire')]"
         bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
         # Get Contract Number
-        xpath = "//*[text()='2022/03/10']//following-sibling::td[1]"
+        xpath = f"//*[text()='{startDate}']//following-sibling::td[1]"
         contractNumber = bankObject.driver.find_element(By.XPATH, xpath).text
         # Get Remaining
         xpath = f"//*[text()='{contractNumber}']//parent::tr"
