@@ -529,11 +529,11 @@ def runHUANAN(bankObject):
     records = []
     for unitOption in unitOptions:
         for customerIDOption in customerIDOptions:
-            xpath = "//*[contains(@name,'Unit')]"
+            xpath = "//select[contains(@name,'Unit')]"
             dropDownUnit = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
             select = Select(dropDownUnit)
             select.select_by_visible_text(unitOption)
-            xpath = "//*[contains(@name,'CoID_I')]"
+            xpath = "//select[contains(@name,'CoID_I')]"
             dropDownCustomerID = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
             select = Select(dropDownCustomerID)
             select.select_by_visible_text(customerIDOption)
