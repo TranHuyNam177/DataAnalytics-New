@@ -1054,8 +1054,8 @@ class HUANAN(Base):
 
     def Login(self):
 
-        self.driver = webdriver.Chrome(executable_path=self.PATH)
-        self.driver.maximize_window()
+        self.driver = webdriver.Chrome(service=Service(self.PATH),options=Options())
+        # self.driver.maximize_window()
         self.driver.get(self.URL)
         self.wait = WebDriverWait(self.driver,30,ignored_exceptions=self.ignored_exceptions)
 
@@ -1064,23 +1064,19 @@ class HUANAN(Base):
         self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
         time.sleep(1)
         # Customer ID
-        xpath = '//*[@id="USERID"]'
-        idInput = self.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+        idInput = self.wait.until(EC.element_to_be_clickable((By.ID,'USERID')))
         idInput.click()
         idInput.send_keys(self.id)
         # User Name
-        xpath = '//*[@id="NICKNAME"]'
-        userInput = self.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+        userInput = self.wait.until(EC.element_to_be_clickable((By.ID,'NICKNAME')))
         userInput.click()
         userInput.send_keys(self.user)
         # Password
-        xpath = '//*[@id="password"]'
-        passwordInput = self.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        passwordInput = self.wait.until(EC.element_to_be_clickable((By.ID,'pwdText')))
         passwordInput.click()
-        passwordInput.send_keys(self.password)
+        self.wait.until(EC.element_to_be_clickable((By.ID,'password'))).send_keys(self.password)
         # Click "Login"
-        xpath = '//*[@id="WannaLogin"]/a'
-        self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
-        time.sleep(3) # chờ animation
+        self.wait.until(EC.presence_of_element_located((By.ID,'WannaLogin'))).click()
+        time.sleep(3)  # chờ animation
 
         return self
