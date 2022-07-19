@@ -481,3 +481,117 @@ def runSINOPAC(bankObject):
     balanceTable['Paid'] = balanceTable['Amount'] - balanceTable['Remaining']
 
     return balanceTable
+
+def runHUANAN(bankObject):
+    now = dt.datetime.now()
+    year_ago = now.year - 1
+    year = now.year
+    month = now.month
+    day = now.day
+    # Reload frame menu left
+    bankObject.driver.switch_to.frame('left')
+    # Click Loan Section
+    xpath = "//*[contains(text(), 'Loan Section')]"
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    # Reload main frame
+    bankObject.driver.switch_to.default_content()
+    bankObject.driver.switch_to.frame('main')
+    time.sleep(1)
+    # Show menu Inquiries
+    xpath = "//*[contains(text(), 'Inquiries')]"
+    bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,xpath))).click()
+    # Click Outstanding loan inquiry
+    xpath = "//*[contains(text(), 'Outstanding loan inquiry')]"
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+    # Select option of Unit
+    xpath = "//*[contains(@name,'Unit')]/option"
+    unitElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH, xpath)))
+    unitOptions = [u.text for u in unitElements]
+    # Select option of Customer ID
+    xpath = "//*[contains(@name,'CoID_I')]/option"
+    customerIDElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH, xpath)))
+    customerIDOptions = [c.text for c in customerIDElements]
+
+    for prefix in 'SE':
+        for suffix in ['Year', 'Month', 'Date']:
+            xpath = f"//*[@name='{prefix}_{suffix}']"
+            input = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+            if suffix == 'Date':
+                input.send_keys(day)
+            elif suffix == 'Month':
+                input.send_keys(month)
+            else:
+                if prefix == 'E':
+                    input.send_keys(year)
+                else:
+                    input.send_keys(year_ago)
+
+    records = []
+    for unitOption in unitOptions:
+        for customerIDOption in customerIDOptions:
+            xpath = "//*[contains(@name,'Unit')]"
+            dropDownUnit = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+            select = Select(dropDownUnit)
+            select.select_by_visible_text(unitOption)
+            xpath = "//*[contains(@name,'CoID_I')]"
+            dropDownCustomerID = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+            select = Select(dropDownCustomerID)
+            select.select_by_visible_text(customerIDOption)
+            # Click Submit
+            xpath = "//a[contains(text(), 'Submit')]"
+            bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+            time.sleep(3)  # chờ animation
+            # Get data
+            xpath = "//*[@class='Table_contentWt_C']"
+            rowElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH, xpath)))
+            records.extend(rowElements)
+    data = []
+    for rowElement in records:
+        rowString = rowElement.text
+        # Contract Number
+        contractNumber = re.search(r'\b[A-Z]{4}\d+\b', rowString).group()
+        # Issue Date, Expire Date
+        issueDateText, expireDateText = re.findall(r'\b\d{4}/\d{2}/\d{2}\b', rowString)
+        issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
+        expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = round(termDays / 30)
+        # Lãi suất
+        interestRateString = re.search(r'\b\d{1,2}\.\d+\b', rowString).group()
+        interestRate = float(interestRateString) / 100
+        # Currency
+        currency = re.search(r'VND|USD', rowString).group()
+        # Amount and Remaining
+        amountText, remainingText = re.findall(r'\b\d+,[\d,]+\.\d{2}\b', rowString)
+        amount = float(amountText.replace(',', ''))
+        remaining = float(remainingText.replace(',', ''))
+        # Paid
+        paid = amount - remaining
+        # Interest Amount
+        interestAmount = interestRate / 360 * termDays * amount
+        # Append data
+        data.append((contractNumber,termDays,termMonths,interestRate,issueDate,expireDate,amount,paid,
+                        remaining, interestAmount, currency))
+
+    balanceTable = pd.DataFrame(
+        data=data,
+        columns=['ContractNumber', 'TermDays', 'TermMonths', 'InterestRate', 'IssueDate', 'ExpireDate', 'Amount',
+                 'Paid', 'Remaining', 'InterestAmount', 'Currency']
+    )
+    # Date
+    if now.hour >= 12:
+        d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+    else:
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
+                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+    balanceTable.insert(0, 'Date', d)
+    # Bank
+    balanceTable.insert(1, 'Bank', bankObject.bank)
+
+    return balanceTable
+
+
+
+
