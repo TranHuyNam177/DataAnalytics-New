@@ -430,6 +430,15 @@ def runFIRST(bankObject):
     for file in listdir(bankObject.downloadFolder):
         if re.search(r'\bCOSDATDQU\d+\b',file):
             os.remove(join(bankObject.downloadFolder,file))
+    # Click Dashboard
+    bankObject.driver.switch_to.default_content()
+    bankObject.driver.switch_to.frame('iFrameID')
+    xpath = "//a[contains(text(), 'Dashboard')]"
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    time.sleep(1)
+    # Click Home
+    xpath = "//*[@id='headerForm:TopMenu2']//*[contains(text(), 'Home')]"
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Click "Account Inquiry"
     bankObject.driver.switch_to.default_content()
     bankObject.driver.switch_to.frame('iFrameID')
@@ -494,7 +503,10 @@ def runFIRST(bankObject):
 
 
 def runTCB(bankObject):
-
+    bankObject.driver.switch_to.default_content()
+    # Click về Trang chủ
+    xpath = '//*[contains(text(),"Trang chủ")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
     # Click Đầu tư
     xpath = '//*[contains(text(),"Đầu tư")]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
@@ -542,7 +554,12 @@ def runTCB(bankObject):
 
 
 def runMEGA(bankObject):
-
+    # Click Dashboard
+    xpath = '//a//*[contains(text(),"Dashboard")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+    # Click News
+    xpath = '//a[contains(text(),"News")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
     # Click Accounts
     xpath = '//*[contains(text(),"Accounts")]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
@@ -600,6 +617,11 @@ def runSINOPAC(bankObject):
     for file in listdir(bankObject.downloadFolder):
         if re.search(r'\bCOSDATDQU_\d+_\d+\b',file):
             os.remove(join(bankObject.downloadFolder,file))
+    # Click Important Message
+    bankObject.wait.until(EC.presence_of_element_located((By.ID, 'MENU_CHM'))).click()
+    # Click Reminders
+    xpath = "//*[@id='MENU_CCMHMANNO' and text()='Reminders']"
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
     # Click Account Inquiry
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO'))).click()
     # Click Deposit inquiry
@@ -684,6 +706,11 @@ def runESUN(bankObject):
     for file in listdir(bankObject.downloadFolder):
         if re.search(r'\bCOSDATDQU_\d+\b',file):
             os.remove(join(bankObject.downloadFolder,file))
+    # Click Dashboard
+    bankObject.wait.until(EC.presence_of_element_located((By.ID, 'menuIndex_0'))).click()
+    # Click Welcome
+    xpath = "//*[@id='menuIndex_0']//*[contains(text(),'Welcome')]"
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
     # Show menu Deposits
     bankObject.wait.until(EC.visibility_of_element_located((By.ID,'menuIndex_1'))).click()
     # Click Time Deposit Detail Enquiry
