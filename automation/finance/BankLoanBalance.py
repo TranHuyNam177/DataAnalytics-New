@@ -5,7 +5,7 @@ def runOCB(bankObject):
     """
     :param bankObject: Bank Object (đã login)
     """
-
+    now = dt.datetime.now()
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if 'DSKhoanVay' in file:
@@ -56,6 +56,14 @@ def runOCB(bankObject):
     balanceTable['TermMonths'] = (balanceTable['TermDays']/30).round().astype(np.int64)
     # Interest Amount
     balanceTable['InterestAmount'] = balanceTable['TermDays'] * balanceTable['InterestRate'] / 365 * balanceTable['Amount']
+    # Date
+    if now.hour >= 12:
+        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+    else:
+        d = (now-dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+    balanceTable.insert(0,'Date',d)
+    # Bank
+    balanceTable.insert(1,'Bank',bankObject.bank)
 
     return balanceTable
 
@@ -65,7 +73,12 @@ def runESUN(bankObject):
     """
     :param bankObject: Bank Object (đã login)
     """
-
+    now = dt.datetime.now()
+    # Click Dashboard
+    bankObject.wait.until(EC.presence_of_element_located((By.ID,'menuIndex_0'))).click()
+    # Click Welcome
+    xpath = "//*[@id='menuIndex_0']//*[contains(text(),'Welcome')]"
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Click Loan
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'menuIndex_2'))).click()
     # Click Loan Overview
@@ -109,6 +122,15 @@ def runESUN(bankObject):
         records,
         columns=['ContractNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Amount','Paid','Remaining','InterestAmount','Currency']
     )
+    # Date
+    if now.hour >= 12:
+        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+    else:
+        d = (now-dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+    balanceTable.insert(0,'Date',d)
+    # Bank
+    balanceTable.insert(1,'Bank',bankObject.bank)
+
     return balanceTable
 
 
@@ -323,6 +345,12 @@ def runMEGA(bankObject):
     :param bankObject: Bank Object (đã login)
     """
     now = dt.datetime.now()
+    # Click Dashboard
+    xpath = '//a//*[contains(text(),"Dashboard")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+    # Click News
+    xpath = '//a[contains(text(),"News")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
     # Click Accounts
     xpath = '//*[contains(text(),"Accounts")]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
@@ -419,29 +447,32 @@ def runMEGA(bankObject):
     balanceTable.insert(1,'Bank',bankObject.bank)
     # Drop AccountNumber
     balanceTable = balanceTable.drop('AccountNumber',axis=1)
-
     return balanceTable
 
+
 def runSINOPAC(bankObject):
+
+    """
+    :param bankObject: Bank Object (đã login)
+    """
+    now = dt.datetime.now()
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
-        if re.search(r'\bCOSLABAQU_\d+_\d+\b', file):
-            os.remove(join(bankObject.downloadFolder, file))
+        if re.search(r'\bCOSLABAQU_\d+_\d+\b',file):
+            os.remove(join(bankObject.downloadFolder,file))
     # Click Account Inquiry
-    bankObject.wait.until(EC.presence_of_element_located((By.ID, 'MENU_CAO'))).click()
+    bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO'))).click()
     # Click Loan inquiry
-    bankObject.wait.until(EC.presence_of_element_located((By.ID, 'MENU_CAO002'))).click()
+    bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO002'))).click()
     # Click Loan Balance Inquiry
-    bankObject.wait.until(EC.visibility_of_element_located((By.ID, 'MENU_COSLABAQU'))).click()
-    # Swtich frame
-    bankObject.driver.switch_to.frame('mainFrame')
+    bankObject.wait.until(EC.visibility_of_element_located((By.ID,'MENU_COSLABAQU'))).click()
     # Click Search
+    bankObject.driver.switch_to.frame('mainFrame')
     xpath = '//*[contains(text(),"Search")]'
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
-    time.sleep(3)  # chờ load data
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Click download file csv
     xpath = '//*[contains(@class,"download_csv")]'
-    bankObject.driver.find_element(By.XPATH, xpath).click()
+    bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,xpath))).click()
     # Đọc file download
     while True:
         checkFunc = lambda x: (re.search(r'\bCOSLABAQU_\d+_\d+\b', x) is not None) and ('download' not in x)
@@ -450,9 +481,9 @@ def runSINOPAC(bankObject):
             break
         time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
     balanceTable = pd.read_csv(
-        join(bankObject.downloadFolder, downloadFile),
-        usecols=[1, 3, 5, 6, 7, 8],
-        names=['ContractNumber', 'IssueDate', 'Currency', 'Amount', 'Remaining', 'ExpireDate'],
+        join(bankObject.downloadFolder,downloadFile),
+        usecols=[1,3,5,6,7,8],
+        names=['ContractNumber','IssueDate','Currency','Amount','Remaining','ExpireDate'],
         skiprows=1,
         dtype={
             'ContractNumber': object,
@@ -463,34 +494,37 @@ def runSINOPAC(bankObject):
             'ExpireDate': object
         }
     )
-    balanceTable['IssueDate'] = pd.to_datetime(balanceTable['IssueDate'], format='%Y/%m/%d')
-    balanceTable['ExpireDate'] = pd.to_datetime(balanceTable['ExpireDate'], format='%Y/%m/%d')
+    balanceTable['IssueDate'] = pd.to_datetime(balanceTable['IssueDate'],format='%Y/%m/%d')
+    balanceTable['ExpireDate'] = pd.to_datetime(balanceTable['ExpireDate'],format='%Y/%m/%d')
     # Date
-    now = dt.datetime.now()
     if now.hour >= 12:
-        d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        d = (now-dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable['Date'] = d
     balanceTable['Bank'] = bankObject.bank
     # TermDays
     balanceTable['TermDays'] = (balanceTable['ExpireDate'] - balanceTable['IssueDate']).dt.days
     # Term months
-    balanceTable['TermMonths'] = (balanceTable['TermDays'] / 30).round()
+    balanceTable['TermMonths'] = (balanceTable['TermDays']/30).round()
     # Paid
     balanceTable['Paid'] = balanceTable['Amount'] - balanceTable['Remaining']
-
     return balanceTable
 
+
 def runHUANAN(bankObject):
+
+    """
+    :param bankObject: Bank Object (đã login)
+    """
     now = dt.datetime.now()
-    year_ago = now.year - 1
-    year = now.year
-    month = now.month
-    day = now.day
-    # Reload frame menu left
-    bankObject.driver.switch_to.frame('left')
+    # Bắt đầu từ Home
+    bankObject.driver.switch_to.default_content()
+    bankObject.driver.switch_to.frame('topF')
+    xpath = '//*[contains(text(),"Home")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Click Loan Section
+    bankObject.driver.switch_to.frame('left')
     xpath = "//*[contains(text(), 'Loan Section')]"
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Reload main frame
@@ -512,19 +546,19 @@ def runHUANAN(bankObject):
     customerIDElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH, xpath)))
     customerIDOptions = [c.text for c in customerIDElements]
 
-    for prefix in 'SE':
+    for prefix in ['S','E']:
         for suffix in ['Year', 'Month', 'Date']:
             xpath = f"//*[@name='{prefix}_{suffix}']"
-            input = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+            inputElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
             if suffix == 'Date':
-                input.send_keys(day)
+                inputElement.send_keys(now.day)
             elif suffix == 'Month':
-                input.send_keys(month)
+                inputElement.send_keys(now.month)
             else:
                 if prefix == 'E':
-                    input.send_keys(year)
+                    inputElement.send_keys(now.year)
                 else:
-                    input.send_keys(year_ago)
+                    inputElement.send_keys(now.year-1)
 
     records = []
     for unitOption in unitOptions:
@@ -590,8 +624,4 @@ def runHUANAN(bankObject):
     # Bank
     balanceTable.insert(1, 'Bank', bankObject.bank)
 
-    return balanceTable
-
-
-
-
+    return
