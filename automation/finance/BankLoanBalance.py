@@ -460,6 +460,11 @@ def runSINOPAC(bankObject):
     for file in listdir(bankObject.downloadFolder):
         if re.search(r'\bCOSLABAQU_\d+_\d+\b',file):
             os.remove(join(bankObject.downloadFolder,file))
+    # Click Important Message
+    bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CHM'))).click()
+    # Click Reminders
+    xpath = "//*[@id='MENU_CCMHMANNO' and text()='Reminders']"
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
     # Click Account Inquiry
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO'))).click()
     # Click Loan inquiry
@@ -607,7 +612,7 @@ def runHUANAN(bankObject):
         interestAmount = interestRate / 360 * termDays * amount
         # Append data
         data.append((contractNumber,termDays,termMonths,interestRate,issueDate,expireDate,amount,paid,
-                        remaining, interestAmount, currency))
+                     remaining,interestAmount,currency))
 
     balanceTable = pd.DataFrame(
         data=data,
@@ -618,10 +623,8 @@ def runHUANAN(bankObject):
     if now.hour >= 12:
         d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
-                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0, 'Date', d)
     # Bank
     balanceTable.insert(1, 'Bank', bankObject.bank)
-
-    return
+    return balanceTable
