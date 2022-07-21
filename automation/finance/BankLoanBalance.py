@@ -476,7 +476,7 @@ def runSINOPAC(bankObject):
     # Click download file csv
     xpath = '//*[contains(@class,"download_csv")]'
     while True:
-        downloadElement = bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,xpath)))
+        downloadElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
         if downloadElement.is_displayed():
             time.sleep(1)
             downloadElement.click()
@@ -527,10 +527,8 @@ def runHUANAN(bankObject):
     :param bankObject: Bank Object (đã login)
     """
     now = dt.datetime.now()
-    # Bắt đầu từ Home
-    bankObject.driver.switch_to.default_content()
-    bankObject.driver.switch_to.frame('topF')
     # Click Loan Section
+    bankObject.driver.switch_to.default_content()
     bankObject.driver.switch_to.frame('left')
     xpath = "//*[contains(text(),'Loan Section')]"
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
@@ -634,7 +632,7 @@ def runHUANAN(bankObject):
     if now.hour >= 12:
         d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        d = (now-dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0,'Date',d)
     # Bank
     balanceTable.insert(1,'Bank',bankObject.bank)

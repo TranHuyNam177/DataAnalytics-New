@@ -385,7 +385,7 @@ def runEIB(bankObject,fromDate,toDate):
             os.remove(join(bankObject.downloadFolder,file))
     # Click Trang chủ
     xpath = "//a[@href='/KHDN/home']"
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
     # Click Menu Tài khoản --> Tiền gửi thanh toán
     action = ActionChains(bankObject.driver)
     xpath = '//*[@class="navigation-menu"]/li[2]/a'
@@ -583,7 +583,7 @@ def runOCB(bankObject,fromDate,toDate):
         xpath = '//*[@ng-click="toggleAdvancedSearch()"]'
         bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
 
-    balanceTable  = pd.DataFrame(
+    balanceTable = pd.DataFrame(
         records,
         columns=['Date','Bank','AccountNumber','Balance','Currency'],
     )

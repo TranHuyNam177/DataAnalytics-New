@@ -695,6 +695,9 @@ def runSINOPAC(bankObject):
 
 def runESUN(bankObject):
 
+    """
+    :param bankObject: Bank Object (đã login)
+    """
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if re.search(r'\bCOSDATDQU_\d+\b',file):
@@ -753,4 +756,101 @@ def runESUN(bankObject):
 
     return balanceTable
 
+
+def runHUANAN(bankObject):
+
+    """
+    :param bankObject: Bank Object (đã login)
+    """
+    now = dt.datetime.now()
+    # Click Check Account Details
+    bankObject.driver.switch_to.default_content()
+    bankObject.driver.switch_to.frame('left')
+    xpath = "//*[contains(text(),'Check account details')]"
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    # Click Check balance -> Time Depoist
+    bankObject.driver.switch_to.default_content()
+    bankObject.driver.switch_to.frame('main')
+    xpath = '//*[@id="navbar"]/*/a[contains(@title,"Check balance")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    xpath = '//*[@id="navbar"]/*/a[contains(@title,"Check balance")]//following-sibling::ul/*/a[contains(@title,"Time deposit")]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    # Lấy danh sách chi nhánh
+    xpath = '//*[@name="UNIT"]/option'
+    optionElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+    optionStrings = [element.text for element in optionElements]
+
+    rowStrings = []
+    for optionString in optionStrings:
+        # Chọn từng chi nhánh
+        xpath = '//*[@name="UNIT"]'
+        dropdownElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        select = Select(dropdownElement)
+        select.select_by_visible_text(optionString)
+        # Click Submit
+        xpath = '//*[contains(@class,"BTN")]/*[contains(text(),"Submit")]'
+        bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        # Chờ load data
+        while True:
+            xpath = '//*[text()="Interest Rate"]'
+            if bankObject.driver.find_elements(By.XPATH,xpath):
+                break
+            time.sleep(1)
+        # Lấy Row String
+        xpath = '//td[@colspan>5]//*[contains(@class,"Table_content")]'
+        recordElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+        recordStrings = [element.text for element in recordElements]
+        # Extend Row String
+        rowStrings.extend(recordStrings)
+        # Back về trang chọn chi nhánh
+        bankObject.driver.back()
+        bankObject.driver.switch_to.default_content()
+        bankObject.driver.switch_to.frame('main')
+        while True:
+            xpath = '//*[contains(@class,"BTN")]/*[contains(text(),"Submit")]'
+            submitButton = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            if submitButton.is_displayed():
+                break
+            time.sleep(1)
+
+    records = []
+    for rowString in rowStrings:
+        # Account Number
+        accountNumber = re.search(r'^[\d*-]+\b',rowString).group()
+        # Currency
+        currency = re.search(r'\bVND|USD\b',rowString).group()
+        # Balance
+        balanceString = re.search(r'\b\d+,[\d,]+\.\d{2}\b',rowString).group()
+        balance = float(balanceString.replace(',',''))
+        # Issue Date, Expire Date
+        dateStrings = re.findall(r'\b\d{4}-\d{2}-\d{2}',rowString)
+        dates = sorted([dt.datetime.strptime(dateString,'%Y-%m-%d') for dateString in dateStrings])
+        issueDate, expireDate = dates[-2:]
+        # Term month
+        termMonthsString = re.search(r'\b(\d+)(\smonth)',rowString).group(1)
+        termMonths = int(termMonthsString)
+        # Term day
+        termDays = (expireDate-issueDate).days
+        # Interest rate
+        interestRateString = re.search(r'\b\d{1,2}\.\d+\b',rowString).group()
+        interestRate = float(interestRateString) / 100
+        # Interest amount
+        interestAmount = termDays * interestRate * balance / 365
+        # Append
+        records.append((accountNumber,termDays,termMonths,interestRate,issueDate,expireDate,balance,interestAmount,currency))
+
+    balanceTable = pd.DataFrame(
+        records,
+        columns=['AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount','Currency']
+    )
+    # Date
+    if now.hour >= 12:
+        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+    else:
+        d = (now-dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+    balanceTable.insert(0,'Date',d)
+    # Bank
+    balanceTable.insert(1,'Bank',bankObject.bank)
+
+    return balanceTable
 
