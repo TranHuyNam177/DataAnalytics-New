@@ -20,6 +20,11 @@ def runOCB(bankObject):
     _, listElement = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
     listElement.click()
     time.sleep(5) # chờ chuyển trang
+    # Check xem có khoản vay không
+    xpath = '//*[contains(text(),"Không có khoản vay nào")]'
+    notices = bankObject.driver.find_elements(By.XPATH,xpath)
+    if notices: # không có khoản vay
+        return pd.DataFrame()
     # Click Tải về -> Tập tin xls
     xpath = '//*[@placeholder="Tải về"]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
@@ -74,14 +79,11 @@ def runESUN(bankObject):
     :param bankObject: Bank Object (đã login)
     """
     now = dt.datetime.now()
-    # Click Dashboard
-    bankObject.wait.until(EC.presence_of_element_located((By.ID,'menuIndex_0'))).click()
-    # Click Welcome
-    xpath = "//*[@id='menuIndex_0']//*[contains(text(),'Welcome')]"
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
-    # Click Loan
+    # Bắt đầu từ trang chủ
+    bankObject.driver.switch_to.default_content()
+    bankObject.driver.switch_to.frame('mainFrame')
+    # Click Loan -> Loan Overview
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'menuIndex_2'))).click()
-    # Click Loan Overview
     xpath = "//*[@id='menuIndex_2']//*[contains(text(),'Loan Overview')]"
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Lấy danh sách records
@@ -205,6 +207,7 @@ def runIVB(bankObject):
     # Interest Amount
     balanceTable['InterestAmount'] = balanceTable['TermDays'] * balanceTable['InterestRate'] * balanceTable['Amount'] / 360
     return balanceTable
+
 
 def runFUBON(bankObject):
 
@@ -345,18 +348,16 @@ def runMEGA(bankObject):
     :param bankObject: Bank Object (đã login)
     """
     now = dt.datetime.now()
-    # Click Dashboard
-    xpath = '//a//*[contains(text(),"Dashboard")]'
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
-    # Click News
-    xpath = '//a[contains(text(),"News")]'
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+    # Bắt đầu từ trang chủ
+    bankObject.driver.switch_to.default_content()
+    frameElement = bankObject.wait.until(EC.presence_of_element_located((By.ID,"ifrm")))
+    bankObject.driver.switch_to.frame(frameElement)
     # Click Accounts
     xpath = '//*[contains(text(),"Accounts")]'
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Click Balance overview
     xpath = '//*[contains(text(),"Balance overview")]'
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Switch frame
     bankObject.driver.switch_to.frame('frame1')
     # Get data in Balance overview -> Loan guarantee accounts
@@ -460,12 +461,9 @@ def runSINOPAC(bankObject):
     for file in listdir(bankObject.downloadFolder):
         if re.search(r'\bCOSLABAQU_\d+_\d+\b',file):
             os.remove(join(bankObject.downloadFolder,file))
-    # Click Important Message
-    bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CHM'))).click()
-    # Click Reminders
-    xpath = "//*[@id='MENU_CCMHMANNO' and text()='Reminders']"
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
     # Click Account Inquiry
+    bankObject.driver.switch_to.default_content()
+    bankObject.driver.switch_to.frame('indexFrame')
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO'))).click()
     # Click Loan inquiry
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO002'))).click()
@@ -477,7 +475,13 @@ def runSINOPAC(bankObject):
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Click download file csv
     xpath = '//*[contains(@class,"download_csv")]'
-    bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,xpath))).click()
+    while True:
+        downloadElement = bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,xpath)))
+        if downloadElement.is_displayed():
+            time.sleep(1)
+            downloadElement.click()
+            break
+        time.sleep(1)
     # Đọc file download
     while True:
         checkFunc = lambda x: (re.search(r'\bCOSLABAQU_\d+_\d+\b', x) is not None) and ('download' not in x)
@@ -526,33 +530,30 @@ def runHUANAN(bankObject):
     # Bắt đầu từ Home
     bankObject.driver.switch_to.default_content()
     bankObject.driver.switch_to.frame('topF')
-    xpath = '//*[contains(text(),"Home")]'
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Click Loan Section
     bankObject.driver.switch_to.frame('left')
-    xpath = "//*[contains(text(), 'Loan Section')]"
+    xpath = "//*[contains(text(),'Loan Section')]"
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Reload main frame
     bankObject.driver.switch_to.default_content()
     bankObject.driver.switch_to.frame('main')
-    time.sleep(1)
     # Show menu Inquiries
-    xpath = "//*[contains(text(), 'Inquiries')]"
+    xpath = "//*[contains(text(),'Inquiries')]"
     bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,xpath))).click()
     # Click Outstanding loan inquiry
-    xpath = "//*[contains(text(), 'Outstanding loan inquiry')]"
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+    xpath = "//*[contains(text(),'Outstanding')]"
+    bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,xpath))).click()
     # Select option of Unit
     xpath = "//*[contains(@name,'Unit')]/option"
-    unitElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH, xpath)))
+    unitElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
     unitOptions = [u.text for u in unitElements]
     # Select option of Customer ID
     xpath = "//*[contains(@name,'CoID_I')]/option"
-    customerIDElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH, xpath)))
+    customerIDElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
     customerIDOptions = [c.text for c in customerIDElements]
 
     for prefix in ['S','E']:
-        for suffix in ['Year', 'Month', 'Date']:
+        for suffix in ['Year','Month','Date']:
             xpath = f"//*[@name='{prefix}_{suffix}']"
             inputElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
             if suffix == 'Date':
@@ -560,71 +561,82 @@ def runHUANAN(bankObject):
             elif suffix == 'Month':
                 inputElement.send_keys(now.month)
             else:
-                if prefix == 'E':
+                if prefix == 'S':
+                    inputElement.send_keys(now.year-1) # quét 1 năm
+                else: # prefix == 'E'
                     inputElement.send_keys(now.year)
-                else:
-                    inputElement.send_keys(now.year-1)
 
-    records = []
+    rowElements = []
     for unitOption in unitOptions:
         for customerIDOption in customerIDOptions:
             xpath = "//select[contains(@name,'Unit')]"
-            dropDownUnit = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+            dropDownUnit = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
             select = Select(dropDownUnit)
             select.select_by_visible_text(unitOption)
             xpath = "//select[contains(@name,'CoID_I')]"
-            dropDownCustomerID = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+            dropDownCustomerID = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
             select = Select(dropDownCustomerID)
             select.select_by_visible_text(customerIDOption)
             # Click Submit
-            xpath = "//a[contains(text(), 'Submit')]"
-            bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
-            time.sleep(3)  # chờ animation
+            xpath = "//a[contains(text(),'Submit')]"
+            bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
             # Get data
             xpath = "//*[@class='Table_contentWt_C']"
-            rowElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH, xpath)))
-            records.extend(rowElements)
-    data = []
-    for rowElement in records:
+            recordElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+            rowElements.extend(recordElements)
+
+    records = []
+    for rowElement in rowElements:
         rowString = rowElement.text
         # Contract Number
-        contractNumber = re.search(r'\b[A-Z]{4}\d+\b', rowString).group()
+        contractNumber = re.search(r'(^GO\s)(\w+\b)',rowString).group(2)
         # Issue Date, Expire Date
-        issueDateText, expireDateText = re.findall(r'\b\d{4}/\d{2}/\d{2}\b', rowString)
-        issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
-        expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
+        issueDateString, expireDateString = re.findall(r'\b\d{4}/\d{2}/\d{2}\b',rowString)
+        issueDate = dt.datetime.strptime(issueDateString,'%Y/%m/%d')
+        expireDate = dt.datetime.strptime(expireDateString,'%Y/%m/%d')
         # Term Days
-        termDays = (expireDate - issueDate).days
+        termDays = (expireDate-issueDate).days
         # Term Months
-        termMonths = round(termDays / 30)
+        termMonths = round(termDays/30)
         # Lãi suất
-        interestRateString = re.search(r'\b\d{1,2}\.\d+\b', rowString).group()
+        interestRateString = re.search(r'\b\d{1,2}\.\d+\b',rowString).group()
         interestRate = float(interestRateString) / 100
         # Currency
-        currency = re.search(r'VND|USD', rowString).group()
+        currency = re.search(r'VND|USD',rowString).group()
         # Amount and Remaining
-        amountText, remainingText = re.findall(r'\b\d+,[\d,]+\.\d{2}\b', rowString)
-        amount = float(amountText.replace(',', ''))
-        remaining = float(remainingText.replace(',', ''))
+        amountString, remainingString = re.findall(r'\b\d+,[\d,]+\.\d{2}\b',rowString)
+        amount = float(amountString.replace(',',''))
+        remaining = float(remainingString.replace(',',''))
         # Paid
         paid = amount - remaining
         # Interest Amount
-        interestAmount = interestRate / 360 * termDays * amount
+        interestAmount = interestRate * termDays * amount / 360
         # Append data
-        data.append((contractNumber,termDays,termMonths,interestRate,issueDate,expireDate,amount,paid,
-                     remaining,interestAmount,currency))
+        records.append((contractNumber,termDays,termMonths,interestRate,issueDate,expireDate,amount,paid,remaining,interestAmount,currency))
 
     balanceTable = pd.DataFrame(
-        data=data,
-        columns=['ContractNumber', 'TermDays', 'TermMonths', 'InterestRate', 'IssueDate', 'ExpireDate', 'Amount',
-                 'Paid', 'Remaining', 'InterestAmount', 'Currency']
+        data=records,
+        columns=[
+            'ContractNumber',
+            'TermDays',
+            'TermMonths',
+            'InterestRate',
+            'IssueDate',
+            'ExpireDate',
+            'Amount',
+            'Paid',
+            'Remaining',
+            'InterestAmount',
+            'Currency'
+        ]
     )
     # Date
     if now.hour >= 12:
-        d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
-    balanceTable.insert(0, 'Date', d)
+        d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+    balanceTable.insert(0,'Date',d)
     # Bank
-    balanceTable.insert(1, 'Bank', bankObject.bank)
+    balanceTable.insert(1,'Bank',bankObject.bank)
+
     return balanceTable

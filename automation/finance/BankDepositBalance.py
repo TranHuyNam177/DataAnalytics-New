@@ -108,11 +108,11 @@ def runVTB(bankObject):
     bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Danh sách tài khoản'))).click()
     time.sleep(1)
     # Download File
-    xpath = '//*[@src="/public/img/icon/icon-download.svg"]'
-    _, downloadElement, _ = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
-    xpath = '//*[text()="Xuất Excel"]'
+    xpath = '//*[contains(text(),"Tài khoản tiền gửi có kỳ hạn")]//ancestor::div[1]//following-sibling::div//*/img[contains(@src,"icon-download")]'
+    downloadElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
     downloadElement.click()
-    _, exportElement, _ = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+    xpath = '//*[contains(text(),"Tài khoản tiền gửi có kỳ hạn")]//ancestor::div[1]//following-sibling::div//*/span[contains(text(),"Excel")]'
+    exportElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
     exportElement.click()
     # Đọc file download
     while True:
@@ -125,10 +125,10 @@ def runVTB(bankObject):
         join(bankObject.downloadFolder,downloadFile),
         names=['AccountNumber','TermMonths','InterestRate','Currency','IssueDate','ExpireDate','Balance','InterestAmount'],
         skiprows=16,
-        skipfooter=1,
         usecols='B,D:I,L',
         dtype={'AccountNumber':object,'Balance':np.float64,'InterestAmount':np.float64}
     )
+    downloadTable = downloadTable.dropna(subset=['AccountNumber'])
     downloadTable[['IssueDate','ExpireDate']] = downloadTable[['IssueDate','ExpireDate']].applymap(lambda x: dt.datetime.strptime(x,'%d-%m-%Y'))
     downloadTable['TermMonths']  = np.int64(downloadTable['TermMonths'].str.replace('D','').str.split('M').str.get(0))
     downloadTable['TermDays'] = (downloadTable['ExpireDate']-downloadTable['IssueDate']).dt.days
@@ -425,29 +425,20 @@ def runFIRST(bankObject):
     """
     :param bankObject: Bank Object (đã login)
     """
-
+    now = dt.datetime.now()
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if re.search(r'\bCOSDATDQU\d+\b',file):
             os.remove(join(bankObject.downloadFolder,file))
-    # Click Dashboard
-    bankObject.driver.switch_to.default_content()
-    bankObject.driver.switch_to.frame('iFrameID')
-    xpath = "//a[contains(text(), 'Dashboard')]"
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
-    time.sleep(1)
-    # Click Home
-    xpath = "//*[@id='headerForm:TopMenu2']//*[contains(text(), 'Home')]"
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Click "Account Inquiry"
     bankObject.driver.switch_to.default_content()
     bankObject.driver.switch_to.frame('iFrameID')
     xpath = '//*[contains(text(),"Account Inquiry")]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Click "Time Deposit Detail"
-    time.sleep(0.5)
+    time.sleep(2)
     xpath = '//*[contains(text(),"Time Deposit Detail")]'
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,xpath))).click()
     # Chọn từng tài khoản từ dropdown list
     bankObject.driver.switch_to.frame('mainFrame')
     xpath = '//*[contains(text(),"Deposit certificate number")]/following-sibling::td/*//select'
@@ -485,7 +476,6 @@ def runFIRST(bankObject):
         # Expire Date
         downloadTable['ExpireDate'] = downloadTable['ExpireDate'].map(lambda x: dt.datetime.strptime(x,'%Y/%m/%d'))
         # Date
-        now = dt.datetime.now()
         if now.hour >= 12:
             d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
         else:
@@ -503,11 +493,12 @@ def runFIRST(bankObject):
 
 
 def runTCB(bankObject):
-    bankObject.driver.switch_to.default_content()
-    # Click về Trang chủ
-    xpath = '//*[contains(text(),"Trang chủ")]'
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+
+    """
+    :param bankObject: Bank Object (đã login)
+    """
     # Click Đầu tư
+    bankObject.driver.switch_to.default_content()
     xpath = '//*[contains(text(),"Đầu tư")]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
     # Click Hợp đồng tiền gửi
@@ -554,12 +545,15 @@ def runTCB(bankObject):
 
 
 def runMEGA(bankObject):
-    # Click Dashboard
-    xpath = '//a//*[contains(text(),"Dashboard")]'
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
-    # Click News
-    xpath = '//a[contains(text(),"News")]'
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+
+    """
+    :param bankObject: Bank Object (đã login)
+    """
+    now = dt.datetime.now()
+    # Bắt đầu từ trang chủ
+    bankObject.driver.switch_to.default_content()
+    frameElement = bankObject.wait.until(EC.presence_of_element_located((By.ID,"ifrm")))
+    bankObject.driver.switch_to.frame(frameElement)
     # Click Accounts
     xpath = '//*[contains(text(),"Accounts")]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
@@ -576,7 +570,6 @@ def runMEGA(bankObject):
     rowElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))[1:]  # bỏ dòng header
     records = []
     for element in rowElements:
-        now = dt.datetime.now()
         if now.hour >= 12:
             d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
         else:
@@ -613,16 +606,17 @@ def runMEGA(bankObject):
 
 def runSINOPAC(bankObject):
 
+    """
+    :param bankObject: Bank Object (đã login)
+    """
+    now = dt.datetime.now()
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if re.search(r'\bCOSDATDQU_\d+_\d+\b',file):
             os.remove(join(bankObject.downloadFolder,file))
-    # Click Important Message
-    bankObject.wait.until(EC.presence_of_element_located((By.ID, 'MENU_CHM'))).click()
-    # Click Reminders
-    xpath = "//*[@id='MENU_CCMHMANNO' and text()='Reminders']"
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
     # Click Account Inquiry
+    bankObject.driver.switch_to.default_content()
+    bankObject.driver.switch_to.frame('indexFrame')
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO'))).click()
     # Click Deposit inquiry
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO001'))).click()
@@ -688,14 +682,13 @@ def runSINOPAC(bankObject):
     
     balanceTable = pd.concat(frames)
     # Date
-    now = dt.datetime.now()
     if now.hour >= 12:
         d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
     else:
         d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0,'Date',d)
     # Bank
-    bankObject.insert(1,'Bank',bankObject.bank)
+    balanceTable.insert(1,'Bank',bankObject.bank)
 
     return balanceTable
 
@@ -706,13 +699,11 @@ def runESUN(bankObject):
     for file in listdir(bankObject.downloadFolder):
         if re.search(r'\bCOSDATDQU_\d+\b',file):
             os.remove(join(bankObject.downloadFolder,file))
-    # Click Dashboard
-    bankObject.wait.until(EC.presence_of_element_located((By.ID, 'menuIndex_0'))).click()
-    # Click Welcome
-    xpath = "//*[@id='menuIndex_0']//*[contains(text(),'Welcome')]"
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+
     # Show menu Deposits
-    bankObject.wait.until(EC.visibility_of_element_located((By.ID,'menuIndex_1'))).click()
+    bankObject.driver.switch_to.default_content()
+    bankObject.driver.switch_to.frame('mainFrame')
+    bankObject.wait.until(EC.presence_of_element_located((By.ID,'menuIndex_1'))).click()
     # Click Time Deposit Detail Enquiry
     xpath = '//*[contains(text(),"Time Deposit Detail Enquiry")]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()

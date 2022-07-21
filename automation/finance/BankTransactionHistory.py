@@ -431,6 +431,9 @@ def runEIB(bankObject,fromDate,toDate):
     for file in listdir(bankObject.downloadFolder):
         if 'LichSuTaiKhoan' in file:
             os.remove(join(bankObject.downloadFolder,file))
+    # Click Trang chủ
+    xpath = "//a[@href='/KHDN/home']"
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
     # Click Menu Tài khoản --> Tiền gửi thanh toán
     action = ActionChains(bankObject.driver)
     xpath = '//*[@class="navigation-menu"]/li[2]/a'
@@ -457,7 +460,7 @@ def runEIB(bankObject,fromDate,toDate):
     # Lấy số dư tài khoản
     frames = []
     for account in accounts:
-        Account = bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT,account)))
+        Account = bankObject.wait.until(EC.visibility_of_element_located((By.LINK_TEXT,account)))
         Account.click()
         # Click Xem lịch sử tài khoản
         xpath = '//*[@class="modal-footer"]/button'
