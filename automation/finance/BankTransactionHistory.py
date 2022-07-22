@@ -67,6 +67,7 @@ def runBIDV(bankObject,fromDate,toDate):
         popupButtons = bankObject.driver.find_elements(By.XPATH,xpath)
         if popupButtons:
             popupButtons[0].click()
+        time.sleep(1)  # tránh nhanh quá -> click mà ko download được file
         # Lấy số tài khoản
         value = accountInput.get_attribute('value')
         print(value)
@@ -99,6 +100,10 @@ def runBIDV(bankObject,fromDate,toDate):
         # Xóa file
         os.remove(join(bankObject.downloadFolder,downloadFile))
         i += 1
+        
+    # Catch trường hợp không có data
+    if not frames:
+        return pd.DataFrame()
 
     transactionTable = pd.concat(frames)
     transactionTable = transactionTable.loc[~transactionTable['Time'].isna()]
@@ -139,10 +144,16 @@ def runVTB(bankObject,fromDate,toDate):
     xpath = '//*[@href="/"]'
     _, MainMenu = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
     MainMenu.click()
-    # Click menu "Tài khoản"
-    bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Tài khoản'))).click()
-    # Click sub-menu "Danh sách tài khoản"
-    bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Danh sách tài khoản'))).click()
+    # Check tab "Tài khoản" có bung chưa (đã được click trước đó), phải bung rồi mới hiện tab "Danh sách tài khoản"
+    xpath = '//*[text()="Danh sách tài khoản"]'
+    queryElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+    if not queryElement.is_displayed(): # nếu chưa bung
+        # Click "Thông tin tài khoản"
+        xpath = '//*[text()="Tài khoản"]'
+        bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        time.sleep(1) # chờ animation
+    queryElement.click()
+    time.sleep(1)
     # table Element
     tableElement = bankObject.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'MuiTableBody-root')))
     tableElement.find_element(By.LINK_TEXT,'Xem thêm').click()
@@ -164,6 +175,7 @@ def runVTB(bankObject,fromDate,toDate):
     accountNumbers = filter(lambda x: len(x)==12,tableElement.text.split('\n'))
     for x in accountNumbers:
         bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT,x))).click()
+        time.sleep(1)
         fromDateInput,toDateInput = bankObject.wait.until(EC.visibility_of_all_elements_located((By.CLASS_NAME,'ant-picker-input')))
         # Điền ngày
         sendDate(fromDateInput,fromDate)
@@ -212,6 +224,10 @@ def runVTB(bankObject,fromDate,toDate):
         bankObject.driver.back()
         bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Xem thêm'))).click()
 
+    # Catch trường hợp không có data
+    if not frames:
+        return pd.DataFrame()
+
     transactionTable = pd.concat(frames)
     # Bank
     transactionTable.insert(1,'Bank',bankObject.bank)
@@ -239,6 +255,7 @@ def runIVB(bankObject,fromDate,toDate):
     # Click tab "Tài khoản"
     xpath = '//*[@data-menu-id="1"]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    time.sleep(1)  # chờ animation
     # Click subtab "Sao kê tài khoản"
     bankObject.wait.until(EC.visibility_of_element_located((By.ID,'2_2'))).click()
     # Chọn "Tài khoản thanh toán" từ dropdown list
@@ -294,6 +311,10 @@ def runIVB(bankObject,fromDate,toDate):
         # Delete download file
         os.remove(join(bankObject.downloadFolder,downloadFile))
 
+    # Catch trường hợp không có data
+    if not frames:
+        return pd.DataFrame()
+
     transactionTable = pd.concat(frames)
     # Bank
     transactionTable.insert(0,'Bank',bankObject.bank)
@@ -346,12 +367,12 @@ def runVCB(bankObject,fromDate,toDate):
     frames = []
     for URL in URLs:
         bankObject.driver.get(URL)
-        time.sleep(1) # chờ để hiện số tài khoản (bắt buộc)
+        time.sleep(3)  # chờ để hiện số tài khoản (bắt buộc)
         # Điền ngày
         startDateInput = bankObject.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'startDate')))
         bankObject.driver.execute_script(f'window.scrollTo(0,500)')
         sendDate(startDateInput,fromDate)
-        time.sleep(0.5)
+        time.sleep(2)
         endDateInput = bankObject.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'endDate')))
         sendDate(endDateInput,toDate)
         # Xuống cuối trang
@@ -399,6 +420,10 @@ def runVCB(bankObject,fromDate,toDate):
         frames.append(frame)
         # Delete download file
         os.remove(join(bankObject.downloadFolder,downloadFile))
+
+    # Catch trường hợp không có data
+    if not frames:
+        return pd.DataFrame()
 
     transactionTable = pd.concat(frames)
     # Bank
@@ -521,13 +546,14 @@ def runEIB(bankObject,fromDate,toDate):
         os.remove(join(bankObject.downloadFolder,downloadFile))
         bankObject.driver.back()
 
-    if frames:
-        transactionTable = pd.concat(frames)
-        transactionTable.insert(1,'Bank',bankObject.bank)
-        transactionTable['Time'] = pd.to_datetime(transactionTable['Time'],format='%d/%m/%Y %H:%M:%S')
-    else:
-        transactionTable = pd.DataFrame(columns=['Time','Bank','AccountNumber','Debit','Credit','Balance','Content','TradingAccount'])
+    # Catch trường hợp không có data
+    if not frames:
+        return pd.DataFrame()
 
+    transactionTable = pd.concat(frames)
+    transactionTable.insert(1,'Bank',bankObject.bank)
+    transactionTable['Time'] = pd.to_datetime(transactionTable['Time'],format='%d/%m/%Y %H:%M:%S')
+   
     return transactionTable
 
 # không CAPTCHA
@@ -639,17 +665,18 @@ def runOCB(bankObject,fromDate,toDate):
         xpath = '//*[@ng-click="toggleAdvancedSearch()"]'
         bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
 
-    if frames:
-        transactionTable = pd.concat(frames)
-        transactionTable.insert(1,'Bank',bankObject.bank)
-        transactionTable['Time'] = pd.to_datetime(transactionTable['Time'],format='%d/%m/%Y')
-        convertStrToInt = lambda x: abs(float(x.replace(',',''))) if isinstance(x,str) else abs(float(x))
-        transactionTable['Debit'] = transactionTable['Debit'].map(convertStrToInt)
-        transactionTable['Credit'] = transactionTable['Credit'].map(convertStrToInt)
-        transactionTable['Balance'] = transactionTable['Balance'].map(convertStrToInt)
-    else:
-        transactionTable = pd.DataFrame(columns=['Time','Bank','AccountNumber','Debit','Credit','Balance','Content','TradingAccount'])
-
+    # Catch trường hợp không có data
+    if not frames:
+        return pd.DataFrame()
+    
+    transactionTable = pd.concat(frames)
+    transactionTable.insert(1,'Bank',bankObject.bank)
+    transactionTable['Time'] = pd.to_datetime(transactionTable['Time'],format='%d/%m/%Y')
+    convertStrToInt = lambda x: abs(float(x.replace(',',''))) if isinstance(x,str) else abs(float(x))
+    transactionTable['Debit'] = transactionTable['Debit'].map(convertStrToInt)
+    transactionTable['Credit'] = transactionTable['Credit'].map(convertStrToInt)
+    transactionTable['Balance'] = transactionTable['Balance'].map(convertStrToInt)
+  
     return transactionTable
 
 # không CAPTCHA
@@ -741,23 +768,24 @@ def runTCB(bankObject,fromDate,toDate):
         # Back ra trang tài khoản
         bankObject.wait.until(EC.presence_of_element_located((By.ID,'nbackbtn'))).click()
 
-    if frames:
-        transactionTable = pd.concat(frames)
-        transactionTable.insert(1,'Bank',bankObject.bank)
-        transactionTable['Time'] = pd.to_datetime(transactionTable['Time'],format='%d/%m/%Y')
-        def convertStrToInt(x):
-            if isinstance(x,str):
-                return abs(float(x.replace(',','')))
+    # Catch trường hợp không có data
+    if not frames:
+        return pd.DataFrame()
+    
+    transactionTable = pd.concat(frames)
+    transactionTable.insert(1,'Bank',bankObject.bank)
+    transactionTable['Time'] = pd.to_datetime(transactionTable['Time'],format='%d/%m/%Y')
+    def convertStrToInt(x):
+        if isinstance(x,str):
+            return abs(float(x.replace(',','')))
+        else:
+            if x != x: # np.nan
+                return 0
             else:
-                if x != x: # np.nan
-                    return 0
-                else:
-                    return abs(float(x))
-        transactionTable['Debit'] = transactionTable['Debit'].map(convertStrToInt)
-        transactionTable['Credit'] = transactionTable['Credit'].map(convertStrToInt)
-        transactionTable['Balance'] = transactionTable['Balance'].map(convertStrToInt)
-    else:
-        transactionTable = pd.DataFrame(columns=['Time','Bank','AccountNumber','Debit','Credit','Balance','Content','TradingAccount'])
-
+                return abs(float(x))
+    transactionTable['Debit'] = transactionTable['Debit'].map(convertStrToInt)
+    transactionTable['Credit'] = transactionTable['Credit'].map(convertStrToInt)
+    transactionTable['Balance'] = transactionTable['Balance'].map(convertStrToInt)
+   
     return transactionTable
 

@@ -7,7 +7,6 @@ def runBIDV(bankObject,fromDate,toDate):
     :param fromDate: Ngày bắt đầu lấy dữ liệu
     :param toDate: Ngày kết thúc lấy dữ liệu
     """
-
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if 'EBK_BC_LICHSUGIAODICH' in file:
@@ -63,6 +62,7 @@ def runBIDV(bankObject,fromDate,toDate):
             popupButtons = bankObject.driver.find_elements(By.XPATH,xpath)
             if popupButtons:
                 popupButtons[0].click()
+            time.sleep(1)  # tránh nhanh quá -> click mà ko download được file
             # Lấy số tài khoản
             value = accountInput.get_attribute('value')
             account = re.search('[0-9]{14}',value).group()
@@ -112,10 +112,16 @@ def runVTB(bankObject,fromDate,toDate):
     xpath = '//*[@href="/"]'
     _, MainMenu = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
     MainMenu.click()
-    # Click menu "Tài khoản"
-    bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Tài khoản'))).click()
-    # Click sub-menu "Danh sách tài khoản"
-    bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Danh sách tài khoản'))).click()
+    # Check tab "Tài khoản" có bung chưa (đã được click trước đó), phải bung rồi mới hiện tab "Danh sách tài khoản"
+    xpath = '//*[text()="Danh sách tài khoản"]'
+    queryElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+    if not queryElement.is_displayed(): # nếu chưa bung
+        # Click "Thông tin tài khoản"
+        xpath = '//*[text()="Tài khoản"]'
+        bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        time.sleep(1) # chờ animation
+    queryElement.click()
+    time.sleep(1)
     # table Element
     tableElement = bankObject.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'MuiTableBody-root')))
     tableElement.find_element(By.LINK_TEXT,'Xem thêm').click()
@@ -137,7 +143,9 @@ def runVTB(bankObject,fromDate,toDate):
     accountNumbers = filter(lambda x: len(x)==12,tableElement.text.split('\n'))
     for x in accountNumbers:
         bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT,x))).click()
-        fromDateInput,toDateInput = bankObject.wait.until(EC.visibility_of_all_elements_located((By.CLASS_NAME,'ant-picker-input')))
+        time.sleep(1)
+        xpath = '//*[contains(text(),"Từ")]//following-sibling::div//*[contains(@class,"input")]'
+        fromDateInput,toDateInput = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
         for d in pd.date_range(fromDate,toDate):
             # Điền ngày
             sendDate(fromDateInput,d-dt.timedelta(days=5)) # set days lớn quá dễ bị VTB log out
@@ -213,6 +221,7 @@ def runIVB(bankObject,fromDate,toDate):
     # Click tab "Tài khoản"
     xpath = '//*[@data-menu-id="1"]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    time.sleep(1)  # chờ animation
     # Click subtab "Sao kê tài khoản"
     bankObject.wait.until(EC.visibility_of_element_located((By.ID,'2_2'))).click()
     # Chọn "Tài khoản thanh toán" từ dropdown list
@@ -247,6 +256,7 @@ def runIVB(bankObject,fromDate,toDate):
             bankObject.driver.find_element(By.ID,'btnQuery').click()
             # Click "In sao kê Excel"
             bankObject.driver.execute_script(f'window.scrollTo(0,100000)')
+            time.sleep(1) # tránh nhanh quá -> click mà ko download được file
             xpath = """//*[@onclick="downloadReport('excel');"]"""
             bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
             # Đọc file download
@@ -313,13 +323,13 @@ def runVCB(bankObject,fromDate,toDate):
     records = []
     for URL in URLs:
         bankObject.driver.get(URL)
-        time.sleep(1) # chờ để hiện số tài khoản (bắt buộc)
+        time.sleep(3)  # chờ để hiện số tài khoản (bắt buộc)
         for d in pd.date_range(fromDate,toDate):
             # Điền ngày
             startDateInput = bankObject.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'startDate')))
             bankObject.driver.execute_script(f'window.scrollTo(0,500)')
             sendDate(startDateInput,d)
-            time.sleep(0.5)
+            time.sleep(2)
             endDateInput = bankObject.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'endDate')))
             sendDate(endDateInput,d)
             # Xuống cuối trang
@@ -401,8 +411,8 @@ def runEIB(bankObject,fromDate,toDate):
     Buttons = bankObject.driver.find_elements(By.XPATH,xpath)
     if Buttons:
         Buttons[0].click()
-        xpath = '//*[contains(text(),"Đóng")]'
-        bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        # xpath = '//*[contains(text(),"Đóng")]'
+        # bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Lấy danh sách tài khoản
     xpath = '//tbody/tr/th/a'
     accountElems = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
@@ -549,8 +559,8 @@ def runOCB(bankObject,fromDate,toDate):
                     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
                     break
                 except (ElementNotInteractableException,):
-                    time.sleep(1) # click bị fail thì chờ 1s rồi click lại
-            time.sleep(1) # chờ animation
+                    time.sleep(1)  # click bị fail thì chờ 1s rồi click lại
+            time.sleep(1)  # chờ animation
             xpath = '//*[text()="Tập tin XLS"]'
             bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
             # Đọc file download
@@ -603,7 +613,7 @@ def runTCB(bankObject,fromDate,toDate):
     for file in listdir(bankObject.downloadFolder):
         if 'enquiry' in file:
             os.remove(join(bankObject.downloadFolder,file))
-    # Check tab "Tông tin tài khoản" có bung chưa (đã được click trước đó), phải bung rồi mới hiện tab "Truy vấn giao dịch tài khoản"
+    # Check tab "Thông tin tài khoản" có bung chưa (đã được click trước đó), phải bung rồi mới hiện tab "Truy vấn giao dịch tài khoản"
     xpath = '//*[contains(text(),"Truy vấn giao dịch tài khoản")]'
     queryElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
     if not queryElement.is_displayed(): # nếu chưa bung

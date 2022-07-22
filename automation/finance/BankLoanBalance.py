@@ -1,3 +1,7 @@
+import time
+import pandas as pd
+import selenium
+import selenium.webdriver
 from automation.finance import *
 
 def runOCB(bankObject):
@@ -25,9 +29,15 @@ def runOCB(bankObject):
     notices = bankObject.driver.find_elements(By.XPATH,xpath)
     if notices: # không có khoản vay
         return pd.DataFrame()
-    # Click Tải về -> Tập tin xls
-    xpath = '//*[@placeholder="Tải về"]'
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    # Click Tải về chi tiết
+    xpath = '//*[text()="Tải về"]'
+    while True:
+        try:
+            bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+            break
+        except (ElementNotInteractableException,):
+            time.sleep(1)  # click bị fail thì chờ 1s rồi click lại
+    time.sleep(1)  # chờ animation
     xpath = '//*[text()="Tập tin XLS"]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Đọc file download
@@ -86,6 +96,7 @@ def runESUN(bankObject):
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'menuIndex_2'))).click()
     xpath = "//*[@id='menuIndex_2']//*[contains(text(),'Loan Overview')]"
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    time.sleep(3)
     # Lấy danh sách records
     xpath = "//*[@class='ui-datatable-even']"
     rowElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
@@ -142,12 +153,14 @@ def runIVB(bankObject):
     :param bankObject: Bank Object (đã login)
     """
     now = dt.datetime.now()
+    mainPageURL = bankObject.driver.current_url
     # Bắt đầu từ trang chủ
     bankObject.driver.switch_to.default_content()
     bankObject.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'logoimg'))).click()
     # Click tab "Tài khoản"
     xpath = '//*[@data-menu-id="1"]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    time.sleep(1)  # chờ animation
     # Click subtab "Thông tin tài khoản"
     bankObject.wait.until(EC.visibility_of_element_located((By.ID,'1_1'))).click()
     # Click "Thông tin vay"
@@ -160,6 +173,7 @@ def runIVB(bankObject):
         URLs = [e.get_attribute('href') for e in contractElements]
         if contractElements[0].text:
             break
+
     frames = []
     for URL in URLs:
         bankObject.driver.get(URL)
@@ -185,8 +199,12 @@ def runIVB(bankObject):
 
         frame = pd.DataFrame(recordDict)
         frames.append(frame)
-
+    
+    # Catch trường hợp không có data
+    if not frames:
+        return pd.DataFrame()
     balanceTable = pd.concat(frames)
+    
     # Date
     if now.hour >= 12:
         d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
@@ -206,6 +224,9 @@ def runIVB(bankObject):
     balanceTable['TermMonths'] = round(balanceTable['TermDays']/30)
     # Interest Amount
     balanceTable['InterestAmount'] = balanceTable['TermDays'] * balanceTable['InterestRate'] * balanceTable['Amount'] / 360
+    # Về lại trang chủ
+    bankObject.driver.get(mainPageURL)
+
     return balanceTable
 
 
@@ -323,7 +344,11 @@ def runFUBON(bankObject):
         frame = pd.DataFrame(data=[(amount,issueDate)],columns=['Amount','IssueDate'])
         frames.append(frame)
 
+    # Catch trường hợp không có data
+    if not frames:
+        return pd.DataFrame()
     balanceTable = pd.concat(frames)
+    
     if now.hour >= 12:
         d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
     else:
@@ -336,7 +361,8 @@ def runFUBON(bankObject):
     balanceTable['ExpireDate'] = expireDates
     balanceTable['InterestRate'] = interestRates
     balanceTable['TermDays'] = (balanceTable['ExpireDate'] - balanceTable['IssueDate']).dt.days
-    balanceTable['TermMonth'] = (balanceTable['TermDays']/30).round()
+    balanceTable['TermMonths'] = (balanceTable['TermDays']/30).round()
+    balanceTable['InterestAmount'] = balanceTable['TermDays'] * balanceTable['InterestRate'] * balanceTable['Amount'] / 360
     balanceTable['Paid'] = balanceTable['Amount'] - balanceTable['Remaining']
 
     return balanceTable
@@ -467,8 +493,9 @@ def runSINOPAC(bankObject):
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO'))).click()
     # Click Loan inquiry
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO002'))).click()
+    time.sleep(1)
     # Click Loan Balance Inquiry
-    bankObject.wait.until(EC.visibility_of_element_located((By.ID,'MENU_COSLABAQU'))).click()
+    bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_COSLABAQU'))).click()
     # Click Search
     bankObject.driver.switch_to.frame('mainFrame')
     xpath = '//*[contains(text(),"Search")]'
@@ -554,15 +581,16 @@ def runHUANAN(bankObject):
         for suffix in ['Year','Month','Date']:
             xpath = f"//*[@name='{prefix}_{suffix}']"
             inputElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+            select = Select(inputElement)
             if suffix == 'Date':
-                inputElement.send_keys(now.day)
+                select.select_by_visible_text(str(now.day))
             elif suffix == 'Month':
-                inputElement.send_keys(now.month)
+                select.select_by_visible_text(str(now.month))
             else:
                 if prefix == 'S':
-                    inputElement.send_keys(now.year-1) # quét 1 năm
+                    select.select_by_visible_text(str(now.year-1))
                 else: # prefix == 'E'
-                    inputElement.send_keys(now.year)
+                    select.select_by_visible_text(str(now.year))
 
     rowElements = []
     for unitOption in unitOptions:

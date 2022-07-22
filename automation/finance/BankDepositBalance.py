@@ -88,6 +88,7 @@ def runBIDV(bankObject):
 
     return balanceTable
 
+
 def runVTB(bankObject):
 
     """
@@ -102,18 +103,26 @@ def runVTB(bankObject):
     xpath = '//*[@href="/"]'
     _, MainMenu = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
     MainMenu.click()
-    # Click menu "Tài khoản"
-    bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Tài khoản'))).click()
-    # Click sub-menu "Danh sách tài khoản"
-    bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Danh sách tài khoản'))).click()
+    # Check tab "Tài khoản" có bung chưa (đã được click trước đó), phải bung rồi mới hiện tab "Danh sách tài khoản"
+    xpath = '//*[text()="Danh sách tài khoản"]'
+    queryElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+    if not queryElement.is_displayed(): # nếu chưa bung
+        # Click "Thông tin tài khoản"
+        xpath = '//*[text()="Tài khoản"]'
+        bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        time.sleep(1) # chờ animation
+    queryElement.click()
     time.sleep(1)
-    # Download File
-    xpath = '//*[contains(text(),"Tài khoản tiền gửi có kỳ hạn")]//ancestor::div[1]//following-sibling::div//*/img[contains(@src,"icon-download")]'
-    downloadElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
-    downloadElement.click()
-    xpath = '//*[contains(text(),"Tài khoản tiền gửi có kỳ hạn")]//ancestor::div[1]//following-sibling::div//*/span[contains(text(),"Excel")]'
-    exportElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
-    exportElement.click()
+    # Download file
+    while True:
+        try:
+            xpath = '//*[contains(text(),"Tài khoản tiền gửi có kỳ hạn")]//ancestor::div[1]//following-sibling::div//*/img[contains(@src,"icon-download")]'
+            bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+            bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Xuất Excel'))).click()
+            break
+        except (Exception,):
+            pass
+
     # Đọc file download
     while True:
         checkFunc = lambda x:'danh-sach-tai-khoan-tien-gui' in x and 'download' not in x
@@ -146,18 +155,19 @@ def runVTB(bankObject):
 
     return balanceTable
 
+
 def runIVB(bankObject):
 
     """
     :param bankObject: Bank Object (đã login)
     """
-
     # Bắt đầu từ trang chủ
     bankObject.driver.switch_to.default_content()
     bankObject.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'logoimg'))).click()
     # Click tab "Tài khoản"
     xpath = '//*[@data-menu-id="1"]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    time.sleep(1) # chờ animation
     # Click subtab "Thông tin tài khoản"
     bankObject.wait.until(EC.visibility_of_element_located((By.ID,'1_1'))).click()
     # Click "Tài khoản tiền gửi có kỳ hạn"
@@ -226,7 +236,7 @@ def runVCB(bankObject):
     records = []
     for URL in URLs:
         bankObject.driver.get(URL)
-        time.sleep(1)  # chờ để hiện số tài khoản (bắt buộc)
+        time.sleep(3)  # chờ để hiện số tài khoản (bắt buộc)
         # Ngày
         now = dt.datetime.now()
         if now.hour >= 12:
@@ -245,7 +255,7 @@ def runVCB(bankObject):
         expireDateText = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).text
         expireDate = dt.datetime.strptime(expireDateText,'%d/%m/%Y')
         # Term Days
-        termDays = (expireDate - issueDate).days
+        termDays = (expireDate-issueDate).days
         # Term Months
         xpath = '//*[@id="Lbl_KH" and text()!=""]'
         termMonths = float(bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).text.replace(' tháng',''))
@@ -284,9 +294,17 @@ def runOCB(bankObject):
     xpath = '//*[@id="side-nav"]/ul/li[7]/div[2]/span'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     time.sleep(5) # chờ chuyển trang
-    # Click download
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,'//*[@placeholder="Tải về"]'))).click()
-    bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,'//*[@ng-click="downloadFile(option)"]'))).click()
+    # Click Tải về chi tiết
+    xpath = '//*[text()="Tải về"]'
+    while True:
+        try:
+            bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+            break
+        except (ElementNotInteractableException,):
+            time.sleep(1)  # click bị fail thì chờ 1s rồi click lại
+    time.sleep(1)  # chờ animation
+    xpath = '//*[text()="Tập tin XLS"]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     # Đọc file download
     while True:
         downloadFile = first(listdir(bankObject.downloadFolder),lambda x:'DSHDTG' in x and 'download' not in x)
@@ -340,6 +358,7 @@ def runOCB(bankObject):
 
     return balanceTable
 
+
 def runFUBON(bankObject):
 
     """
@@ -352,6 +371,7 @@ def runFUBON(bankObject):
         if file.startswith(today):
             os.remove(join(bankObject.downloadFolder,file))
     # Click "Deposit Account"
+    bankObject.driver.switch_to.default_content()
     bankObject.driver.switch_to.frame('topmenu')
     xpath = "//*[contains(text(),'Deposit Account')]"
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
@@ -379,8 +399,14 @@ def runFUBON(bankObject):
         join(bankObject.downloadFolder,downloadFile),
         usecols='A,C,E:J',
     )
-    startRow = balanceTable.loc[balanceTable.iloc[:,0].map(lambda x: isinstance(x,str) and 'Time Deposit Account' in x)].index[0] + 2
-    endRow = balanceTable.loc[balanceTable.iloc[:,0].map(lambda x: isinstance(x,str) and 'Time Deposit Total' in x)].index[0]
+    checkTable = balanceTable.loc[balanceTable.iloc[:,0].map(lambda x: isinstance(x,str) and 'Time Deposit Account' in x)]
+    if checkTable.empty:
+        return pd.DataFrame()
+    startRow =  checkTable.index[0] + 2
+    checkTable = balanceTable.loc[balanceTable.iloc[:,0].map(lambda x: isinstance(x,str) and 'Time Deposit Total' in x)]
+    if checkTable.empty:
+        return pd.DataFrame()
+    endRow = checkTable.index[0]
     balanceTable = balanceTable.iloc[startRow:endRow,1:]
     balanceTable.columns = [
         'AccountNumber',
@@ -488,6 +514,9 @@ def runFIRST(bankObject):
         # Append
         frames.append(downloadTable)
 
+    # Catch trường hợp không có data
+    if not frames:
+        return pd.DataFrame()
     balanceTable = pd.concat(frames)
     return balanceTable
 
@@ -497,13 +526,20 @@ def runTCB(bankObject):
     """
     :param bankObject: Bank Object (đã login)
     """
-    # Click Đầu tư
+
     bankObject.driver.switch_to.default_content()
-    xpath = '//*[contains(text(),"Đầu tư")]'
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
-    # Click Hợp đồng tiền gửi
+
+    # Check tab "Đầu tư" có bung chưa (đã được click trước đó), phải bung rồi mới hiện tab "Hợp đồng tiền gửi"
     xpath = '//*[contains(text(),"Hợp đồng tiền gửi")]'
-    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+    queryElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+    if not queryElement.is_displayed(): # nếu chưa bung
+        # Click Đầu tư
+        xpath = '//*[contains(text(),"Đầu tư")]'
+        bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    # Click Hợp đồng tiền gửi
+    queryElement.click()
+    time.sleep(3)
+    # Lấy toàn bộ dòng
     xpath = '//*[@class="enquirydata wrap_words"]/tbody/tr[*]'
     rowElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))[1:]  # bỏ dòng header
     records = []
@@ -620,11 +656,11 @@ def runSINOPAC(bankObject):
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO'))).click()
     # Click Deposit inquiry
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO001'))).click()
+    time.sleep(1)
     # Term Deposit Inquiry
     bankObject.wait.until(EC.visibility_of_element_located((By.ID,'MENU_COSDATDQU'))).click()
-    # Swtich frame
-    bankObject.driver.switch_to.frame('mainFrame')
 
+    bankObject.driver.switch_to.frame('mainFrame')
     xpath = '//*[contains(@id,"accountCombo_input")]/option'
     accountElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))[1:] # bỏ ===SEL===
     options = [l.text for l in accountElements]
@@ -679,8 +715,12 @@ def runSINOPAC(bankObject):
         frame['InterestAmount'] = frame['TermDays'] * frame['InterestRate'] * frame['Balance'] / 365
         # Append
         frames.append(frame)
-    
+
+    # Catch trường hợp không có data
+    if not frames:
+        return pd.DataFrame()
     balanceTable = pd.concat(frames)
+
     # Date
     if now.hour >= 12:
         d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
