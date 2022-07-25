@@ -489,7 +489,7 @@ def runSINOPAC(bankObject):
         if re.search(r'\bCOSLABAQU_\d+_\d+\b',file):
             os.remove(join(bankObject.downloadFolder,file))
     # Click Account Inquiry
-    time.sleep(2)
+    time.sleep(1)
     bankObject.driver.switch_to.default_content()
     bankObject.driver.switch_to.frame('indexFrame')
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO'))).click()
