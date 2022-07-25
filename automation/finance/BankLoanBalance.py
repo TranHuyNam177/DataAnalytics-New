@@ -90,6 +90,7 @@ def runESUN(bankObject):
     """
     now = dt.datetime.now()
     # Bắt đầu từ trang chủ
+    time.sleep(1)
     bankObject.driver.switch_to.default_content()
     bankObject.driver.switch_to.frame('mainFrame')
     # Click Loan -> Loan Overview
@@ -488,15 +489,16 @@ def runSINOPAC(bankObject):
         if re.search(r'\bCOSLABAQU_\d+_\d+\b',file):
             os.remove(join(bankObject.downloadFolder,file))
     # Click Account Inquiry
+    time.sleep(2)
     bankObject.driver.switch_to.default_content()
     bankObject.driver.switch_to.frame('indexFrame')
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO'))).click()
     # Click Loan inquiry
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO002'))).click()
-    time.sleep(1)
     # Click Loan Balance Inquiry
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_COSLABAQU'))).click()
     # Click Search
+    time.sleep(1)
     bankObject.driver.switch_to.frame('mainFrame')
     xpath = '//*[contains(text(),"Search")]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()

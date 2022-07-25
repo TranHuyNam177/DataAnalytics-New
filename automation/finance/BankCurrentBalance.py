@@ -11,6 +11,7 @@ def runBIDV(bankObject,fromDate,toDate):
     for file in listdir(bankObject.downloadFolder):
         if 'EBK_BC_LICHSUGIAODICH' in file:
             os.remove(join(bankObject.downloadFolder,file))
+    time.sleep(1)
     # Click Menu bar
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'menu-toggle-22'))).click()
     # Click "Tài khoản"

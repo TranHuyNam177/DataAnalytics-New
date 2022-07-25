@@ -1,3 +1,5 @@
+import time
+
 from automation.finance import *
 
 def runBIDV(bankObject):
@@ -102,6 +104,7 @@ def runVTB(bankObject):
     # Bắt đầu từ trang chủ
     xpath = '//*[@href="/"]'
     _, MainMenu = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+    time.sleep(1)
     MainMenu.click()
     # Check tab "Tài khoản" có bung chưa (đã được click trước đó), phải bung rồi mới hiện tab "Danh sách tài khoản"
     xpath = '//*[text()="Danh sách tài khoản"]'
@@ -651,12 +654,12 @@ def runSINOPAC(bankObject):
         if re.search(r'\bCOSDATDQU_\d+_\d+\b',file):
             os.remove(join(bankObject.downloadFolder,file))
     # Click Account Inquiry
+    time.sleep(2)
     bankObject.driver.switch_to.default_content()
     bankObject.driver.switch_to.frame('indexFrame')
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO'))).click()
     # Click Deposit inquiry
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO001'))).click()
-    time.sleep(1)
     # Term Deposit Inquiry
     bankObject.wait.until(EC.visibility_of_element_located((By.ID,'MENU_COSDATDQU'))).click()
 
@@ -665,6 +668,7 @@ def runSINOPAC(bankObject):
     accountElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))[1:] # bỏ ===SEL===
     options = [l.text for l in accountElements]
     frames = []
+    time.sleep(1)
     for option in options:
         xpath = '//*[contains(@id,"accountCombo_input")]'
         dropDown = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
@@ -673,7 +677,7 @@ def runSINOPAC(bankObject):
         # Click "Search"
         xpath = '//*[@type="submit"]'
         bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
-        time.sleep(3) # chờ load data
+        time.sleep(2)  # chờ load data
         # Click download file csv
         xpath = '//*[contains(@class,"download_csv")]'
         downloadButtons = bankObject.driver.find_elements(By.XPATH,xpath)
@@ -744,6 +748,7 @@ def runESUN(bankObject):
             os.remove(join(bankObject.downloadFolder,file))
 
     # Show menu Deposits
+    time.sleep(1)
     bankObject.driver.switch_to.default_content()
     bankObject.driver.switch_to.frame('mainFrame')
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'menuIndex_1'))).click()
