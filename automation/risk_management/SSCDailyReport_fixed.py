@@ -8,8 +8,7 @@ def run(  # chạy hàng ngày sau batch giữa ngày
     start = time.time()
     info = get_info('daily', run_time)
     period = info['period']
-    # dataDate = info['end_date']
-    dataDate = '2022-07-25'
+    dataDate = info['end_date']
     folder_name = info['folder_name']
 
     # create folder
