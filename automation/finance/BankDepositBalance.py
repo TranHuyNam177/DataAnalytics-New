@@ -1,3 +1,6 @@
+import re
+import time
+import pandas as pd
 from automation.finance import *
 
 def runBIDV(bankObject):
@@ -6,6 +9,7 @@ def runBIDV(bankObject):
     :param bankObject: Bank Object (đã login)
     """
 
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if 'EBK_BC_TIENGOICOKYHAN' in file:
@@ -47,8 +51,8 @@ def runBIDV(bankObject):
         time.sleep(0.5) # chờ animation
         # Ngày
         now = dt.datetime.now()
-        if now.hour >= 12:
-            d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+        if now.hour >= 8:
+            d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
         else:
             d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
         # Lãi suất
@@ -95,6 +99,7 @@ def runVTB(bankObject):
     :param bankObject: Bank Object (đã login)
     """
 
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if 'danh-sach-tai-khoan-tien-gui' in file:
@@ -102,7 +107,6 @@ def runVTB(bankObject):
     # Bắt đầu từ trang chủ
     xpath = '//*[@href="/"]'
     _, MainMenu = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
-    time.sleep(1)
     MainMenu.click()
     # Check tab "Tài khoản" có bung chưa (đã được click trước đó), phải bung rồi mới hiện tab "Danh sách tài khoản"
     xpath = '//*[text()="Danh sách tài khoản"]'
@@ -111,7 +115,7 @@ def runVTB(bankObject):
         # Click "Thông tin tài khoản"
         xpath = '//*[text()="Tài khoản"]'
         bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
-        time.sleep(1) # chờ animation
+        time.sleep(2) # chờ animation
     queryElement.click()
     time.sleep(1)
     # Download file
@@ -146,8 +150,8 @@ def runVTB(bankObject):
     downloadTable['Bank'] = bankObject.bank
     # Date
     now = dt.datetime.now()
-    if now.hour >= 12:
-        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+    if now.hour >= 8:
+        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
         d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     downloadTable['Date'] = d
@@ -162,6 +166,8 @@ def runIVB(bankObject):
     """
     :param bankObject: Bank Object (đã login)
     """
+
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Bắt đầu từ trang chủ
     bankObject.driver.switch_to.default_content()
     bankObject.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'logoimg'))).click()
@@ -185,32 +191,32 @@ def runIVB(bankObject):
         elementString = element.text
         # Date
         now = dt.datetime.now()
-        if now.hour >= 12:
-            d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+        if now.hour >= 8:
+            d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
         else:
             d = (now-dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
         # Số tài khoản
-        account = re.search('^[0-9]{7}-[0-9]{3}',elementString).group()
+        account = re.search('^\d{7}-\d{3}',elementString).group()
         # Ngày hiệu lực, Ngày đáo hạn
-        issueDateText, expireDateText = re.findall('[0-9]{2}.[0-9]{2}.[0-9]{4}',elementString)
+        issueDateText, expireDateText = re.findall('\d{2}.\d{2}.\d{4}',elementString)
         issueDate = dt.datetime.strptime(issueDateText,'%d/%m/%Y')
         expireDate = dt.datetime.strptime(expireDateText,'%d/%m/%Y')
         # Term Days
         termDays = (expireDate - issueDate).days
         # Term Months
-        termString = re.search('[0-9]* Tháng',elementString).group().replace(' Tháng','')
+        termString = re.search('\d* Tháng',elementString).group().replace(' Tháng','')
         term = float(termString) # Số tháng
         # Lãi suất
         iText = elementString.split(issueDateText)[0].split()[-1]
         iRate = round(float(iText)/100,5)
         # Balance
-        balanceString = re.search('[0-9]+ VND',element.text.replace(',','')).group()
+        balanceString = re.search('\d+ VND',element.text.replace(',','')).group()
         balanceString, _ = balanceString.split()
         balance = float(balanceString)
         # Currency
         currency = re.search('VND|USD',element.text).group()
         # Lãi
-        interest = float(re.findall('[0-9]+',element.text.replace(',',''))[-1])
+        interest = float(re.findall('\d+',element.text.replace(',',''))[-1])
         records.append((d,bankObject.bank,account,termDays,term,iRate,issueDate,expireDate,balance,interest,currency))
 
     balanceTable = pd.DataFrame(
@@ -225,7 +231,8 @@ def runVCB(bankObject):
     """
     :param bankObject: Bank Object (đã login)
     """
-    
+
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Bắt đầu từ trang chủ
     _, homeButton = bankObject.wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME,'icon-home')))
     homeButton.click()
@@ -237,11 +244,11 @@ def runVCB(bankObject):
     records = []
     for URL in URLs:
         bankObject.driver.get(URL)
-        time.sleep(3)  # chờ để hiện số tài khoản (bắt buộc)
+        time.sleep(5)  # chờ để hiện số tài khoản (bắt buộc)
         # Ngày
         now = dt.datetime.now()
-        if now.hour >= 12:
-            d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+        if now.hour >= 8:
+            d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
         else:
             d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
         # Tài khoản
@@ -282,6 +289,7 @@ def runOCB(bankObject):
     :param bankObject: Bank Object (đã login)
     """
 
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if 'DSHDTG' in file:
@@ -344,8 +352,8 @@ def runOCB(bankObject):
     downloadTable['Balance'] = downloadTable['AccountNumber'].map(mapper)
     # Ngày
     now = dt.datetime.now()
-    if now.hour >= 12:
-        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+    if now.hour >= 8:
+        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
         d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     downloadTable['Date'] = d
@@ -366,6 +374,7 @@ def runFUBON(bankObject):
     :param bankObject: Bank Object (đã login)
     """
 
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
     today = dt.datetime.now().strftime('%Y%m%d')
     for file in listdir(bankObject.downloadFolder):
@@ -420,8 +429,8 @@ def runFUBON(bankObject):
     ]
     # Date
     now = dt.datetime.now()
-    if now.hour >= 12:
-        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+    if now.hour >= 8:
+        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
         d = (now-dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0,'Date',d)
@@ -452,7 +461,9 @@ def runFIRST(bankObject):
     """
     :param bankObject: Bank Object (đã login)
     """
+
     now = dt.datetime.now()
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if re.search(r'\bCOSDATDQU\d+\b',file):
@@ -503,8 +514,8 @@ def runFIRST(bankObject):
         # Expire Date
         downloadTable['ExpireDate'] = downloadTable['ExpireDate'].map(lambda x: dt.datetime.strptime(x,'%Y/%m/%d'))
         # Date
-        if now.hour >= 12:
-            d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+        if now.hour >= 8:
+            d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
         else:
             d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
         downloadTable.insert(0,'Date',d)
@@ -528,8 +539,8 @@ def runTCB(bankObject):
     :param bankObject: Bank Object (đã login)
     """
 
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     bankObject.driver.switch_to.default_content()
-
     # Check tab "Đầu tư" có bung chưa (đã được click trước đó), phải bung rồi mới hiện tab "Hợp đồng tiền gửi"
     xpath = '//*[contains(text(),"Hợp đồng tiền gửi")]'
     queryElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
@@ -546,13 +557,13 @@ def runTCB(bankObject):
     records = []
     for element in rowElements:
         now = dt.datetime.now()
-        if now.hour >= 12:
-            d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+        if now.hour >= 8:
+            d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
         else:
             d = (now-dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
         elementString = element.text
         # Số tài khoản
-        account = re.search(r'\b[A-Z]{2}[0-9]{10}\b',elementString).group()
+        account = re.search(r'\b[A-Z]{2}\d{10}\b',elementString).group()
         # Ngày hiệu lực, Ngày đáo hạn
         issueDateText, expireDateText = re.findall(r'\b\d{2}/\d{2}/\d{4}\b',elementString)
         issueDate = dt.datetime.strptime(issueDateText,'%d/%m/%Y')
@@ -586,7 +597,9 @@ def runMEGA(bankObject):
     """
     :param bankObject: Bank Object (đã login)
     """
+
     now = dt.datetime.now()
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Bắt đầu từ trang chủ
     bankObject.driver.switch_to.default_content()
     frameElement = bankObject.wait.until(EC.presence_of_element_located((By.ID,"ifrm")))
@@ -607,8 +620,8 @@ def runMEGA(bankObject):
     rowElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))[1:]  # bỏ dòng header
     records = []
     for element in rowElements:
-        if now.hour >= 12:
-            d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+        if now.hour >= 8:
+            d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
         else:
             d = (now-dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
         elementString = element.text
@@ -646,27 +659,35 @@ def runSINOPAC(bankObject):
     """
     :param bankObject: Bank Object (đã login)
     """
+
     now = dt.datetime.now()
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if re.search(r'\bCOSDATDQU_\d+_\d+\b',file):
             os.remove(join(bankObject.downloadFolder,file))
     # Click Account Inquiry
-    time.sleep(1)
     bankObject.driver.switch_to.default_content()
     bankObject.driver.switch_to.frame('indexFrame')
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO'))).click()
     # Click Deposit inquiry
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'MENU_CAO001'))).click()
+    time.sleep(1)
     # Term Deposit Inquiry
     bankObject.wait.until(EC.visibility_of_element_located((By.ID,'MENU_COSDATDQU'))).click()
-
+    # Chờ load xong data
+    xpath = '//*[contains(text(),"Processing")]'
+    while True:
+        processingElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
+        if not processingElement.is_displayed(): # load data xong
+            break
+        time.sleep(1)
+    # Chọn từng option
     bankObject.driver.switch_to.frame('mainFrame')
     xpath = '//*[contains(@id,"accountCombo_input")]/option'
     accountElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))[1:] # bỏ ===SEL===
     options = [l.text for l in accountElements]
     frames = []
-    time.sleep(1)
     for option in options:
         xpath = '//*[contains(@id,"accountCombo_input")]'
         dropDown = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
@@ -675,7 +696,7 @@ def runSINOPAC(bankObject):
         # Click "Search"
         xpath = '//*[@type="submit"]'
         bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
-        time.sleep(2)  # chờ load data
+        time.sleep(5) # chờ load data
         # Click download file csv
         xpath = '//*[contains(@class,"download_csv")]'
         downloadButtons = bankObject.driver.find_elements(By.XPATH,xpath)
@@ -724,8 +745,8 @@ def runSINOPAC(bankObject):
     balanceTable = pd.concat(frames)
 
     # Date
-    if now.hour >= 12:
-        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+    if now.hour >= 8:
+        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
         d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0,'Date',d)
@@ -740,13 +761,14 @@ def runESUN(bankObject):
     """
     :param bankObject: Bank Object (đã login)
     """
+
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if re.search(r'\bCOSDATDQU_\d+\b',file):
             os.remove(join(bankObject.downloadFolder,file))
 
     # Show menu Deposits
-    time.sleep(1)
     bankObject.driver.switch_to.default_content()
     bankObject.driver.switch_to.frame('mainFrame')
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'menuIndex_1'))).click()
@@ -784,8 +806,8 @@ def runESUN(bankObject):
     balanceTable['Bank'] = bankObject.bank
     # Date
     now = dt.datetime.now()
-    if now.hour >= 12:
-        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+    if now.hour >= 8:
+        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
         d = (now-dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable['Date'] = d
@@ -805,7 +827,9 @@ def runHUANAN(bankObject):
     """
     :param bankObject: Bank Object (đã login)
     """
+
     now = dt.datetime.now()
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Click Check Account Details
     bankObject.driver.switch_to.default_content()
     bankObject.driver.switch_to.frame('left')
@@ -887,8 +911,8 @@ def runHUANAN(bankObject):
         columns=['AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount','Currency']
     )
     # Date
-    if now.hour >= 12:
-        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy cuối ngày -> xem là số ngày hôm nay
+    if now.hour >= 8:
+        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
         d = (now-dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0,'Date',d)

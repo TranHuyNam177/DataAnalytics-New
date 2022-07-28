@@ -1,20 +1,20 @@
 from automation.finance import *
 
 def runBIDV(bankObject,fromDate,toDate):
-
     """
     :param bankObject: Bank Object (đã login)
     :param fromDate: Ngày bắt đầu lấy dữ liệu
     :param toDate: Ngày kết thúc lấy dữ liệu
     """
+
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if 'EBK_BC_LICHSUGIAODICH' in file:
             os.remove(join(bankObject.downloadFolder,file))
-    time.sleep(1)
     # Click Menu bar
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'menu-toggle-22'))).click()
-    # Click "Tài khoản"
+    # Click "Vấn tin"
     bankObject.wait.until(EC.visibility_of_element_located((By.LINK_TEXT,'Vấn tin'))).click()
     # Click "Tiền gửi thanh toán"
     bankObject.wait.until(EC.visibility_of_element_located((By.LINK_TEXT,'Tiền gửi thanh toán'))).click()
@@ -66,7 +66,7 @@ def runBIDV(bankObject,fromDate,toDate):
             time.sleep(1)  # tránh nhanh quá -> click mà ko download được file
             # Lấy số tài khoản
             value = accountInput.get_attribute('value')
-            account = re.search('[0-9]{14}',value).group()
+            account = re.search('\d{14}',value).group()
             # Download file excel
             bankObject.wait.until(EC.presence_of_element_located((By.ID,'btnExportExcel01'))).click()
             # Đọc file, record data
@@ -102,9 +102,10 @@ def runVTB(bankObject,fromDate,toDate):
     """
     :param bankObject: Bank Object (đã login)
     :param fromDate: Ngày bắt đầu lấy dữ liệu
-    :param toDate: Ngày kết thúc lấy dữ liệu
+    :param toDate: Ngày kết thúc lấy dữ liệua
     """
 
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if 'lich-su-giao-dich' in file:
@@ -120,7 +121,7 @@ def runVTB(bankObject,fromDate,toDate):
         # Click "Thông tin tài khoản"
         xpath = '//*[text()="Tài khoản"]'
         bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
-        time.sleep(1) # chờ animation
+        time.sleep(2) # chờ animation
     queryElement.click()
     time.sleep(1)
     # table Element
@@ -212,6 +213,7 @@ def runIVB(bankObject,fromDate,toDate):
     :param toDate: Ngày kết thúc lấy dữ liệu
     """
 
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if 'AccountTransacionHistory' in file:
@@ -296,6 +298,7 @@ def runVCB(bankObject,fromDate,toDate):
     :param toDate: Ngày kết thúc lấy dữ liệu
     """
 
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if 'Vietcombank_Account_Statement' in file:
@@ -390,6 +393,7 @@ def runEIB(bankObject,fromDate,toDate):
     :param toDate: Ngày kết thúc lấy dữ liệu
     """
 
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if 'LichSuTaiKhoan' in file:
@@ -500,7 +504,8 @@ def runOCB(bankObject,fromDate,toDate):
     :param fromDate: Ngày bắt đầu lấy dữ liệu
     :param toDate: Ngày kết thúc lấy dữ liệu
     """
-    
+
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if 'TransactionHistory' in file:
@@ -610,6 +615,7 @@ def runTCB(bankObject,fromDate,toDate):
     :param toDate: Ngày kết thúc lấy dữ liệu
     """
 
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if 'enquiry' in file:
