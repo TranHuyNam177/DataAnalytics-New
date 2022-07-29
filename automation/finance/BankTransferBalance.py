@@ -7,8 +7,8 @@ def runBIDV(bankObject,fromDate,toDate):
         :param fromDate: Ngày bắt đầu lấy dữ liệu
         :param toDate: Ngày kết thúc lấy dữ liệu
 
-        TK 11910000132943 lúc chạy thì có dữ liệu, nhưng không có dữ liệu nào khớp với
-        nội dung "chuyển tiền sang TKCN" ở cuối phần mô tả
+        TK 11910000132943 lúc chạy thì có down được file excel, nhưng không có dữ liệu nào trong file excel khớp với
+        nội dung "... chuyển tiền sang TKCN" ở phần mô tả
     """
 
     dayLimit = 100
@@ -108,7 +108,9 @@ def runBIDV(bankObject,fromDate,toDate):
         return pd.DataFrame()
 
     transactionTable = pd.concat(frames)
-    transactionTable = transactionTable.loc[transactionTable['Content'].str.split('chuyen tien sang TKCN').str.get(-1) == '']
+    transactionTable = transactionTable.loc[
+        transactionTable['Content'].map(lambda x: re.search(r'CHUYENTIENSANGTKCN$', x.upper().replace(' ', '')) is not None)
+    ]
     transactionTable = transactionTable.reset_index(drop=True)
     # Time
     transactionTable['Time'] = pd.to_datetime(transactionTable['Time'], format='%d/%m/%Y %H:%M:%S')
@@ -224,9 +226,10 @@ def runVTB(bankObject, fromDate, toDate):
         return pd.DataFrame()
 
     transactionTable = pd.concat(frames)
-    transactionTable = transactionTable.loc[transactionTable['Content'].str.split('chuyen tien sang TKCN').str.get(-1) == '']
+    transactionTable = transactionTable.loc[
+        transactionTable['Content'].map(lambda x: re.search(r'CHUYENTIENSANGTKCN$', x.upper().replace(' ', '')) is not None)
+    ]
     transactionTable = transactionTable.reset_index(drop=True)
-
     # Bank
     transactionTable.insert(1, 'Bank', bankObject.bank)
     # Time
@@ -338,9 +341,13 @@ def runEIB(bankObject, fromDate, toDate):
         return pd.DataFrame()
 
     transactionTable = pd.concat(frames)
-    transactionTable = transactionTable.loc[transactionTable['Content'].str.split('CT SANG TKCN').str.get(-1) == '']
+    transactionTable = transactionTable.loc[
+        transactionTable['Content'].map(lambda x: re.search(r'CTSANGTKCN$|CHUYENTIENSANGTKCN$', x.upper().replace(' ', '')) is not None)
+    ]
     transactionTable = transactionTable.reset_index(drop=True)
+    # Bank
     transactionTable.insert(1, 'Bank', bankObject.bank)
+    # Time
     transactionTable['Time'] = pd.to_datetime(transactionTable['Time'], format='%d/%m/%Y %H:%M:%S')
 
     return transactionTable
@@ -382,10 +389,8 @@ def runOCB(bankObject, fromDate, toDate):
         Entry = options[i]
         i += 1
         accountNumber = Entry.text.split('\n')[0].replace(' ', '')
-        print(accountNumber)
         Entry.click()
-        if not (accountNumber in bankAccounts):
-            time.sleep(1)
+        if accountNumber not in bankAccounts:
             continue
         # Click "Tìm kiếm nâng cao"
         xpath = '//*[@ng-click="toggleAdvancedSearch()"]'
@@ -461,11 +466,16 @@ def runOCB(bankObject, fromDate, toDate):
         return pd.DataFrame()
 
     transactionTable = pd.concat(frames)
-    transactionTable = transactionTable.loc[transactionTable['Content'].str.split('CHUYEN TIEN SANG TKCN').str.get(-1) == '']
+    transactionTable = transactionTable.loc[
+        transactionTable['Content'].map(lambda x: re.search(r'CHUYENTIENSANGTKCN$', x.upper().replace(' ', '')) is not None)
+    ]
     transactionTable = transactionTable.reset_index(drop=True)
+    # Bank
     transactionTable.insert(1, 'Bank', bankObject.bank)
+    # Time
     transactionTable['Time'] = pd.to_datetime(transactionTable['Time'], format='%d/%m/%Y')
     convertStrToInt = lambda x: abs(float(x.replace(',', ''))) if isinstance(x, str) else abs(float(x))
+    # Debit
     transactionTable['Debit'] = transactionTable['Debit'].map(convertStrToInt)
 
     return transactionTable
@@ -483,7 +493,7 @@ def runTCB(bankObject, fromDate, toDate):
         if 'enquiry' in file:
             os.remove(join(bankObject.downloadFolder, file))
 
-    # Check tab "Tông tin tài khoản" có bung chưa (đã được click trước đó), phải bung rồi mới hiện tab "Truy vấn giao dịch tài khoản"
+    # Check tab "Thông tin tài khoản" có bung chưa (đã được click trước đó), phải bung rồi mới hiện tab "Truy vấn giao dịch tài khoản"
     xpath = '//*[contains(text(),"Truy vấn giao dịch tài khoản")]'
     queryElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
     if not queryElement.is_displayed():  # nếu chưa bung
@@ -553,9 +563,13 @@ def runTCB(bankObject, fromDate, toDate):
         return pd.DataFrame()
 
     transactionTable = pd.concat(frames)
-    transactionTable = transactionTable.loc[transactionTable['Content'].str.split('chuyen tien sang TKCN').str.get(-1) == '']
+    transactionTable = transactionTable.loc[
+        transactionTable['Content'].map(lambda x: re.search(r'CHUYENTIENSANGTKCN$', x.upper().replace(' ', '')) is not None)
+    ]
     transactionTable = transactionTable.reset_index(drop=True)
+    # Bank
     transactionTable.insert(1, 'Bank', bankObject.bank)
+    # Time
     transactionTable['Time'] = pd.to_datetime(transactionTable['Time'], format='%d/%m/%Y')
 
     def convertStrToInt(x):
@@ -567,7 +581,207 @@ def runTCB(bankObject, fromDate, toDate):
             else:
                 return abs(float(x))
 
+    # Debit
     transactionTable['Debit'] = transactionTable['Debit'].map(convertStrToInt)
 
     return transactionTable
 
+# có CAPTCHA
+def runVCB(bankObject, fromDate, toDate):
+    """
+    :param bankObject: Bank Object (đã login)
+    :param fromDate: Ngày bắt đầu lấy dữ liệu
+    :param toDate: Ngày kết thúc lấy dữ liệu
+    """
+
+    dayLimit = 90
+    if (toDate - fromDate).days > dayLimit:
+        raise ValueError(f'{bankObject.bank} không cho phép query quá {dayLimit} ngày một lần')
+
+    # Dọn dẹp folder trước khi download
+    for file in listdir(bankObject.downloadFolder):
+        if 'Vietcombank_Account_Statement' in file:
+            os.remove(join(bankObject.downloadFolder, file))
+
+    # Danh sách Tài khoản
+    bankAccounts = ['0071001264078']
+    # Bắt đầu từ trang chủ
+    _, homeButton = bankObject.wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'icon-home')))
+    homeButton.click()
+    # Lấy danh sách đường dẫn vào tài khoản thanh toán
+    xpath = '//*[@id="dstkdd-tbody"]//td/a'
+    accountElems = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH, xpath)))
+    URLs = [e.get_attribute('href') for e in accountElems if e.text in bankAccounts]
+
+    # Create function to clear input box and send dates as string
+    def sendDate(element, d):
+        action = ActionChains(bankObject.driver)
+        action.click(element)
+        time.sleep(0.5)
+        action.key_down(Keys.CONTROL, element)
+        action.send_keys_to_element(element, 'a')
+        action.key_up(Keys.CONTROL, element)
+        action.send_keys_to_element(element, Keys.BACKSPACE)
+        action.send_keys_to_element(element, d.strftime('%d/%m/%Y'))
+        action.send_keys_to_element(element, Keys.ENTER)
+        action.perform()
+
+    frames = []
+    for URL in URLs:
+        bankObject.driver.get(URL)
+        time.sleep(2)  # chờ để hiện số tài khoản (bắt buộc)
+        # Điền ngày
+        startDateInput = bankObject.wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'startDate')))
+        bankObject.driver.execute_script(f'window.scrollTo(0,500)')
+        sendDate(startDateInput, fromDate)
+        time.sleep(1)
+        endDateInput = bankObject.wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'endDate')))
+        sendDate(endDateInput, toDate)
+        # Xuống cuối trang
+        bankObject.driver.execute_script(f'window.scrollTo(0,100000)')
+        # Click "Xem sao kê"
+        bankObject.wait.until(EC.visibility_of_element_located((By.ID, 'TransByDate'))).click()
+        # Click "Xuất file"
+        exportButton = bankObject.wait.until(
+            EC.visibility_of_element_located((By.ID, 'ctl00_Content_TransactionDetail_ExportButton')))
+        while True:  # do nút button bị cover bởi một layer loading
+            try:
+                exportButton.click()
+                break
+            except (ElementClickInterceptedException,):
+                time.sleep(0.5)
+        # Lên đầu trang
+        bankObject.driver.execute_script(f'window.scrollTo(0,0)')
+
+        # Đọc file download
+        while True:
+            checkFunc = lambda x: 'Vietcombank_Account_Statement' in x and 'download' not in x
+            downloadFile = first(listdir(bankObject.downloadFolder), checkFunc)
+            if downloadFile:  # download xong -> có file
+                renameFile = downloadFile.replace('xls', 'csv')
+                os.rename(join(bankObject.downloadFolder, downloadFile), join(bankObject.downloadFolder, renameFile))
+                downloadFile = renameFile
+                break
+            time.sleep(0.5)  # chưa download xong -> đợi thêm 1s nữa
+
+        with open(join(bankObject.downloadFolder, downloadFile), 'rb') as f:
+            htmlString = f.read()
+
+        soup = BeautifulSoup(htmlString, 'html5lib')
+        account = soup.find(text='Số tài khoản:').find_next().text
+        frame = pd.read_html(htmlString, skiprows=11)[0]
+        frame = frame.iloc[:frame.shape[0] - 18, [0, 2, 4]]
+        frame.columns = ['Time', 'Debit', 'Content']
+        frame.insert(1, 'AccountNumber', account)
+        if frame.empty:
+            continue
+        frames.append(frame)
+        # Delete download file
+        os.remove(join(bankObject.downloadFolder, downloadFile))
+
+    # Catch trường hợp không có data
+    if not frames:
+        return pd.DataFrame()
+
+    transactionTable = pd.concat(frames)
+    transactionTable = transactionTable.loc[
+        transactionTable['Content'].map(lambda x: re.search(r'CTSANGTKCN$', x.upper().replace(' ', '')) is not None)
+    ]
+    transactionTable = transactionTable.reset_index(drop=True)
+    # Bank
+    transactionTable.insert(0, 'Bank', bankObject.bank)
+    # Xử lý Debit, Time
+    transactionTable['Debit'] = transactionTable['Debit'].fillna(0)
+    if not transactionTable.empty:
+        # Time
+        transactionTable['Time'] = pd.to_datetime(transactionTable['Time'], format='%Y-%m-%d')
+
+    return transactionTable
+
+# có CAPTCHA
+def runIVB(bankObject, fromDate, toDate):
+    """
+    :param bankObject: Bank Object (đã login)
+    :param fromDate: Ngày bắt đầu lấy dữ liệu
+    :param toDate: Ngày kết thúc lấy dữ liệu
+    """
+
+    # Dọn dẹp folder trước khi download
+    for file in listdir(bankObject.downloadFolder):
+        if 'AccountTransacionHistory' in file:
+            os.remove(join(bankObject.downloadFolder, file))
+
+    # Bắt đầu từ trang chủ
+    bankObject.driver.switch_to.default_content()
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, '//*[@class="logoimg"]'))).click()
+    # Click tab "Tài khoản"
+    xpath = '//*[@data-menu-id="1"]'
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+    time.sleep(1)  # chờ animation
+    # Click subtab "Sao kê tài khoản"
+    bankObject.wait.until(EC.visibility_of_element_located((By.ID, '2_2'))).click()
+    # Chọn "Tài khoản thanh toán" từ dropdown list
+    bankObject.driver.switch_to.frame('mainframe')
+    accountTypeInput = Select(bankObject.wait.until(EC.presence_of_element_located((By.ID, 'selectedAccType'))))
+    accountTypeInput.select_by_visible_text('Tài khoản Thanh toán')
+
+    # Điền số tài khoản:
+    bankAccounts = ['1017816-069']
+    accountElems = bankObject.driver.find_elements(By.XPATH, '//*[@id="account_list"]/option')
+    options = [a.text for a in accountElems]
+    frames = []
+    for option in options:
+        time.sleep(1)
+        account = option.split()[0]
+        if account not in bankAccounts:
+            continue
+        accountInput = Select(bankObject.wait.until(EC.presence_of_element_located((By.ID, 'account_list'))))
+        accountInput.select_by_visible_text(option)
+        # Từ ngày
+        fromDateInput = bankObject.driver.find_element(By.ID, 'beginDate')
+        fromDateInput.clear()
+        fromDateInput.send_keys(fromDate.strftime('%d/%m/%Y'))
+        # Đến ngày
+        toDateInput = bankObject.driver.find_element(By.ID, 'endDate')
+        toDateInput.clear()
+        toDateInput.send_keys(toDate.strftime('%d/%m/%Y'))
+        # Click "Truy vấn"
+        bankObject.driver.find_element(By.ID, 'btnQuery').click()
+        # Click "In sao kê Excel"
+        bankObject.driver.execute_script(f'window.scrollTo(0,100000)')
+        xpath = """//*[@onclick="downloadReport('excel');"]"""
+        bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+        # Đọc file download
+        while True:
+            checkFunc = lambda x: 'AccountTransacionHistory' in x and 'download' not in x
+            downloadFile = first(listdir(bankObject.downloadFolder), checkFunc)
+            if downloadFile:  # download xong -> có file
+                break
+            time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
+        frame = pd.read_excel(
+            join(bankObject.downloadFolder, downloadFile),
+            skiprows=7,
+            skipfooter=1,
+            usecols='C,E,H,J',
+            names=['AccountNumber', 'Debit', 'Time', 'Content'],
+        )
+        frames.append(frame)
+        # Delete download file
+        os.remove(join(bankObject.downloadFolder, downloadFile))
+
+    # Catch trường hợp không có data
+    if not frames:
+        return pd.DataFrame()
+
+    transactionTable = pd.concat(frames)
+    transactionTable = transactionTable.loc[
+        transactionTable['Content'].map(lambda x: re.search(r'CHUYENTIENSANGTKCN-FTINWARDAMT$', x.upper().replace(' ', '')) is not None)
+    ]
+    transactionTable = transactionTable.reset_index(drop=True)
+    # Bank
+    transactionTable.insert(0, 'Bank', bankObject.bank)
+    if not transactionTable.empty:
+        # Time
+        transactionTable['Time'] = pd.to_datetime(transactionTable['Time'], '%Y-%m-%d %H:%M:%S')
+
+    return transactionTable
