@@ -207,12 +207,12 @@ def run(
             ISNULL([t].[new_address],'') [new_address],
             CASE
                 WHEN [t].[old_nationality] = N'Viet Nam' THEN 'VN'
-                WHEN [t].[old_nationality] IS NULL THEN ISNULL([t].[old_nationality], '')
+                WHEN [t].[old_nationality] IS NULL THEN ''
                 ELSE [t].[old_nationality]
             END [old_nationality],
             CASE
                 WHEN [t].[new_nationality] = N'Viet Nam' THEN 'VN'
-                WHEN [t].[new_nationality] IS NULL THEN ISNULL([t].[new_nationality], '')
+                WHEN [t].[new_nationality] IS NULL THEN ''
                 ELSE [t].[new_nationality]
             END [new_nationality],
             '' [old_note],
