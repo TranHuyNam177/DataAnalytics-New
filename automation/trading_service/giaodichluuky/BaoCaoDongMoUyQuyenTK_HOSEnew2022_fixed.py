@@ -192,34 +192,34 @@ def run(
             CONCAT('(',(ROW_NUMBER() OVER (ORDER BY [z].[account_code], [z].[date_of_change])),')') [no.],
             *
         FROM (
-        SELECT
-        DISTINCT
-            ISNULL([t].[account_code],'') [account_code],
-            ISNULL([a].[customer_name],'') [customer_name],
-            ISNULL([t].[date_of_change],'') [date_of_change],
-            ISNULL([t].[old_id_number],'') [old_id_number],
-            ISNULL([t].[new_id_number],'') [new_id_number],
-            ISNULL([t].[old_date_of_issue],'') [old_date_of_issue],
-            ISNULL([t].[new_date_of_issue],'') [new_date_of_issue],
-            ISNULL([t].[old_place_of_issue],'') [old_place_of_issue],
-            ISNULL([t].[new_place_of_issue],'') [new_place_of_issue],
-            ISNULL([t].[old_address],'') [old_address],
-            ISNULL([t].[new_address],'') [new_address],
-            CASE
-                WHEN [t].[old_nationality] = N'Viet Nam' THEN 'VN'
-                WHEN [t].[old_nationality] IS NULL THEN ''
-                ELSE [t].[old_nationality]
-            END [old_nationality],
-            CASE
-                WHEN [t].[new_nationality] = N'Viet Nam' THEN 'VN'
-                WHEN [t].[new_nationality] IS NULL THEN ''
-                ELSE [t].[new_nationality]
-            END [new_nationality],
-            '' [old_note],
-            '' [new_note]
-        FROM [rcf0005] [t]
-        LEFT JOIN [account] [a] ON [a].[account_code] = [t].[account_code]
-        WHERE [t].[date_of_change] BETWEEN '{start_date}' AND '{end_date}'
+            SELECT
+            DISTINCT
+                ISNULL([t].[account_code],'') [account_code],
+                ISNULL([a].[customer_name],'') [customer_name],
+                ISNULL([t].[date_of_change],'') [date_of_change],
+                ISNULL([t].[old_id_number],'') [old_id_number],
+                ISNULL([t].[new_id_number],'') [new_id_number],
+                ISNULL([t].[old_date_of_issue],'') [old_date_of_issue],
+                ISNULL([t].[new_date_of_issue],'') [new_date_of_issue],
+                ISNULL([t].[old_place_of_issue],'') [old_place_of_issue],
+                ISNULL([t].[new_place_of_issue],'') [new_place_of_issue],
+                ISNULL([t].[old_address],'') [old_address],
+                ISNULL([t].[new_address],'') [new_address],
+                CASE
+                    WHEN [t].[old_nationality] = N'Viet Nam' THEN 'VN'
+                    WHEN [t].[old_nationality] IS NULL THEN ''
+                    ELSE [t].[old_nationality]
+                END [old_nationality],
+                CASE
+                    WHEN [t].[new_nationality] = N'Viet Nam' THEN 'VN'
+                    WHEN [t].[new_nationality] IS NULL THEN ''
+                    ELSE [t].[new_nationality]
+                END [new_nationality],
+                '' [old_note],
+                '' [new_note]
+            FROM [rcf0005] [t]
+            LEFT JOIN [account] [a] ON [a].[account_code] = [t].[account_code]
+            WHERE [t].[date_of_change] BETWEEN '{start_date}' AND '{end_date}'
         ) [z]
         """,
         connect_DWH_CoSo,
