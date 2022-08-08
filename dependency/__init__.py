@@ -43,6 +43,9 @@ import zeep
 from zeep import Client
 import threading
 import traceback
+from PyPDF2 import PdfFileReader, PdfFileWriter
+import webbrowser
+from pdf2image import convert_from_path
 
 ###############################################################################
 

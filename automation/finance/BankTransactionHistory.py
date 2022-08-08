@@ -161,7 +161,9 @@ def runVTB(bankObject, fromDate, toDate):
     queryElement.click()
     time.sleep(1)
     # table Element
-    tableElement = bankObject.wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'MuiTableBody-root')))
+    # tableElement = bankObject.wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'MuiTableBody-root')))
+    xpath = '//*[@id="account-payment-tablebox-DDAAcount"]'
+    tableElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
     tableElement.find_element(By.LINK_TEXT, 'Xem thêm').click()
 
     # Create function to clear input box and send dates as string
@@ -230,12 +232,13 @@ def runVTB(bankObject, fromDate, toDate):
 
         bankObject.driver.back()
         bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT, 'Xem thêm'))).click()
+        bankObject.driver.execute_script(f'window.scrollTo(0,100)')
 
     # Catch trường hợp không có data
     if not frames:
         return pd.DataFrame()
 
-    transactionTable = pd.concat(frames)
+    transactionTable = pd.concat(frames, ignore_index=True)
     # Bank
     transactionTable.insert(1, 'Bank', bankObject.bank)
     # Time
