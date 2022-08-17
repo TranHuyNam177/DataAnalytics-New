@@ -639,7 +639,7 @@ def runHUANAN(bankObject):
     for rowElement in rowElements:
         rowString = rowElement.text
         # Contract Number
-        contractNumber = re.search(r'(^GO\s)(\w+\b)',rowString).group(2)
+        contractNumber = re.search(r'(^GO\s)?(\w+\b)',rowString).group(2)
         # Issue Date, Expire Date
         issueDateString, expireDateString = re.findall(r'\b\d{4}/\d{2}/\d{2}\b',rowString)
         issueDate = dt.datetime.strptime(issueDateString,'%Y/%m/%d')
