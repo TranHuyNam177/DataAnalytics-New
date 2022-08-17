@@ -628,9 +628,12 @@ def runHUANAN(bankObject):
             xpath = "//a[contains(text(),'Submit')]"
             bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
             # Get data
-            xpath = "//*[@class='Table_contentWt_C']"
-            recordElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
-            rowElements.extend(recordElements)
+            try:
+                xpath = "//*[@class='Table_contentWt_C']"
+                recordElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+                rowElements.extend(recordElements)
+            except:
+                rowElements = []
 
     records = []
     for rowElement in rowElements:
