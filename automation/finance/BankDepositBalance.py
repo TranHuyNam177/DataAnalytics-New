@@ -771,6 +771,15 @@ def runESUN(bankObject):
     # Show menu Deposits
     bankObject.driver.switch_to.default_content()
     bankObject.driver.switch_to.frame('mainFrame')
+    time.sleep(1)
+    # Check xem có Bank Announcements không
+    xpath = '//*[contains(text(),"Bank Announcements")]'
+    checkElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+    if checkElement.is_displayed():
+        xpath = '//*[contains(text(),"Confirm")]'
+        bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+        time.sleep(1)
+    # Click Deposits
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'menuIndex_1'))).click()
     # Click Time Deposit Detail Enquiry
     xpath = '//*[contains(text(),"Time Deposit Detail Enquiry")]'

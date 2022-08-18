@@ -96,8 +96,17 @@ def runESUN(bankObject):
     # Bắt đầu từ trang chủ
     bankObject.driver.switch_to.default_content()
     bankObject.driver.switch_to.frame('mainFrame')
-    # Click Loan -> Loan Overview
+    time.sleep(1)
+    # Check xem có Bank Announcements không
+    xpath = '//*[contains(text(),"Bank Announcements")]'
+    checkElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+    if checkElement.is_displayed():
+        xpath = '//*[contains(text(),"Confirm")]'
+        bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+        time.sleep(1)
+    # Click Loan
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'menuIndex_2'))).click()
+    # Click Loan Overview
     xpath = "//*[@id='menuIndex_2']//*[contains(text(),'Loan Overview')]"
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     time.sleep(3)

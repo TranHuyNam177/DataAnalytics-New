@@ -72,17 +72,19 @@ def detect_table(input_file):
 def getConfidence(patternList: list, img):
     df = pytesseract.image_to_data(
         image=img,
-        config='--psm 6',
+        config='--psm 11',
         output_type='data.frame'
     )
-    lines = df.groupby(['line_num'])['text'].apply(list)
-    df['check'] = df['text'].str.contains('(' + '|'.join(patternList) + ')', regex=True)
-    df = df.loc[df['check'] == True].reset_index(drop=True)
-    if df['conf'].min() < 20:
+    df = df[df['conf'] != -1]
+    if (df['line_num'] == 1).all() and (not (df['conf'] < 70).any()):
+        df = df.groupby(['line_num'])['text'].apply(lambda x: ' '.join(list(x))).to_frame()
+    elif (df['conf'] < 70).any():
         # return ra dataframe rỗng thay cho phần gửi mail
-        return pd.DataFrame()
+        df = pd.DataFrame()
     else:
-        return df
+        df['check'] = df['text'].str.contains('(' + '|'.join(patternList) + ')', regex=True)
+        df = df.loc[df['check'] == True].reset_index(drop=True)
+    return df.reset_index(drop=True)
 
 # chưa rõ mẫu
 def runBOP(bank: str, month: int):
@@ -1194,7 +1196,7 @@ def runYUANTA(bank: str, month: int):
         dfConf = getConfidence(patternList, tableInImg)
 
         # Ngày hiệu lực, ngày đáo hạn
-        dateText = dfConf['text'].loc[dfConf['text'].str.contains(dictionary['date'])].item()
+        dateText = dfConf['text'].str.extract(dictionary['date'])
         issueDateText, expireDateText = dateText.split('-')
         issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
         expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
