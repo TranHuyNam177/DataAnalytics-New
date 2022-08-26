@@ -99,10 +99,10 @@ def runESUN(bankObject):
     time.sleep(1)
     # Check xem có Bank Announcements không
     xpath = '//*[contains(text(),"Bank Announcements")]'
-    checkElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+    checkElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
     if checkElement.is_displayed():
         xpath = '//*[contains(text(),"Confirm")]'
-        bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath))).click()
+        bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
         time.sleep(1)
     # Click Loan
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'menuIndex_2'))).click()
@@ -276,8 +276,14 @@ def runFUBON(bankObject):
     bankObject.driver.switch_to.frame('main')
     xpath = '//*[@name="query" and @type="button" and @class="fnct_btn"]'
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
-    # Contract Number
+    # Check xem có dữ liệu ko
+    time.sleep(1)
     bankObject.driver.switch_to.frame('Data2')
+    xpath = '//*[contains(text(),"Information Not Exists")]'
+    noticeStrings = bankObject.driver.find_elements(By.XPATH,xpath)
+    if noticeStrings: # ko có dữ liệu
+        return pd.DataFrame()
+    # Contract Number
     xpath = '//*[contains(@class,"DataRow")]/td[2]' # could be either DataRowOdd or DataRowEven
     contractNumberElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
     contractNumbers = [element.text for element in contractNumberElements]
@@ -636,19 +642,19 @@ def runHUANAN(bankObject):
             # Click Submit
             xpath = "//a[contains(text(),'Submit')]"
             bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+            time.sleep(3) # chờ load data
             # Get data
-            try:
-                xpath = "//*[@class='Table_contentWt_C']"
-                recordElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
-                rowElements.extend(recordElements)
-            except:
-                rowElements = []
+            xpath = "//*[@class='Table_contentWt_C']"
+            recordElements = bankObject.driver.find_elements(By.XPATH,xpath)
+            if not recordElements:
+                return pd.DataFrame()
+            rowElements.extend(recordElements)
 
     records = []
     for rowElement in rowElements:
         rowString = rowElement.text
         # Contract Number
-        contractNumber = re.search(r'(^GO\s)?(\w+\b)',rowString).group(2)
+        contractNumber = re.search(r'[A-Z]+\d{3,}',rowString).group()
         # Issue Date, Expire Date
         issueDateString, expireDateString = re.findall(r'\b\d{4}/\d{2}/\d{2}\b',rowString)
         issueDate = dt.datetime.strptime(issueDateString,'%Y/%m/%d')

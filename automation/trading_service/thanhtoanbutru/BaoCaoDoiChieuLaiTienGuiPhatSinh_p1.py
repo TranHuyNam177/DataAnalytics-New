@@ -60,7 +60,8 @@ def run(  # chạy hàng ngày
     start = time.time()
     info = get_info('daily',run_time)
     period = info['period']
-    t0_date = info['end_date'].replace('/','-')
+    # t0_date = info['end_date'].replace('/','-')
+    t0_date = '2022-08-23'
     folder_name = info['folder_name']
 
     # create folder

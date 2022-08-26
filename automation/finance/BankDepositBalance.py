@@ -374,9 +374,13 @@ def runFUBON(bankObject):
     :param bankObject: Bank Object (đã login)
     """
 
+    now = dt.datetime.now()
     time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
-    today = dt.datetime.now().strftime('%Y%m%d')
+    if now.hour >= 23: # sau 23 giờ file ngân hàng để ngày hôm sau
+        today = (dt.datetime.now()+dt.timedelta(days=1)).strftime('%Y%m%d')
+    else:
+        today = dt.datetime.now().strftime('%Y%m%d')
     for file in listdir(bankObject.downloadFolder):
         if file.startswith(today):
             os.remove(join(bankObject.downloadFolder,file))

@@ -123,15 +123,13 @@ def runBOP(bank: str, month: int):
                         interestAmount, currency))
     balanceTable = pd.DataFrame(
         records,
-        columns=['AccountNumber', 'TermDays', 'TermMonths', 'InterestRate', 'IssueDate', 'ExpireDate', 'Balance',
-                 'InterestAmount', 'Currency']
+        columns=['AccountNumber', 'TermDays', 'TermMonths', 'InterestRate', 'IssueDate', 'ExpireDate', 'Balance', 'InterestAmount', 'Currency']
     )
     # Date
     if now.hour >= 8:
         d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
-                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0, 'Date', d)
     # Bank
     balanceTable.insert(1, 'Bank', 'BOP')
@@ -169,7 +167,6 @@ def runCATHAY(bank: str, month: int):
         lst_termDays = []
         lst_termMonths = []
         lst_iRate = []
-        lst_interestAmount = []
         lst_paid = []
         for ele in dataSplit:
             # Ngày hiệu lực, Ngày đáo hạn
@@ -190,10 +187,6 @@ def runCATHAY(bank: str, month: int):
                 iText = iText.replace(' ', '')
             iRate = float(iText) / 100
             lst_iRate.append(iRate)
-            # Interest amount
-            interestAmountText = re.search(r'\b\d{1,2},\d{3}\.\d{2}\b', ele).group()
-            interestAmount = float(interestAmountText.replace(',', ''))
-            lst_interestAmount.append(interestAmount)
             # Paid
             paid = 0
             lst_paid.append(paid)
@@ -201,6 +194,8 @@ def runCATHAY(bank: str, month: int):
         # Amount
         amountText = re.search(r'\b\d+,\s?[\d,]+\d{3}\.\s?\d{2}\b', dataText).group()
         amount = float(amountText.replace(', ', '').replace(',', ''))
+        # Interest Amount
+        interestAmount = [amount * termDay * iRate / 360 for termDay, iRate in zip(lst_termDays, lst_iRate)]
         # Remaining, Paid
         if 'CAP' in dataText:
             lst_paid[-1] = amount
@@ -217,7 +212,7 @@ def runCATHAY(bank: str, month: int):
             'Amount': amount,
             'Paid': lst_paid,
             'Remaining': remaining,
-            'InterestAmount': lst_interestAmount,
+            'InterestAmount': interestAmount,
             'Currency': currency
         }
         dataFrame = pd.DataFrame(data=dictionary)
@@ -227,8 +222,7 @@ def runCATHAY(bank: str, month: int):
     if now.hour >= 8:
         d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
-                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0, 'Date', d)
     # Bank
     balanceTable.insert(1, 'Bank', 'CATHAY')
@@ -312,8 +306,7 @@ def runCHANGHWA(bank: str, month: int):
     if now.hour >= 8:
         d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
-                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0, 'Date', d)
     # Bank
     balanceTable.insert(1, 'Bank', 'CHANG HWA')
@@ -378,8 +371,7 @@ def runESUN(bank: str, month: int):
             else:
                 continue
         # Append data
-        records.append((contractNumber, termDays, termMonths, iRate, issueDate, expireDate, amount, paid, remaining,
-                        interestAmount, currency))
+        records.append((contractNumber, termDays, termMonths, iRate, issueDate, expireDate, amount, paid, remaining, interestAmount, currency))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -400,8 +392,7 @@ def runESUN(bank: str, month: int):
     if now.hour >= 8:
         d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
-                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0, 'Date', d)
     # Bank
     balanceTable.insert(1, 'Bank', 'ESUN')
@@ -483,8 +474,7 @@ def runFIRST(bank: str, month: int):
         # Currency
         currency = re.search(r'VND|USD', dataText).group()
         # Append data
-        records.append((contractNumber, termDays, termMonths, iRate, issueDate, expireDate, amount, paid, remaining,
-                        interestAmount, currency))
+        records.append((contractNumber, termDays, termMonths, iRate, issueDate, expireDate, amount, paid, remaining, interestAmount, currency))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -505,8 +495,7 @@ def runFIRST(bank: str, month: int):
     if now.hour >= 8:
         d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
-                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0, 'Date', d)
     # Bank
     balanceTable.insert(1, 'Bank', 'FIRST')
@@ -604,8 +593,7 @@ def runKGI(bank: str, month: int):
     if now.hour >= 8:
         d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
-                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0, 'Date', d)
     # Bank
     balanceTable.insert(1, 'Bank', 'KGI')
@@ -690,8 +678,7 @@ def runMEGA(bank: str, month: int):
         # Term Months
         termMonths = (expireDate.year - issueDate.year) * 12 + expireDate.month - issueDate.month
         # Append data
-        records.append((contractNumber, termDays, termMonths, iRate, issueDate, expireDate, amount, paid, remaining,
-                        interestAmount, currency))
+        records.append((contractNumber, termDays, termMonths, iRate, issueDate, expireDate, amount, paid, remaining, interestAmount, currency))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -712,8 +699,7 @@ def runMEGA(bank: str, month: int):
     if now.hour >= 8:
         d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
-                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0, 'Date', d)
     # Bank
     balanceTable.insert(1, 'Bank', 'MEGA')
@@ -761,8 +747,7 @@ def runSHHK(bank: str, month: int):
         # Currency
         currency = re.search(r'\bVND|USD\b', dataText).group()
         # Append data
-        records.append((contractNumber, termDays, termMonths, iRate, issueDate, expireDate, amount, paid, remaining,
-                        interestAmount, currency))
+        records.append((contractNumber, termDays, termMonths, iRate, issueDate, expireDate, amount, paid, remaining, interestAmount, currency))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -783,8 +768,7 @@ def runSHHK(bank: str, month: int):
     if now.hour >= 8:
         d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
-                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0, 'Date', d)
     # Bank
     balanceTable.insert(1, 'Bank', 'SHHK')
@@ -877,8 +861,7 @@ def runSHINKONG(bank: str, month: int):
     if now.hour >= 8:
         d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
-                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0, 'Date', d)
     # Bank
     balanceTable.insert(1, 'Bank', 'SHINKONG')
@@ -941,8 +924,7 @@ def runSINOPAC(bank: str, month: int):
         interestAmountText = re.search(r'\d{1,2},\d{3}\.\d{1,2}', dataText).group()
         interestAmount = float(interestAmountText.replace(',', ''))
         # Append data
-        records.append((contractNumber, termDays, termMonths, iRate, issueDate, expireDate, amount, paid, remaining,
-                        interestAmount, currency))
+        records.append((contractNumber, termDays, termMonths, iRate, issueDate, expireDate, amount, paid, remaining, interestAmount, currency))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -963,8 +945,7 @@ def runSINOPAC(bank: str, month: int):
     if now.hour >= 8:
         d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
-                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0, 'Date', d)
     # Bank
     balanceTable.insert(1, 'Bank', 'SINOPAC')
@@ -1053,8 +1034,7 @@ def runTAISHIN(bank: str, month: int):
     if now.hour >= 8:
         d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
-                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0, 'Date', d)
     # Bank
     balanceTable.insert(1, 'Bank', 'TAISHIN')
@@ -1138,146 +1118,40 @@ def runUBOT(bank: str, month: int):
     if now.hour >= 8:
         d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
-                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0, 'Date', d)
     # Bank
     balanceTable.insert(1, 'Bank', 'UBOT')
 
     return balanceTable
 
-# chưa có mẫu đã trả vay nên chưa làm được chỗ Paid, remaining
+# Done
 def runYUANTA(bank: str, month: int):
-    # List các trường hợp để nhận biết file hình đúng để xử lý
     now = dt.datetime.now()
     records = []
     images = convertPDFtoImage(bank, month)
-    for img in images:
+    for i in images:
         # read text in image using pytesseract
         dataText = pytesseract.image_to_string(
-            image=img,
+            image=i,
             config='--psm 6'
         )
         if 'Interest Payment Notice' not in dataText:
             continue
-        print(dataText)
         # contract number
         contractNumber = re.search(r'\d{2}/\d{4}/[A-Z]{2}/[A-Z]{3}-[A-Z]{2}', dataText).group()
-        # currency
+        # Currency
         currency = re.search(r'VND|USD', dataText).group()
-
         # detect table in image
-        tables = detect_table(img)
-        tableInImg = Image.fromarray(tables[0])
-        # tableInImg.show()
-
-        dictionary = {
-            'date': r'(\d{4}/\d{2}/\d{2}-\d{4}/\d{2}/\d{2})',
-            'amount': r'(\d{1,3},[,\d]+$)',
-            'interestRate': r'(\d{1,2}\.\d+%$)',
-            'interestAmount': r'((\d+,\s?)*\d{3}\.\d{2}$)'
-        }
-        # convert dictionary values to list
-        patternList = list(dictionary.values())
-        # run def getConfidence --> return to dataframe
-        df = getConfidence(patternList, tableInImg)
-        if df.empty:
-            # gửi mail
-            balanceTable = df
-        # Ngày hiệu lực, ngày đáo hạn
-        dateText = df['text'].loc[df['text'].str.contains(dictionary['date'])].item()
-        issueDateText, expireDateText = dateText.split('-')
-        issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
-        expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
-        # Term Days
-        termDays = (expireDate - issueDate).days
-        # Term Months
-        termMonths = (expireDate.year - issueDate.year) * 12 + expireDate.month - issueDate.month
-        # Interest rate
-        iText = df['text'].loc[df['text'].str.contains(dictionary['interestRate'])].item()
-        iRate = float(iText.replace('|','').replace('%','')) / 100
-        # Amount
-        amountText = df['text'].loc[df['text'].str.contains(dictionary['amount'])].item()
-        amount = float(amountText.replace('US$','').replace(',', ''))
-        # Paid
-        paid = 0
-        # Remaining
-        remaining = amount - paid
-        # Interest Amount
-        interestAmountText = df['text'].loc[df['text'].str.contains(dictionary['interestAmount'])].item()
-        if ' ' in interestAmountText:
-            interestAmount = float(interestAmountText.replace('|US$','').replace(', ', ''))
-        else:
-            interestAmount = float(interestAmountText.replace('|US$','').replace(',', ''))
-
-        # Append data
-        records.append((contractNumber, termDays, termMonths, iRate, issueDate, expireDate, amount, paid, remaining,
-                        interestAmount, currency))
-    balanceTable = pd.DataFrame(
-        records,
-        columns=[
-            'ContractNumber',
-            'TermDays',
-            'TermMonths',
-            'InterestRate',
-            'IssueDate',
-            'ExpireDate',
-            'Amount',
-            'Paid',
-            'Remaining',
-            'InterestAmount',
-            'Currency'
-        ]
-    )
-    # Date
-    if now.hour >= 8:
-        d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
-    else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
-                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
-    balanceTable.insert(0, 'Date', d)
-    # Bank
-    balanceTable.insert(1, 'Bank', 'YUANTA')
-    return balanceTable
-
-def runENTIE(bank: str, month: int):
-    # List các trường hợp để nhận biết file hình đúng để xử lý
-    now = dt.datetime.now()
-    condition = ['ADVICE OF', 'REPAYMENT']
-    records = []
-    images = convertPDFtoImage(bank, month)
-    for img in images:
-        # read text in image using pytesseract
+        tables = detect_table(i)
+        table = Image.fromarray(tables[0])
         dataText = pytesseract.image_to_string(
-            image=img,
-            config='--psm 6'
+            image=table,
+            config='--psm 11'
         )
-        check = any(c in dataText for c in condition)
-        if not check:
-            continue
-        # currency
-        currency = re.search(r'VND|USD', dataText).group()
-        dictionary = {
-            'contractNumber': r'\d{11}-\d{2}',
-            'date': r'\d{4}/\d{2}/\d{2} TO \d{4}/\d{2}/\d{2}\b',
-            'amount': r'[1-9]{1,3},[,\d]+\.\d{2}$',
-            'interestRate': r'\d{1,2}\.\d+%$',
-            'interestAmount': r'[[1-9]+,?]*\d{3}\.\d{2}$'
-        }
-        # convert dictionary values to list
-        patternList = list(dictionary.values())
-        # run def getConfidence --> return to dataframe
-        df = getConfidence(patternList, img)
-        df['regex'] = df['text'].str.extract('(' + '|'.join(patternList) + ')')
-        if df.empty:
-            # gửi mail
-            balanceTable = df
-
-        # contract number
-        contractNumber = df['regex'].loc[df['regex'].str.contains(dictionary['contractNumber'])].item() + ' USD1'
+        print(dataText)
         # Ngày hiệu lực, ngày đáo hạn
-        dateText = df['regex'].loc[df['regex'].str.contains(dictionary['date'])].item()
-        issueDateText, expireDateText = dateText.replace(' ','').split('TO')
+        issueDateText, expireDateText = re.findall(r'\d{4}/\d{2}/\d{2}', dataText)[1:]
         issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
         expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
         # Term Days
@@ -1285,25 +1159,23 @@ def runENTIE(bank: str, month: int):
         # Term Months
         termMonths = (expireDate.year - issueDate.year) * 12 + expireDate.month - issueDate.month
         # Interest rate
-        iText = df['regex'].loc[df['regex'].str.contains(dictionary['interestRate'])].item()
-        iRate = float(iText.replace('%', '')) / 100
+        iText = re.search(r'\d{1,2}\.\d+', dataText).group()
+        iRate = float(iText) / 100
         # Amount
-        amountText = df['text'].loc[df['text'].str.contains(dictionary['amount'])].iloc[0]
-        amount = float(amountText.replace('USD', '').replace(',', ''))
+        amountText = re.search(r'\d{1,3},[,\d]+\b', dataText).group()
+        amount = float(amountText.replace(',', ''))
         # Paid
         paid = 0
         # Remaining
         remaining = amount - paid
         # Interest Amount
-        interestAmountText = df['regex'].loc[df['regex'].str.contains(dictionary['interestAmount'])].iloc[0]
+        interestAmountText = re.search(r'(\d+,?|\d+,\s?)*\d{3}\.\d{2}', dataText).group()
         if ' ' in interestAmountText:
             interestAmount = float(interestAmountText.replace(', ', ''))
         else:
             interestAmount = float(interestAmountText.replace(',', ''))
-
         # Append data
-        records.append((contractNumber, termDays, termMonths, iRate, issueDate, expireDate, amount, paid, remaining,
-                        interestAmount, currency))
+        records.append((contractNumber, termDays, termMonths, iRate, issueDate, expireDate, amount, paid, remaining, interestAmount, currency))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -1324,10 +1196,133 @@ def runENTIE(bank: str, month: int):
     if now.hour >= 8:
         d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
-                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+    balanceTable.insert(0, 'Date', d)
+    # Bank
+    balanceTable.insert(1, 'Bank', 'YUANTA')
+
+    return balanceTable
+
+def runENTIE(bank: str, month: int):
+    now = dt.datetime.now()
+    records = []
+    images = convertPDFtoImage(bank, month)
+    for img in images:
+        def crop_image(img_file):
+            img = Image.fromarray(img_file)
+            width, height = img.size
+            # Setting the points for cropped image
+            bottom = 0.55 * height
+            # Cropped image of above dimension
+            new_img = img.crop((0, 0, width, bottom))
+            return new_img
+
+            # crop image
+
+        img_crop = crop_image(np.array(img))  # convert PIL image to array
+
+        # read text in image using pytesseract
+        dataText = pytesseract.image_to_string(
+            image=img_crop,
+            config='--psm 6'
+        )
+        if 'ADVICE OF REPAYMENT' not in dataText:
+            continue
+        dataText = dataText.replace(' ', '')
+        print(dataText)
+        # contract number
+        contractNumber = re.search(r'\d{11}-\d{2}', dataText).group() + ' USD1'
+        # Currency
+        currency = re.search(r'VND|USD', dataText).group()
+        # Ngày hiệu lực, ngày đáo hạn
+        dateText = re.search(r'\d{4}/\d{2}/\d{2}TO\d{4}/\d{2}/\d{2}', dataText).group()
+        issueDateText, expireDateText = dateText.split('TO')
+        issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
+        expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = (expireDate.year - issueDate.year) * 12 + expireDate.month - issueDate.month
+        # Interest rate
+        iText = re.search(r'\d{1,2}(.|,)\d+%', dataText).group()
+        iRate = float(iText.replace(',','.').replace('%','')) / 100
+        # Amount
+        amountText = re.search(r'/SAMOUNT:USD[1-9]{1,3}[,\d]+\d{3}\.\d{2}', dataText).group()
+        amount = float(amountText.replace('/SAMOUNT:USD','').replace(',', ''))
+        # Paid
+        paid = 0
+        # Remaining
+        remaining = amount - paid
+        # Interest Amount
+        interestAmount = amount * termDays * iRate / 360
+        # Append data
+        records.append((contractNumber, termDays, termMonths, iRate, issueDate, expireDate, amount, paid, remaining, interestAmount, currency))
+    balanceTable = pd.DataFrame(
+        records,
+        columns=[
+            'ContractNumber',
+            'TermDays',
+            'TermMonths',
+            'InterestRate',
+            'IssueDate',
+            'ExpireDate',
+            'Amount',
+            'Paid',
+            'Remaining',
+            'InterestAmount',
+            'Currency'
+        ]
+    )
+    # Date
+    if now.hour >= 8:
+        d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
+    else:
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0, 'Date', d)
     # Bank
     balanceTable.insert(1, 'Bank', 'ENTIE')
+
     return balanceTable
+
+# using openvc
+def openCVLib(bank: str, month: int):
+    images = convertPDFtoImage(bank, month)
+    img = images[0]
+    # kernel = np.ones((2, 2), np.uint8)
+    # img = cv2.morphologyEx(np.array(img), cv2.MORPH_OPEN, kernel)
+    # Image.fromarray(img).show()
+
+    dataImage = np.array(img)
+
+    tempPath = r"D:\DataAnalytics-New\automation\finance\bank_img\MEGA\amount.PNG"
+    tempImage = cv2.imread(tempPath)
+    tempImage = np.array(tempImage)
+    _, w, h = tempImage.shape[::-1]
+
+    matchResult = cv2.matchTemplate(dataImage, tempImage, cv2.TM_CCOEFF)
+    _, _, _, topLeft = cv2.minMaxLoc(matchResult)
+    # bottomRight = (topLeft[0] + w, topLeft[1] + h * 2)
+    # cv2.rectangle(dataImage, topLeft, bottomRight, 255, 2)
+    # print(topLeft, bottomRight)
+    # top = topLeft[0]
+    # left = topLeft[1] + h
+    # bottom = bottomRight[0]
+    # right = bottomRight[1]
+    # print(top,left,bottom,right)
+    print(topLeft[0], topLeft[1])
+
+    bottom = topLeft[0] + w
+    right = topLeft[1] + h * 2
+    top = topLeft[0]
+    left = topLeft[1] + h
+
+    # bottomRight = (topLeft[0] + w * 2, topLeft[1] + h)
+    # a = dataImage[topLeft[1]:bottomRight[1], topLeft[0]+w:bottomRight[0]]
+    # Image.fromarray(a).show()
+
+    dataImage = dataImage[left:right, top:bottom]
+    Image.fromarray(dataImage).show()
+
+    cv2.imwrite(r'D:\DataAnalytics-New\automation\finance\bank_img\MEGA\check.jpg', dataImage)
+
 
