@@ -15,18 +15,19 @@ def runBIDV(bankObject,fromDate,toDate):
     if (toDate - fromDate).days > dayLimit:
         raise ValueError(f'{bankObject.bank} không cho phép query quá {dayLimit} ngày một lần')
 
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
     for file in listdir(bankObject.downloadFolder):
         if 'EBK_BC_LICHSUGIAODICH' in file:
             os.remove(join(bankObject.downloadFolder, file))
     # Click Menu bar
-    bankObject.wait.until(EC.presence_of_element_located((By.ID, 'menu-toggle-22'))).click()
+    bankObject.wait.until(EC.presence_of_element_located((By.ID,'menu-toggle-22'))).click()
     # Click "Vấn tin"
-    bankObject.wait.until(EC.visibility_of_element_located((By.LINK_TEXT, 'Vấn tin'))).click()
+    bankObject.wait.until(EC.visibility_of_element_located((By.LINK_TEXT,'Vấn tin'))).click()
     # Click "Tiền gửi thanh toán"
-    bankObject.wait.until(EC.visibility_of_element_located((By.LINK_TEXT, 'Tiền gửi thanh toán'))).click()
+    bankObject.wait.until(EC.visibility_of_element_located((By.LINK_TEXT,'Tiền gửi thanh toán'))).click()
     # Lấy số lượng tài khoản
-    Accounts = bankObject.wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'change')))
+    Accounts = bankObject.wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME,'change')))
     accountNumber = len(Accounts)
     # Danh sách tài khoản
     bankAccounts = ['11910000132943','26110002677688']
@@ -40,25 +41,25 @@ def runBIDV(bankObject,fromDate,toDate):
     Button = bankObject.wait.until(EC.visibility_of_element_located((By.XPATH, xpath)))
     Button.click()
     # Chọn tab "Thời gian"
-    bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT, 'Thời gian'))).click()
+    bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Thời gian'))).click()
     # Lấy dữ liệu từng tài khoản
     frames = []
     # Từ ngày
-    fromDateInput = bankObject.wait.until(EC.presence_of_element_located((By.ID, 'fromDate')))
+    fromDateInput = bankObject.wait.until(EC.presence_of_element_located((By.ID,'fromDate')))
     fromDateInput.clear()
     fromDateInput.send_keys(fromDate.strftime('%d/%m/%Y'))
     # Đến ngày
-    toDateInput = bankObject.wait.until(EC.presence_of_element_located((By.ID, 'toDate')))
+    toDateInput = bankObject.wait.until(EC.presence_of_element_located((By.ID,'toDate')))
     toDateInput.clear()
     toDateInput.send_keys(toDate.strftime('%d/%m/%Y'))
     # Chọn ô chứa tài khoản
     xpath = '//*[@aria-owns="accountNo_listbox"]'
-    accountInput = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+    accountInput = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
     accountInput.clear()
     # Đóng pop up nếu có
     time.sleep(1)
     xpath = '//*[@data-bb-handler="ok"]'
-    popupButtons = bankObject.driver.find_elements(By.XPATH, xpath)
+    popupButtons = bankObject.driver.find_elements(By.XPATH,xpath)
     if popupButtons:
         popupButtons[0].click()
     i = 0
@@ -68,36 +69,36 @@ def runBIDV(bankObject,fromDate,toDate):
         # Đóng pop up nếu có
         time.sleep(1)  # chờ pop up (nếu có)
         xpath = '//*[@data-bb-handler="ok"]'
-        popupButtons = bankObject.driver.find_elements(By.XPATH, xpath)
+        popupButtons = bankObject.driver.find_elements(By.XPATH,xpath)
         if popupButtons:
             popupButtons[0].click()
         # Lấy số tài khoản
         value = accountInput.get_attribute('value')
         print(value)
-        account = re.search('\d{14}', value).group()
+        account = re.search('\d{14}',value).group()
         if account in bankAccounts:
             # Download file excel
-            bankObject.wait.until(EC.presence_of_element_located((By.ID, 'btnExportExcel01'))).click()
+            bankObject.wait.until(EC.presence_of_element_located((By.ID,'btnExportExcel01'))).click()
             # Đọc file, record data
             while True:
                 checkFunc = lambda x: 'EBK_BC_LICHSUGIAODICH' in x and 'download' not in x
-                downloadFile = first(listdir(bankObject.downloadFolder), checkFunc)
+                downloadFile = first(listdir(bankObject.downloadFolder),checkFunc)
                 if downloadFile:  # download xong -> có file
                     break
                 time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
 
             frame = pd.read_excel(
-                join(bankObject.downloadFolder, downloadFile),
+                join(bankObject.downloadFolder,downloadFile),
                 skiprows=12,
                 skipfooter=5,
                 usecols='B,D,G',
                 names=['Time', 'Debit', 'Content'],
             )
             # Account Number
-            frame.insert(1, 'AccountNumber', account)
+            frame.insert(1, 'AccountNumber',account)
             frames.append(frame)
             # Xóa file
-            os.remove(join(bankObject.downloadFolder, downloadFile))
+            os.remove(join(bankObject.downloadFolder,downloadFile))
             # Remove tài khoản đã duyệt
             bankAccounts.remove(account)
             if not bankAccounts:
@@ -109,14 +110,14 @@ def runBIDV(bankObject,fromDate,toDate):
 
     transactionTable = pd.concat(frames)
     transactionTable = transactionTable.loc[
-        transactionTable['Content'].map(lambda x: re.search(r'CHUYENTIENSANGTKCN$', x.upper().replace(' ', '')) is not None)
+        transactionTable['Content'].map(lambda x: re.search(r'CHUYENTIENSANGTKCN$',x.upper().replace(' ','')) is not None)
     ]
     transactionTable = transactionTable.reset_index(drop=True)
     # Time
     transactionTable['Time'] = pd.to_datetime(transactionTable['Time'], format='%d/%m/%Y %H:%M:%S')
     # Debit
     transactionTable['Debit'] = transactionTable['Debit'].fillna(0)
-    transactionTable['Debit'] = transactionTable['Debit'].map(lambda x: float(x.replace(',', '')) if isinstance(x, str) else x)
+    transactionTable['Debit'] = transactionTable['Debit'].map(lambda x: float(x.replace(',','')) if isinstance(x, str) else x)
     # Bank
     transactionTable.insert(1, 'Bank', bankObject.bank)
 
@@ -139,6 +140,7 @@ def runVTB(bankObject, fromDate, toDate):
         if 'lich-su-giao-dich' in file:
             os.remove(join(bankObject.downloadFolder,file))
 
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Bắt đầu từ trang chủ
     xpath = '//*[@href="/"]'
     _, MainMenu = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
@@ -254,6 +256,7 @@ def runEIB(bankObject, fromDate, toDate):
     for file in listdir(bankObject.downloadFolder):
         if 'LichSuTaiKhoan' in file:
             os.remove(join(bankObject.downloadFolder,file))
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Click Trang chủ
     xpath = "//a[@href='/KHDN/home']"
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
@@ -365,6 +368,8 @@ def runOCB(bankObject, fromDate, toDate):
     for file in listdir(bankObject.downloadFolder):
         if 'TransactionHistory' in file:
             os.remove(join(bankObject.downloadFolder,file))
+
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Bắt đầu từ main menu
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'main-menu-icon'))).click()
     # Click Thông tin tài khoản --> Sao kê tài khoản
@@ -492,6 +497,8 @@ def runTCB(bankObject, fromDate, toDate):
         if 'enquiry' in file:
             os.remove(join(bankObject.downloadFolder,file))
 
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
+
     # Check tab "Thông tin tài khoản" có bung chưa (đã được click trước đó), phải bung rồi mới hiện tab "Truy vấn giao dịch tài khoản"
     xpath = '//*[contains(text(),"Truy vấn giao dịch tài khoản")]'
     queryElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
@@ -602,6 +609,7 @@ def runVCB(bankObject, fromDate, toDate):
         if 'Vietcombank_Account_Statement' in file:
             os.remove(join(bankObject.downloadFolder,file))
 
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Danh sách Tài khoản
     bankAccounts = ['0071001264078']
     # Bắt đầu từ trang chủ
@@ -709,6 +717,7 @@ def runIVB(bankObject, fromDate, toDate):
         if 'AccountTransacionHistory' in file:
             os.remove(join(bankObject.downloadFolder,file))
 
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Bắt đầu từ trang chủ
     bankObject.driver.switch_to.default_content()
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,'//*[@class="logoimg"]'))).click()
