@@ -20,7 +20,7 @@ def run(  # chạy hàng ngày sau batch giữa ngày
     ###################################################
 
     # "Vốn chủ sở hữu"
-    equityPHS = 1565140
+    equityPHS = 1565140000000
 
     detailTable = pd.read_sql(
         f"""
@@ -34,7 +34,7 @@ def run(  # chạy hàng ngày sau batch giữa ngày
         [CKNY] AS (
             SELECT 
                 [Ticker] [MaCK], 
-                TRY_CAST([t].[value] AS BIGINT) / 1000 [KLNY] 
+                TRY_CAST([t].[value] AS BIGINT) [KLNY] 
             FROM [DWH-ThiTruong].[dbo].[SecuritiesInfoVSD] 
             CROSS APPLY STRING_SPLIT([DWH-ThiTruong].[dbo].[SecuritiesInfoVSD].[Value],' ') [t] 
             WHERE [Attribute] LIKE '%Quantity%registered%' AND [t].[value] LIKE '[0-9]%'
@@ -108,37 +108,49 @@ def run(  # chạy hàng ngày sau batch giữa ngày
             LEFT JOIN [ThiTruong] ON [ThiTruong].[MaCK] = [DanhMuc].[MaCK]
             LEFT JOIN [DuNo] ON [DuNo].[TaiKhoan] = [QuanHe].[TaiKhoan]
             LEFT JOIN [Tien] ON [Tien].[TaiKhoan] = [QuanHe].[TaiKhoan]
+        ),
+        [RawResult] AS (
+            SELECT
+                [RawTable].[MaCK],
+                CASE
+                    WHEN SUM([RawTable].[DuNoRong]*[RawTable].[TyTrong]) > MAX([RawTable].[VCSH])*0.1
+                        THEN MAX([RawTable].[VCSH])*0.1
+                    ELSE SUM([RawTable].[DuNoRong]*[RawTable].[TyTrong])
+                END [DuNoChoVayGDKQ],
+                CASE
+                    WHEN SUM([RawTable].[TongRoomDaSuDung]) / MAX([CKNY].[KLNY]) > 0.05
+                        THEN MAX([CKNY].[KLNY])*0.05
+                    ELSE SUM([RawTable].[TongRoomDaSuDung])
+                END [SoLuongCKChoVayCTCK],
+                MAX([CKNY].[KLNY]) [KLNY],
+                CASE
+                    WHEN SUM([RawTable].[DuNoRong]*[RawTable].[TyTrong]) > MAX([RawTable].[VCSH])*0.1
+                        THEN 0.1
+                    ELSE SUM([RawTable].[DuNoRong]*[RawTable].[TyTrong])/MAX([RawTable].[VCSH])
+                END [DuNo/VCSH],
+                MAX([RawTable].[VCSH]) [VonChuSoHuuCTCK],
+                CASE
+                    WHEN SUM([RawTable].[TongRoomDaSuDung]) / MAX([CKNY].[KLNY]) > 0.05
+                        THEN 0.05
+                    ELSE SUM([RawTable].[TongRoomDaSuDung]) / MAX([CKNY].[KLNY]) 
+                END [CKChoVay/CKNY],
+                MAX([SanGiaoDich].[San]) [SanGiaoDich]
+            FROM [RawTable]
+            LEFT JOIN [CKNY] ON [CKNY].[MaCK] = [RawTable].[MaCK]
+            LEFT JOIN [SanGiaoDich] ON [RawTable].[MaCK] = [SanGiaoDich].[MaCK]
+            GROUP BY [RawTable].[MaCK]
         )
         SELECT
-            [RawTable].[MaCK],
-            CASE
-                WHEN SUM([RawTable].[DuNoRong]*[RawTable].[TyTrong])/1000000 > MAX([RawTable].[VCSH])*0.1
-                    THEN MAX([RawTable].[VCSH])*0.1
-                ELSE SUM([RawTable].[DuNoRong]*[RawTable].[TyTrong])/1000000
-            END [DuNoChoVayGDKQ],
-            CASE
-                WHEN SUM([RawTable].[TongRoomDaSuDung]) / 1000 / MAX([CKNY].[KLNY]) > 0.05
-                    THEN MAX([CKNY].[KLNY])*0.05
-                ELSE SUM([RawTable].[TongRoomDaSuDung]) / 1000
-            END [SoLuongCKChoVayCTCK],
-            MAX([CKNY].[KLNY]) [KLNY],
-            CASE
-                WHEN SUM([RawTable].[DuNoRong]*[RawTable].[TyTrong])/1000000 > MAX([RawTable].[VCSH])*0.1
-                    THEN 0.1
-                ELSE SUM([RawTable].[DuNoRong]*[RawTable].[TyTrong])/1000000/MAX([RawTable].[VCSH])
-            END [DuNo/VCSH],
-            MAX([RawTable].[VCSH]) [VonChuSoHuuCTCK],
-            CASE
-                WHEN SUM([RawTable].[TongRoomDaSuDung]) / 1000 / MAX([CKNY].[KLNY]) > 0.05
-                    THEN 0.05
-                ELSE SUM([RawTable].[TongRoomDaSuDung]) / 1000 / MAX([CKNY].[KLNY]) 
-            END [CKChoVay/CKNY],
-            MAX([SanGiaoDich].[San]) [SanGiaoDich]
-        FROM [RawTable]
-        LEFT JOIN [CKNY] ON [CKNY].[MaCK] = [RawTable].[MaCK]
-        LEFT JOIN [SanGiaoDich] ON [RawTable].[MaCK] = [SanGiaoDich].[MaCK]
-        GROUP BY [RawTable].[MaCK]
-        ORDER BY [RawTable].[MaCK]
+            [MaCK],
+            [DuNoChoVayGDKQ] / 1000000 [DuNoChoVayGDKQ],
+            [SoLuongCKChoVayCTCK] / 1000 [SoLuongCKChoVayCTCK],
+            [KLNY] / 1000 [KLNY],
+            [DuNo/VCSH] [DuNo/VCSH],
+            [VonChuSoHuuCTCK] / 1000000 [VonChuSoHuuCTCK],
+            [CKChoVay/CKNY] [CKChoVay/CKNY],
+            [SanGiaoDich]
+        FROM [RawResult]
+        ORDER BY [MaCK]
         """,
         connect_DWH_CoSo
     )

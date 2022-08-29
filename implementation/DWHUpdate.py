@@ -39,41 +39,25 @@ def DWH_CoSo_Update_BackDate():
         SYNCBACKDATE(day)
 
 # không dùng @TaskMonitor vì hàm này đã có sẵn một lớp Monitor rồi
-def DWHCoSo_InternetBanking_EOD(bank,func='all'):
+def DWHCoSo_InternetBanking_EOD(bank):
 
-    from datawarehouse.DWH_CoSo import InternetBanking
+    from datawarehouse.DWH_CoSo.InternetBanking import runBankDepositBalance
+    from datawarehouse.DWH_CoSo.InternetBanking import runBankCurrentBalance
+    from datawarehouse.DWH_CoSo.InternetBanking import runBankTransactionHistory
+    from datawarehouse.DWH_CoSo.InternetBanking import runBankLoanBalance
     from datawarehouse.DWH_CoSo.InternetBanking import BankFailedException
-    from automation.finance import BIDV,EIB,IVB,VTB,VCB,OCB,TCB
+    from automation.finance import BIDV,EIB,IVB,VTB,VCB,OCB,TCB,ESUN,FIRST,FUBON,HUANAN,MEGA,SINOPAC
     import datetime as dt
     now = dt.datetime.now()
     hour = now.hour
     today = dt.datetime.today().replace(hour=0,minute=0,second=0,microsecond=0)
 
-    if hour >= 12: # chạy buổi tối (gửi mail CAPTCHA đến hiepdang@phs.vn -> debug mode ON)
+    if hour >= 8: # thời điểm chạy không phải đầu giờ sáng (gửi mail CAPTCHA đến hiepdang@phs.vn -> debug mode ON)
         dataDate = today
         debug = True
     else: # chạy sáng sớm (gửi mail CAPTCHA đến all -> debug mode OFF)
         dataDate = today - dt.timedelta(days=1)
         debug = False
-
-    # Check arguments
-    checkPairs = {
-        'runBankCurrentBalance': ['BIDV','EIB','IVB','VTB','VCB','OCB','TCB',],
-        'runBankDepositBalance': ['BIDV','IVB','VTB','VCB','OCB',],
-        'runBankTransactionHistory': ['BIDV','EIB','IVB','VTB','VCB','OCB','TCB',],
-    }
-    if func == 'all':
-        checkList = []
-        for f in checkPairs.keys():
-            checkList.extend(checkPairs[f])
-        checkList = set(checkList)
-        if bank not in checkList:
-            raise ValueError(f'One of the function does not apply on {bank}')
-    else:
-        if func not in checkPairs.keys():
-            raise ValueError(f'Invalid func: {func}')
-        if bank not in checkPairs[func]:
-            raise ValueError(f'Function {func} does not apply on {bank}')
 
     # Tạo bankObject (Đã login sẵn)
     if bank == 'BIDV':
@@ -90,27 +74,33 @@ def DWHCoSo_InternetBanking_EOD(bank,func='all'):
         bankObject = OCB(debug).Login()
     elif bank == 'TCB':
         bankObject = TCB(debug).Login()
+    elif bank == 'ESUN':
+        bankObject = ESUN(debug).Login()
+    elif bank == 'FIRST':
+        bankObject = FIRST(debug).Login()
+    elif bank == 'FUBON':
+        bankObject = FUBON(debug).Login()
+    elif bank == 'HUANAN':
+        bankObject = HUANAN(debug).Login()
+    elif bank == 'MEGA':
+        bankObject = MEGA(debug).Login()
+    elif bank == 'SINOPAC':
+        bankObject = SINOPAC(debug).Login()
     else:
         raise ValueError(f'Invalid bank name: {bank}')
 
     # Chạy các hàm trên bankObject đã tạo
-    if func == 'runBankCurrentBalance':
-        InternetBanking.runBankCurrentBalance(bankObject,dataDate,dataDate)
-    elif func == 'runBankTransactionHistory':
-        InternetBanking.runBankTransactionHistory(bankObject,dataDate,dataDate)
-    elif func == 'runBankDepositBalance':
-        InternetBanking.runBankDepositBalance(bankObject)
-    elif func == 'all':
-        for func in (InternetBanking.runBankDepositBalance,InternetBanking.runBankCurrentBalance,InternetBanking.runBankTransactionHistory):
+    for func in (runBankDepositBalance,runBankCurrentBalance,runBankTransactionHistory,runBankLoanBalance):
+        for _ in range(2): # chạy lại tối đa 2 lần
             try:
-                if func == InternetBanking.runBankDepositBalance:
+                if func in (runBankDepositBalance,runBankLoanBalance):
                     bankObject = func(bankObject)
                 else:
                     bankObject = func(bankObject,dataDate,dataDate)
+                break
             except (BankFailedException,): # any error orcurs -> send traceback email and move on.
                 pass
-    else:
-        raise ValueError(f'Invalid func {func}')
+
     # Terminate Object
     del bankObject
 
@@ -169,8 +159,8 @@ def DWHThiTruongUpdate_SecuritiesInfoVSD(): # mỗi ngày update 1000 ID -> mộ
     import datetime as dt
     from datawarehouse.DWH_ThiTruong.SecuritiesInfoVSD import run as Update_SecuritiesInfoVSD
     day = max(dt.datetime.now().day,30)
-    startID = (day-1) * 1000
-    endID = day * 1000
+    startID = (day-1) * 4000
+    endID = day * 4000
     Update_SecuritiesInfoVSD(startID,endID)
 
 @TaskMonitor
@@ -193,4 +183,18 @@ def DWH_NotifySyncStatusBackDate(db):
 def DWHBaseUpdate_Employee():
     from datawarehouse.DWH_Base.Employee import run
     run()
+
+@TaskMonitor
+def DWHThiTruongUpdate_GiaThanhToanPhaiSinhVSD():
+    from datawarehouse.DWH_ThiTruong.GiaThanhToanPhaiSinhVSD import run
+    import datetime as dt
+    today = dt.datetime.now()
+    run(today,today)
+
+
+@TaskMonitor
+def DWHThiTruongUpdate_TinToChucPhatHanhVSD():
+    from datawarehouse.DWH_ThiTruong.TinToChucPhatHanhVSD import run
+    run(100)
+
 

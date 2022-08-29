@@ -32,11 +32,6 @@ def SS_BaoCaoDongMoUyQuyenTK_HOSEold():
     BaoCaoDongMoUyQuyenTK_HOSEold.run()
 
 @TaskMonitor
-def SS_BaoCaoHoatDongLuuKyNDTNN():
-    from automation.trading_service.giaodichluuky import _BaoCaoHoatDongLuuKyNDTNN
-    BaoCaoHoatDongLuuKyNDTNN.run()
-
-@TaskMonitor
 def SS_BaoCaoTamTinhPhiChuyenKhoan():
     from automation.trading_service.giaodichluuky import BaoCaoTamTinhPhiChuyenKhoan
     BaoCaoTamTinhPhiChuyenKhoan.run()

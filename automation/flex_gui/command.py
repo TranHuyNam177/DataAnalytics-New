@@ -10,8 +10,9 @@ import unidecode
 from PIL import Image
 from automation.finance import BankCurrentBalance
 from automation.flex_gui.base import Flex, setFocus
-from datawarehouse.DWH_CoSo import connect_DWH_CoSo
+from datawarehouse.DWH_CoSo import connect_DWH_CoSo, SYNC
 import cv2 as cv
+import loggins
 
 
 class VCI1104(Flex):
@@ -23,7 +24,7 @@ class VCI1104(Flex):
         self.insertFuncCode(self.__class__.__name__)
         self.dataWindow = None
 
-    def exportCashOutOrders(self):
+    def pushCashOutOrders(self):
 
         """
         Xuất lệnh chuyển tiền ra ngoài (Realtime)
@@ -47,7 +48,7 @@ class VCI1104(Flex):
                 accountNumber = '147001536591'
             else:
                 raise ValueError(f'Invalid bank {bankObject.bank}')
-            return balanceTable.loc[balanceTable['AccountNumber'] == accountNumber,'Balance']
+            return balanceTable.loc[balanceTable['AccountNumber']==accountNumber,'Balance']
 
         def _findBankCodeBankName(cashOut,rawBankName):
 
@@ -92,7 +93,6 @@ class VCI1104(Flex):
             # Kiểm tra nếu không đủ tiền thì chuyển bằng BIDV NKKN (bankCode=1)
             return '1','BIDV'
 
-
         def _findTopLeftPoint(containingImage,templateImage):
             containingImage = np.array(containingImage) # đảm bảo image để được đưa về numpy array
             templateImage = np.array(templateImage) # đảm bảo image để được đưa về numpy array
@@ -118,62 +118,90 @@ class VCI1104(Flex):
             columnTop = headerTop + tempImage.shape[0] # top của của cột là bottom của header
             return (columnTop,columnLeft), (columnTop,columnRight)
 
+        def _findRowHeight(binaryRecordImage):
+            sumIntensity = binaryRecordImage.sum(axis=1)
+            minLocArray = np.asarray(sumIntensity==sumIntensity.min()).nonzero()
+            minLocArray = np.insert(minLocArray,0,0)
+            rowHeightArray = np.diff(minLocArray)
+            rowHeightArray = rowHeightArray[rowHeightArray<30] # row height ko thể lớn hơn 30 pixel
+            rowHeight = np.median(rowHeightArray).astype(int)
+            return rowHeight
+
         def _cropColumn(colName):
             topLeft, topRight = _findColumnCoords(colName)
             top = topLeft[0]
             left = topLeft[1]
             right = topRight[1]
-            return dataImage[top:,left:right,:]
+            bottom = dataImage.shape[0]
+            return dataImage[top:bottom,left:right,:]
 
-        def _clickRow(rowNumber):
-            ROW_HEIGHT = 17
+        def _clickRow(rowNumber,rowHeight):
             topLeft, topRight = _findColumnCoords('Select')
             left = topLeft[1]
             right = topRight[1]
-        def _readFlexDataImage(image):
-            # Đọc dữ liệu từ ảnh để tìm số dòng trên màn hình Flex
+            top = topLeft[0]
+            midPoint = (int(left*0.9+right*0.1),int(top+rowHeight/2*(2*rowNumber-1)))
+            setFocus(self.funcWindow)
+            self.dataWindow.click_input(coords=midPoint,absolute=False)
+
+        def _readAccountNumber(image):
             content = pytesseract.pytesseract.image_to_string(
                 image,
-                config='--psm 6 tessedit_char_whitelist=0123456789,.',
+                config='--psm 4 tessedit_char_whitelist=0123456789C,.',
             )
-            # contentTable['Type'] =
-            content = re.sub(r'\b022[,.].[,.]','022C',content)
-            for char in ('\n',', ','. '):
-                content = content.replace(char,' ')
-            for char in content:
-                if char not in '0123456789C,. ':
-                    content.replace(char,'')
+            content = re.sub(r'\b022[,.].?[,.]','022C',content)
+            content = re.sub(r'[^\dC]','',content)
+            content = re.sub(r'022C',' 022C',content).strip()
             return content
 
-        def _getFlexDataFrame(content):
-            # Số tài khoản
-            accountNumers = re.findall(r'022C\d{6}',content)
-            # Số tiền
-            valueContent = content
-            for accountNumer in accountNumers:
-                valueContent = valueContent.replace(accountNumer,'')
-            amountStrings = re.findall(r'[\d,]*\d{3}',valueContent)
-            amountValues = [float(string.replace(',','')) for string in amountStrings]
-            # Số thứ tự xuất hiện trên Flex
-            _rowNumbers = np.arange(len(amountValues)) + 1
+        def _readAmountValue(image):
+            content = pytesseract.pytesseract.image_to_string(
+                image,
+                config='--psm 4 tessedit_char_whitelist=0123456789,.',
+            )
+            content = re.sub(r'\n+',' ',content)
+            content = re.sub(r'[^\d,. ]','',content)
+            return content
+
+        def _getFlexDataFrame(accountStrings,amountStrings):
             return pd.DataFrame(
                 data={
-                    'RowNumber':_rowNumbers,
-                    'AccountNumber':accountNumers,
-                    'AmountValue':amountValues,
+                    'RowNumber':np.arange(len(amountStrings.split())) + 1,
+                    'AccountNumber':accountStrings.split(),
+                    'AmountValue':[float(string.replace(',','')) for string in amountStrings.split()],
                 }
             )
+
+        def _hasRecord(accountImage):
+            accountBinaryImage = cv.cvtColor(accountImage,cv.COLOR_BGR2GRAY)
+            trimmedImage = accountBinaryImage[:accountBinaryImage.shape[0]//2,5:-5] # conservative approach
+            emptyPixels = (trimmedImage>250).sum()
+            return emptyPixels / trimmedImage.size < 0.99 # có record -> True, không có record -> False
+
+        def _mapData(accountImage,amountImage):
+            dbTable = _queryVCI1104()
+            thresholdRange = range(100,155,5) # xử lý ảnh với nhiều mức threshold với nhau
+            table = None
+            for threshold in thresholdRange:
+                # Số tài khoản
+                accountBinaryImage = _processFlexImage(accountImage,threshold)
+                accounts = _readAccountNumber(accountBinaryImage)
+                # Số tiền chuyển
+                amountBinaryImage = _processFlexImage(amountImage,threshold)
+                amounts = _readAmountValue(amountBinaryImage)
+                flexTable  = _getFlexDataFrame(accounts,amounts)
+                table = pd.merge(flexTable,dbTable,on=['AccountNumber','AmountValue'],how='left')
+                if table['ReceivingBank'].notna().any(): # đọc được ít nhất 1 record
+                    break
+            table = table.loc[table['ReceivingBank'].notna()] # chỉ lấy thằng nào đọc được
+            return table.head(1) # chỉ lấy 1 record
 
         def _clickSearchButton():
             setFocus(self.funcWindow)
             searchButtonWindow = self.funcWindow.child_window(auto_id='btnSearch')
-            searchButtonWindow.click()
+            searchButtonWindow.click_input()
 
-        def _clickFirstOrder():
-            setFocus(self.funcWindow)
-            self.funcWindow.click_input(coords=(45,465),absolute=True)
-
-        def _sendBankCode():
+        def _sendBankCode(bankCode):
             setFocus(self.funcWindow)
             # Xóa ký tự
             bankCodeWindow = self.funcWindow.child_window(auto_id="mskBANKID")
@@ -185,8 +213,16 @@ class VCI1104(Flex):
 
         def _clickExecuteButton():
             setFocus(self.funcWindow)
-            self.funcWindow.click_input(coords=(110,50),absolute=True)
-            self.app.windows()
+            actionWindow = self.funcWindow.child_window(title='SMS')
+            actionImage = _takeFlexScreenshot(actionWindow)
+            actionImage = actionImage[10:,:,:]
+            unique,count = np.unique(actionImage,return_counts=True,axis=1)
+            mostFrequentColumn = unique[:,np.argmax(count),:]
+            columnMask = ~(actionImage==mostFrequentColumn[:,np.newaxis,:]).all(axis=(0,2))
+            lastColumn = np.argwhere(columnMask).max()
+            croppedImage = actionImage[:,:lastColumn,:]
+            midPoint = croppedImage.shape[1]//2, croppedImage.shape[0]//2
+            actionWindow.click_input(coords=midPoint)
 
         def _closePopUp():
             popUpWindow = self.app.window(title='Nhập giao dịch')
@@ -199,17 +235,21 @@ class VCI1104(Flex):
             bankSelectWindow.child_window(title='In',auto_id="btnPrint").click()
 
         def _takeFlexScreenshot(window):
-            setFocus(window)
+            setFocus(self.funcWindow)
             return cv.cvtColor(np.array(window.capture_as_image()),cv.COLOR_RGB2BGR)
 
-        def _processFlexImage(image):
+        def _processFlexImage(image,threshold):
             flexGrayImg = cv.cvtColor(image,cv.COLOR_RGB2GRAY)
-            _, flexBinaryImg = cv.threshold(flexGrayImg,130,255,cv.THRESH_BINARY)
-            return flexBinaryImg
+            _, flexBinaryImg = cv.threshold(flexGrayImg,threshold,255,cv.THRESH_BINARY)
+            return flexGrayImg
 
         def _queryVCI1104():
-            # dataDate = dt.datetime.now().strftime('%Y-%m-%d')
-            dataDate = '2022-08-09'
+            now = dt.datetime.now()
+            past = now - dt.timedelta(minutes=30)
+            dataDate = now.strftime('%Y-%m-%d')
+            fromTime = past.strftime('%Y-%m-%d %H:%M:%S')
+            # SYNC(connect_DWH_CoSo,'spVCI1104_UAT',dataDate,dataDate)
+            SYNC(connect_DWH_CoSo,'spVCI1104',dataDate,dataDate)
             return pd.read_sql(
                 f"""
                 SELECT 
@@ -218,10 +258,10 @@ class VCI1104(Flex):
                     [NganHangThuHuong] [ReceivingBank],
                     [SoTienChuyen] [AmountValue],
                     [ThoiGianGhiNhan] [RecordTime]
-                -- FROM [VCI1104]
-                FROM [VCI1104_UAT]
-                -- WHERE [NgayLapChungTu] = '{dataDate}'
-                ORDER BY [ThoiGianGhiNhan] DESC
+                FROM [VCI1104]
+                -- FROM [VCI1104_UAT]
+                WHERE [ThoiGianGhiNhan] > '{fromTime}'
+                ORDER BY [ThoiGianGhiNhan] -- Lệnh vào trước đẩy trước
                 """,
                 connect_DWH_CoSo,
             )
@@ -247,25 +287,38 @@ class VCI1104(Flex):
             selectButton = bankSelectWindow.child_window(auto_id=bankAutoID)
             selectButton.click()
 
-        def _exportPDF():
+        def _clickExportPDF(bankOrderWindow):
             setFocus(bankOrderWindow)
             bankOrderWindow.maximize()
-            bankOrderWindow.click_input(coords=(14,68),absolute=True)
+            menuBar = bankOrderWindow.children()[-1]
+            menuImage = np.array(menuBar.capture_as_image())
+            menuImage = menuImage[:,:-10,:] # bỏ 10 pixel cuối
+            menuImage = cv.cvtColor(menuImage,cv.COLOR_RGB2BGR)
+
+            unique,count = np.unique(menuImage,return_counts=True,axis=1)
+            mostFrequentColumn = unique[:,np.argmax(count),:]
+            columnMask = ~(menuImage==mostFrequentColumn[:,np.newaxis,:]).all(axis=0)
+            lastColumn = np.argwhere(columnMask).max()
+            croppedImage = menuImage[:,:lastColumn,:]
+            midPoint = croppedImage.shape[1]//20, croppedImage.shape[0]//2
+            # (10 icon, chia thêm 2 để lấy midPoint -> chia 20)
+            menuBar.click_input(coords=midPoint,absolute=False)
 
         def _findFileName():
+            nowString = dt.datetime.now().strftime('%H%M%S')
             if cashOut >= 100e6 and bankName == 'VTB':
-                return f'UP_VTB_{customerName.title()}_{recordTime.strftime("%H%M%S")}'
+                return f'UP_VTB_{customerName.title()}_{recordTime.strftime("%H%M%S")}_{nowString}'
             else:
-                return f'{bankName}_{customerName.title()}_{recordTime.strftime("%H%M%S")}'
+                return f'{bankName}_{customerName.title()}_{recordTime.strftime("%H%M%S")}_{nowString}'
 
-        def _savePDF():
+        def _savePDF(saveFileWindow):
             # Chọn định dạng pdf
             setFocus(saveFileWindow)
             fileTypeBox = saveFileWindow.child_window(class_name='ComboBox',found_index=1)
             fileTypeBox.click()
             fileTypeBox.type_keys('Adobe Acrobat (*.pdf)')
             # Nhập tên file
-            filePath = r'C:\Users\hiepdang\Shared Folder\Finance\UyNhiemChi'
+            filePath = r'\\192.168.8.63\Finance\UyNhiemChi'
             fileName = _findFileName()
             fileNameBox = saveFileWindow.child_window(class_name='ComboBox',found_index=0)
             fileNameBox.click()
@@ -277,72 +330,62 @@ class VCI1104(Flex):
             saveButton = saveFileWindow.child_window(title="&Save",class_name="Button")
             saveButton.click()
             # Click "Ok" (Export Complete)
+            saveFileWindow.wait('visible',timeout=30)
             saveFileWindow.type_keys('{ENTER}')
 
         def _quitPDFWindow():
             bankOrderWindow.close()
 
-        _lastNumberOfOrders = 0
         while True:
-            # Ghi nhận thời gian quét
-            runTime = dt.datetime.now().strftime('%H:%M:%S')
-            # Check xem có lệnh mới không
-            _tableDatabase = _queryVCI1104()
-            _currentNumberOfOrder = _tableDatabase.shape[0]
-            if _currentNumberOfOrder <= _lastNumberOfOrders:  # không có lệnh mới
-                logMessage = f'*** Lần quét tại {runTime} -- Không có lệnh mới\n--------------------'
-                print(logMessage)
-                time.sleep(60)
-                continue
-            # Nếu có lệnh mới -> Lấy các lệnh mới
-            _increaseNumberOfOrder = _currentNumberOfOrder - _lastNumberOfOrders
-            _tableDatabase = _tableDatabase.head(_increaseNumberOfOrder)
-            _lastNumberOfOrders = _currentNumberOfOrde
-            # Click "Tìm kiếm" để hiện các lệnh mới trên Flex
+            # Click "Tìm kiếm" để kiểm tra các lệnh mới trên Flex
             _clickSearchButton()
-            # Screen shot toàn bộ màn hình chức năng
-            funcImage = _takeFlexScreenshot(self.funcWindow)
             # Screen shot khung dữ liệu
             self.dataWindow = self.funcWindow.child_window(auto_id='pnlSearchResult')
             dataImage = _takeFlexScreenshot(self.dataWindow)
-            # Xử lý ảnh cột Tài khoản
+            # Check có dữ liệu không
             accountImage = _cropColumn('SoTaiKhoanLuuKy')
-            accountBinaryImage = _processFlexImage(accountImage)
-            # Đọc dữ liệu từ ảnh để tìm số dòng trên màn hình Flex
-            _content = _readFlexDataImage(dataImage)
-            _tableFlex = _getFlexDataFrame(_content)
-            # Map tableFlex và tableDatabase
-            table = pd.merge(_tableDatabase,_tableFlex,how='right',on=['AccountNumber','AmountValue'])
+            amountImage = _cropColumn('SoTienChuyen')
+            if not _hasRecord(accountImage):
+                time.sleep(15)
+                continue
+            # Đọc dữ liệu
+            table = _mapData(accountImage,amountImage)
             table = table.set_index('RowNumber')
             table = table.sort_index(ascending=True)
+            # Tìm Row Height
+            accountBinaryImage = _processFlexImage(accountImage,100)
+            rowHeight = _findRowHeight(accountBinaryImage)
 
             for _rowNumber in table.index:
                 # Lấy các thông tin cơ bản
                 cashOut = table.loc[_rowNumber,'AmountValue']
                 rawBankName = table.loc[_rowNumber,'ReceivingBank']
-                bankCode,bankName = _findBankCodeBankName(cashOut,rawBankName)
+                bankCode, bankName = _findBankCodeBankName(cashOut,rawBankName)
                 customerName = table.loc[_rowNumber,'CustomerName']
                 recordTime = table.loc[_rowNumber,'RecordTime']
                 # Click chọn từng lệnh
-                _clickFirstOrder()
+                _clickRow(_rowNumber,rowHeight)
                 # Nhập bank code vào khung "Mã NH UNC"
-                _sendBankCode()
+                _sendBankCode(bankCode)
                 # Bấm thực hiện
                 _clickExecuteButton()
                 # Đóng pop up (nếu có)
                 _closePopUp()
                 # Chọn ngân hàng
                 bankSelectWindow = self.app.window(title='In bảng kê')
+                bankSelectWindow.wait('visible',timeout=30)
                 _bankAutoID = _getBankAutoID()
                 _selectBankFromList(_bankAutoID)
                 # Bấm "In"
                 _clickPrint()
                 # Export ủy nhiệm chi
                 bankOrderWindow = self.app.window(title=_bankAutoID)
-                _exportPDF()
+                bankOrderWindow.wait('visible',timeout=30)
+                _clickExportPDF(bankOrderWindow)
                 # Save ủy nhiệm chi
                 saveFileWindow = self.app.window(title='Export Report')
-                _savePDF()
+                saveFileWindow.wait('visible',timeout=30)
+                _savePDF(saveFileWindow)
                 # Đóng PDF preview
                 _quitPDFWindow()
                 # Thông báo xử lý xong
@@ -354,6 +397,6 @@ class VCI1104(Flex):
                 --------------------
                 """
                 print(logMessage)
-
-
+                time.sleep(1) # nghỉ 1s sau mỗi lệnh
+                break
 

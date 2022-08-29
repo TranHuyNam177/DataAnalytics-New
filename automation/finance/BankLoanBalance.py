@@ -99,8 +99,8 @@ def runESUN(bankObject):
     time.sleep(1)
     # Check xem có Bank Announcements không
     xpath = '//*[contains(text(),"Bank Announcements")]'
-    checkElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
-    if checkElement.is_displayed():
+    checkElements = bankObject.driver.find_elements(By.XPATH,xpath)
+    if checkElements:
         xpath = '//*[contains(text(),"Confirm")]'
         bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
         time.sleep(1)

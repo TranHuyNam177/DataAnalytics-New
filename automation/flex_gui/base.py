@@ -51,7 +51,16 @@ class Flex:
         passwordBox.click()
         passwordBox.type_keys('^a{DELETE}')
         passwordBox.type_keys(password+'{ENTER}'*2)
-        time.sleep(5)
+        # Cập nhật phiên bản (nếu có)
+        updateBox = self.app.window(title='Update')
+        if updateBox.exists(timeout=5,retry_interval=0.5):
+            print('Update new version...')
+            updateBox.type_keys('{ENTER}')
+            self.mainWindow.wait_not('visible',timeout=30,retry_interval=0.5) # đợi trình cập nhật tự tắt Flex
+            time.sleep(30) # đợi cập nhật xong (30s là thời gian chờ chạy cập nhật)
+            self.start() # khởi động lại Flex
+            self.login(username,password) # Đăng nhập lại
+        self.loginWindow.wait_not('exists',timeout=5,retry_interval=0.5)
 
     def getFuncCode(self):
         return self.funcCode
@@ -72,6 +81,7 @@ class Flex:
         funcBox.type_keys('^a{DELETE}')
         funcBox.type_keys(funcCode+'{ENTER}')
         self.funcWindow = self.app.window(title_re=f".*{re.sub('[A-Z]*','',funcCode)}.*")
+        self.funcWindow.maximize()
         self.setFuncCode(funcCode)
 
     def exitAllWindows(self):
@@ -90,4 +100,3 @@ def setFocus(window):
             break
         except (pywintypes.error,):
             print('Click again')
-    window.wait('visible',timeout=5)

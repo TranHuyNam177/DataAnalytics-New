@@ -3,6 +3,7 @@ from automation.finance import *
 from automation.finance import BankCurrentBalance
 from automation.finance import BankDepositBalance
 from automation.finance import BankTransactionHistory
+from automation.finance import BankLoanBalance
 
 class BankFailedException(Exception):
     pass
@@ -13,7 +14,7 @@ def GetDataMonitor(func):
         bank = args[0].bank
         outlook = Dispatch('outlook.application')
         mail = outlook.CreateItem(0)
-        mail.To = 'hiepdang@phs.vn'
+        mail.To = 'data-analytics@phs.vn; hiepdang@phs.vn; namtran@phs.vn'
         try:
             bankObject = func(*args,**kwargs)
             mail.Subject = f"{func.__name__}.{bank} Done"
@@ -75,13 +76,16 @@ def runBankCurrentBalance(bankObject,fromDate,toDate):
     elif bankObject.bank == 'TCB':
         balanceTable = BankCurrentBalance.runTCB(bankObject,fromDate,toDate)
     else:
-        print(f'Invalid bank name: {bankObject.bank}')
+        print(f'Invalid bank name {bankObject.bank}')
         return bankObject
 
-    fromDateString = fromDate.strftime('%Y-%m-%d')
-    toDateString = toDate.strftime('%Y-%m-%d')
-    DELETE(connect_DWH_CoSo,'BankCurrentBalance',f"""WHERE [Date] BETWEEN '{fromDateString}' AND '{toDateString}' AND [Bank] = '{bankObject.bank}'""")
-    BATCHINSERT(connect_DWH_CoSo,'BankCurrentBalance',balanceTable)
+    if balanceTable.empty:
+        print('No data to insert')
+    else:
+        fromDateString = fromDate.strftime('%Y-%m-%d')
+        toDateString = toDate.strftime('%Y-%m-%d')
+        DELETE(connect_DWH_CoSo,'BankCurrentBalance',f"""WHERE [Date] BETWEEN '{fromDateString}' AND '{toDateString}' AND [Bank] = '{bankObject.bank}'""")
+        BATCHINSERT(connect_DWH_CoSo,'BankCurrentBalance',balanceTable)
 
     return bankObject # destroy the object to close opening Chrome driver (call __del__ magic method)
 
@@ -94,21 +98,38 @@ def runBankDepositBalance(bankObject):
 
     if bankObject.bank == 'BIDV':
         balanceTable = BankDepositBalance.runBIDV(bankObject)
+    elif bankObject.bank == 'ESUN':
+        balanceTable = BankDepositBalance.runESUN(bankObject)
+    elif bankObject.bank == 'FIRST':
+        balanceTable = BankDepositBalance.runFIRST(bankObject)
+    elif bankObject.bank == 'FUBON':
+        balanceTable = BankDepositBalance.runFUBON(bankObject)
+    elif bankObject.bank == 'HUANAN':
+        balanceTable = BankDepositBalance.runHUANAN(bankObject)
     elif bankObject.bank == 'IVB':
         balanceTable = BankDepositBalance.runIVB(bankObject)
-    elif bankObject.bank == 'VTB':
-        balanceTable = BankDepositBalance.runVTB(bankObject)
-    elif bankObject.bank == 'VCB':
-        balanceTable = BankDepositBalance.runVCB(bankObject)
+    elif bankObject.bank == 'MEGA':
+        balanceTable = BankDepositBalance.runMEGA(bankObject)
     elif bankObject.bank == 'OCB':
         balanceTable = BankDepositBalance.runOCB(bankObject)
+    elif bankObject.bank == 'SINOPAC':
+        balanceTable = BankDepositBalance.runSINOPAC(bankObject)
+    elif bankObject.bank == 'TCB':
+        balanceTable = BankDepositBalance.runTCB(bankObject)
+    elif bankObject.bank == 'VCB':
+        balanceTable = BankDepositBalance.runVCB(bankObject)
+    elif bankObject.bank == 'VTB':
+        balanceTable = BankDepositBalance.runVTB(bankObject)
     else:
         print(f'Invalid bank name: {bankObject.bank}')
         return bankObject
 
-    dateString = balanceTable['Date'].max().strftime('%Y-%m-%d')
-    DELETE(connect_DWH_CoSo,'BankDepositBalance',f"""WHERE [Date] = '{dateString}' AND [Bank] = '{bankObject.bank}'""")
-    BATCHINSERT(connect_DWH_CoSo,'BankDepositBalance',balanceTable)
+    if balanceTable.empty:
+        print('No data to insert')
+    else:
+        dateString = balanceTable['Date'].max().strftime('%Y-%m-%d')
+        DELETE(connect_DWH_CoSo,'BankDepositBalance',f"""WHERE [Date] = '{dateString}' AND [Bank] = '{bankObject.bank}'""")
+        BATCHINSERT(connect_DWH_CoSo,'BankDepositBalance',balanceTable)
 
     return bankObject
 
@@ -122,18 +143,18 @@ def runBankTransactionHistory(bankObject,fromDate,toDate):
 
     if bankObject.bank == 'BIDV':
         transactionTable = BankTransactionHistory.runBIDV(bankObject,fromDate,toDate)
-    elif bankObject.bank == 'IVB':
-        transactionTable = BankTransactionHistory.runIVB(bankObject,fromDate,toDate)
-    elif bankObject.bank == 'VCB':
-        transactionTable = BankTransactionHistory.runVCB(bankObject,fromDate,toDate)
-    elif bankObject.bank == 'VTB':
-        transactionTable = BankTransactionHistory.runVTB(bankObject,fromDate,toDate)
     elif bankObject.bank == 'EIB':
         transactionTable = BankTransactionHistory.runEIB(bankObject,fromDate,toDate)
+    elif bankObject.bank == 'IVB':
+        transactionTable = BankTransactionHistory.runIVB(bankObject,fromDate,toDate)
     elif bankObject.bank == 'OCB':
         transactionTable = BankTransactionHistory.runOCB(bankObject,fromDate,toDate)
     elif bankObject.bank == 'TCB':
         transactionTable = BankTransactionHistory.runTCB(bankObject,fromDate,toDate)
+    elif bankObject.bank == 'VCB':
+        transactionTable = BankTransactionHistory.runVCB(bankObject,fromDate,toDate)
+    elif bankObject.bank == 'VTB':
+        transactionTable = BankTransactionHistory.runVTB(bankObject,fromDate,toDate)
     else:
         print(f'Invalid bank name: {bankObject.bank}')
         return bankObject
@@ -148,3 +169,35 @@ def runBankTransactionHistory(bankObject,fromDate,toDate):
 
     return bankObject
 
+@GetDataMonitor
+def runBankLoanBalance(bankObject):
+    """
+    :param bankObject: Bank Object (đã login)
+    """
+
+    if bankObject.bank == 'ESUN':
+        balanceTable = BankLoanBalance.runESUN(bankObject)
+    elif bankObject.bank == 'FUBON':
+        balanceTable = BankLoanBalance.runFUBON(bankObject)
+    elif bankObject.bank == 'HUANAN':
+        balanceTable = BankLoanBalance.runHUANAN(bankObject)
+    elif bankObject.bank == 'IVB':
+        balanceTable = BankLoanBalance.runIVB(bankObject)
+    elif bankObject.bank == 'MEGA':
+        balanceTable = BankLoanBalance.runMEGA(bankObject)
+    elif bankObject.bank == 'OCB':
+        balanceTable = BankLoanBalance.runOCB(bankObject)
+    elif bankObject.bank == 'SINOPAC':
+        balanceTable = BankLoanBalance.runSINOPAC(bankObject)
+    else:
+        print(f'Invalid bank name: {bankObject.bank}')
+        return bankObject
+
+    if balanceTable.empty:
+        print('No data to insert')
+    else:
+        dateString = balanceTable['Date'].max().strftime('%Y-%m-%d')
+        DELETE(connect_DWH_CoSo,'BankLoanBalance',f"""WHERE [Date] = '{dateString}' AND [Bank] = '{bankObject.bank}'""")
+        BATCHINSERT(connect_DWH_CoSo,'BankLoanBalance',balanceTable)
+
+    return bankObject

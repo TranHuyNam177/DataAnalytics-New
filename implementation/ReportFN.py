@@ -14,3 +14,10 @@ def FN_BaoCaoTienGuiKyHan():
     import datetime as dt
     # chạy buổi sáng ngày hôm sau
     BaoCaoSoDuTienGuiKyHan.run(dt.datetime.now()-dt.timedelta(days=1))
+
+@TaskMonitor
+def FN_BaoCaoCacKhoanVay():
+    from automation.finance import BaoCaoSoDuCacKhoanVay
+    import datetime as dt
+    # chạy buổi sáng ngày hôm sau
+    BaoCaoSoDuCacKhoanVay.run(dt.datetime.now()-dt.timedelta(days=1))

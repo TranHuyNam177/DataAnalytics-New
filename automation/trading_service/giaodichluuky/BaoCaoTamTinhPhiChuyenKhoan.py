@@ -101,7 +101,7 @@ def run(
                 SUM([rod0040].[volume]) [volume],
                 SUM(
                     CASE
-                        WHEN [rod0040].[date] > '2020-3-16' THEN [rod0040].[charged_volume] * 0.3
+                        WHEN [rod0040].[date] > '2020-03-16' THEN [rod0040].[charged_volume] * 0.3
                         ELSE [rod0040].[charged_volume] * 0.5
                     END
                 ) [fee]

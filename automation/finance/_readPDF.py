@@ -1288,19 +1288,25 @@ def runENTIE(bank: str, month: int):
 def openCVLib(bank: str, month: int):
     images = convertPDFtoImage(bank, month)
     img = images[0]
+    dataImage = np.array(img)
+    # scale image to gray
+    dataImage = cv2.cvtColor(dataImage, cv2.COLOR_BGR2GRAY)
+
     # kernel = np.ones((2, 2), np.uint8)
     # img = cv2.morphologyEx(np.array(img), cv2.MORPH_OPEN, kernel)
     # Image.fromarray(img).show()
 
-    dataImage = np.array(img)
-
-    tempPath = r"D:\DataAnalytics-New\automation\finance\bank_img\MEGA\amount.PNG"
-    tempImage = cv2.imread(tempPath)
+    tempPath = r"D:\DataAnalytics-New\automation\finance\bank_img\YUANTA\amount.PNG"
+    tempImage = cv2.imread(tempPath, 0)
     tempImage = np.array(tempImage)
-    _, w, h = tempImage.shape[::-1]
+    w, h = tempImage.shape[::-1]
 
     matchResult = cv2.matchTemplate(dataImage, tempImage, cv2.TM_CCOEFF)
     _, _, _, topLeft = cv2.minMaxLoc(matchResult)
+    bottomRight = (topLeft[0] + w, topLeft[1] + h)
+
+    dataImage = cv2.rectangle(dataImage, topLeft, bottomRight, (255,0,0), 2)
+
     # bottomRight = (topLeft[0] + w, topLeft[1] + h * 2)
     # cv2.rectangle(dataImage, topLeft, bottomRight, 255, 2)
     # print(topLeft, bottomRight)
@@ -1320,9 +1326,10 @@ def openCVLib(bank: str, month: int):
     # a = dataImage[topLeft[1]:bottomRight[1], topLeft[0]+w:bottomRight[0]]
     # Image.fromarray(a).show()
 
-    dataImage = dataImage[left:right, top:bottom]
-    Image.fromarray(dataImage).show()
+    # dataImage = dataImage[left:right, top:bottom]
+    smallImage = dataImage[left:right, top:]
+    Image.fromarray(smallImage).show()
 
-    cv2.imwrite(r'D:\DataAnalytics-New\automation\finance\bank_img\MEGA\check.jpg', dataImage)
+    cv2.imwrite(r'D:\DataAnalytics-New\automation\finance\bank_img\YUANTA\check.jpg', dataImage)
 
 

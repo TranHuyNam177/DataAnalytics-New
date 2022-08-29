@@ -33,7 +33,7 @@ def run(idStart=1,idEnd=30000):
                 rows = table.find_all(class_='row')
                 for row in rows[:-1]: # bỏ dòng ghi chú cuối cùng
                     attr, value = [__cleanText__(tag.text) for tag in row.find_all('div')]
-                    deleteCondition = f"WHERE [Ticker] = '{ticker}' AND [Language] = '{lang}' AND [Attribute] = '{attr}'"
+                    deleteCondition = f"WHERE [Ticker] = '{ticker}' AND [Language] = '{lang.upper()}' AND [Attribute] = N'{attr}'"
                     DELETE(connect_DWH_ThiTruong,'SecuritiesInFoVSD',deleteCondition)
                     resultRecord = [(ticker,id_,lang.upper(),attr,value)]
                     resultFrame = pd.DataFrame(resultRecord,columns=['Ticker','VSDID','Language','Attribute','Value'])

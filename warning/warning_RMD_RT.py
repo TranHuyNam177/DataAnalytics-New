@@ -69,10 +69,21 @@ def __SendMailRetry__(func): # Decorator
         n = 0
         while True:
             now = dt.datetime.now()
+            # set các điều kiện break:
+            if now.time() > dt.time(15,0,0):
+                tempFiles = listdir(join(dirname(__file__),'TempFiles'))
+                trashFiles = [f for f in tempFiles if not f.startswith('README')]
+                for file in trashFiles:
+                    os.remove(join(dirname(__file__),'TempFiles',file))
+                break
+            if dt.time(11,30,0) < now.time() < dt.time(13,0,0):
+                break
+            if now.time() < dt.time(9,0,0):
+                break
+
             """
             Quét HOSE trước
             Quét HNX sau
-            (vẫn quét 1 lần nếu chạy ngoài giờ giao dịch)
             """
             WarningsHOSE = func('HOSE',*args,**kwargs) # quét HOSE trước
             print(WarningsHOSE.set_index('Ticker'))
@@ -114,25 +125,6 @@ def __SendMailRetry__(func): # Decorator
 
             n += 1
             print('Quét lần: ',n)
-
-            """
-            Chỗ này chấp nhận một bug là nếu lần quét cuối cùng mà ko có Warnings thì
-            vòng while sẽ tiếp tục chạy cho đến khi được tắt thủ công. Chấp nhận bug này
-            để hàm này có feature là khi chạy hàm này ngoài giờ giao dịch thì nó vẫn quét
-            1 lần
-            """
-
-            # set các điều kiện break:
-            if now.time()>dt.time(15,0,0):
-                tempFiles = listdir(join(dirname(__file__),'TempFiles'))
-                trashFiles = [f for f in tempFiles if not f.startswith('README')]
-                for file in trashFiles:
-                    os.remove(join(dirname(__file__),'TempFiles',file))
-                break
-            if dt.time(11,30,0)<now.time()<dt.time(13,0,0):
-                break
-            if now.time()<dt.time(9,0,0):
-                break
             time.sleep(5*60)  # nghỉ 5 phút
 
     return wrapper
