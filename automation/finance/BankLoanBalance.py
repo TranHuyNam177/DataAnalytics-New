@@ -116,6 +116,8 @@ def runESUN(bankObject):
     records = []
     for rowElement in rowElements:
         rowText = rowElement.text
+        if rowText == 'No information found':
+            continue
         # ContractNumber
         contractNumber = rowText.split()[1]
         # IssueDate, ExpireDate

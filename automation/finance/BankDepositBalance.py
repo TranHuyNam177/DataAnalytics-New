@@ -337,12 +337,15 @@ def runOCB(bankObject):
     xpath = '//*[@class="bd-pagination__number"]'
     pageButtonElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
     pageNumbers = [elem.text for elem in pageButtonElements if elem.text in '0123456789' and elem.text]
+    if not pageNumbers:
+        pageNumbers.append('1')
     mapper = dict()
     for pageNumber in pageNumbers:
-        # Click chọn trang
-        xpath = f'//*[@class="bd-pagination__number" and text()="{pageNumber}"]'
-        bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
-        time.sleep(5)
+        if pageNumber != '1':
+            # Click chọn trang
+            xpath = f'//*[@class="bd-pagination__number" and text()="{pageNumber}"]'
+            bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+            time.sleep(5)
         xpath = '//*[@class="above"]/div/*[@class!="num"]'
         accountKeys = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
         xpath = '//*[@amount="deposit.depositBalance"]/span[@class="bd-amount__value mg-right"]'
@@ -363,7 +366,7 @@ def runOCB(bankObject):
     cols = ['Date','Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount','Currency']
     balanceTable = downloadTable[cols]
     # Xóa file
-    os.remove(join(bankObject.downloadFolder,downloadFile))
+    # os.remove(join(bankObject.downloadFolder,downloadFile))
 
     return balanceTable
 

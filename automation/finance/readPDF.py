@@ -1,8 +1,3 @@
-import cv2
-import numpy as np
-import pandas as pd
-import pytesseract
-
 from automation import *
 import cv2 as cv
 import warnings
@@ -104,10 +99,10 @@ def detect_table(input_file):
     return img_list
 
 
-def readImgPytesseractToString(img):
+def readImgPytesseractToString(img, numConfig: int):
     string = pytesseract.image_to_string(
         image=img,
-        config=f'--psm 6'
+        config=f'--psm {numConfig}'
     )
 
     return string
@@ -138,6 +133,10 @@ def _findCoords(pdfImage, name, bank):
         fileName = 'interestRate.png'
     elif name == 'date':
         fileName = 'date.png'
+    elif name == 'issueDate':
+        fileName = 'issueDate.png'
+    elif name == 'expireDate':
+        fileName = 'expireDate.png'
     elif name == 'contractNumber':
         fileName = 'contractNumber.png'
     elif name == 'paid':
@@ -147,11 +146,13 @@ def _findCoords(pdfImage, name, bank):
     else:
         raise ValueError(
             'colName must be either "amount" or '
-            '"iRate" or '
+            '"interestRate" or '
             '"period" or '
             '"contractNumber" or '
             '"paid" or '
-            '"currency"'
+            '"currency" or '
+            '"issueDate" or '
+            '"expireDate" '
         )
     containingPath = os.path.join(os.path.dirname(__file__), 'bank_img', f'{bank}', fileName)
     containingImage = cv.imread(containingPath, 0)  # hình trắng đen (array 2 chiều)
@@ -186,7 +187,7 @@ def _findCoords(pdfImage, name, bank):
             top = top + w - 5
             right = left + h + 5
             return pdfImage[left:right, top:]
-    else:
+    elif bank == 'SHHK':
         if name == 'date':
             bottom = top + w * 2
             right = left + h * 2 + 5
@@ -202,6 +203,50 @@ def _findCoords(pdfImage, name, bank):
             right = left + h * 2 + 5
             left = left + h
             return pdfImage[left:right, top:bottom]
+    elif bank == 'SINOPAC':
+        if name in ['contractNumber', 'paid']:
+            top = top + w - 5
+            bottom = top + w
+            right = left + h
+            return pdfImage[left:right, top:bottom]
+        else:
+            bottom = top + w + 10
+            top = top - 24
+            right = left + h * 3 + 5
+            left = left + h
+            return pdfImage[left:right, top:bottom]
+    elif bank == 'CHANG HWA':
+        top = top + w - 5
+        bottom = top + w
+        left = left
+        right = left + h
+        if name == 'interestRate':
+            return pdfImage[left:right, top:bottom]
+        return pdfImage[left:right, top:]
+    elif bank == 'KGI':
+        if name == 'currency':
+            top = top - w
+            right = left + h
+            bottom = top + w
+        else:
+            top = top - 5
+            bottom = top + w + 15
+            right = left + h * 2 + 5
+            left = left + h
+        return pdfImage[left:right, top:bottom]
+    else:  # ESUN
+        if name == 'interestRate':
+            top = top + w * 5 - 10
+            right = left + h
+            left = left - 20
+        elif name == 'date':
+            top = top + w
+            right = left + h
+        else:
+            left = left - 5
+            top = top + w
+            right = left + h
+        return pdfImage[left:right, top:]
 
 # Done
 def runMEGA(bank: str, month: int):
@@ -213,8 +258,8 @@ def runMEGA(bank: str, month: int):
 
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
-        'interestRate': r'(\d{1,2}[.|,]\d+%)',
-        'date': r'(\d{4}/\d{2}/\d{2}[~|-]+?\d{4}/\d{2}/\d{2})',
+        'interestRate': r'(\d{1,2}[.,]\d+%)',
+        'date': r'(\d{4}/\d{2}/\d{2}[~-]+?\d{4}/\d{2}/\d{2})',
         'contractNumber': r'(\d{14})',
         'paid': r'(\d+,[\d,]+\d{3}\.\d{2})',
         'currency': r'(VND|USD)'
@@ -231,7 +276,7 @@ def runMEGA(bank: str, month: int):
         Image.fromarray(img).show()
 
         # check image with condition
-        if 'INTEREST PAYMENT NOTICE' not in readImgPytesseractToString(img):
+        if 'INTEREST PAYMENT NOTICE' not in readImgPytesseractToString(img, 6):
             continue
 
         # amount
@@ -239,9 +284,9 @@ def runMEGA(bank: str, month: int):
         Image.fromarray(imgAmount).show()
         dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
         dfAmount['check'] = dfAmount['text'].str.contains(patternDict['amount'])
-        dfAmount = dfAmount.loc[(dfAmount['check']) & (dfAmount['conf'] > 10)]
+        dfAmount = dfAmount.loc[(dfAmount['check']) & (dfAmount['conf'] > 10)].reset_index(drop=True)
         if dfAmount.empty:
-            return pd.DataFrame()
+            continue
         dfAmount['regex'] = dfAmount['text'].str.extract(patternDict['amount'])
         amountText = dfAmount.loc[dfAmount.index[0], 'regex']
         amount = float(amountText.replace(',','').replace('.',''))
@@ -251,9 +296,9 @@ def runMEGA(bank: str, month: int):
         Image.fromarray(imgInterestRate).show()
         dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
         dfInterestRate['check'] = dfInterestRate['text'].str.contains(patternDict['interestRate'])
-        dfInterestRate = dfInterestRate.loc[(dfInterestRate['check']) & (dfInterestRate['conf'] > 10)]
+        dfInterestRate = dfInterestRate.loc[(dfInterestRate['check']) & (dfInterestRate['conf'] > 10)].reset_index(drop=True)
         if dfInterestRate.empty:
-            return pd.DataFrame()
+            continue
         dfInterestRate['regex'] = dfInterestRate['text'].str.extract(patternDict['interestRate'])
         interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
         interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
@@ -264,9 +309,9 @@ def runMEGA(bank: str, month: int):
         Image.fromarray(imgDate).show()
         dfDate = readImgPytesseractToDataframe(imgDate, 11)
         dfDate['check'] = dfDate['text'].str.contains(patternDict['date'])
-        dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)]
+        dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)].reset_index(drop=True)
         if dfDate.empty:
-            return pd.DataFrame()
+            continue
         dfDate['regex'] = dfDate['text'].str.extract(patternDict['date'])
         dateText = dfDate.loc[dfDate.index[0], 'regex']
         if '~' in dateText:
@@ -286,9 +331,9 @@ def runMEGA(bank: str, month: int):
         Image.fromarray(imgContractNumber).show()
         dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 11)
         dfContractNumber['check'] = dfContractNumber['text'].str.contains(patternDict['contractNumber'])
-        dfContractNumber = dfContractNumber.loc[(dfContractNumber['check']) & (dfContractNumber['conf'] > 10)]
+        dfContractNumber = dfContractNumber.loc[(dfContractNumber['check']) & (dfContractNumber['conf'] > 10)].reset_index(drop=True)
         if dfContractNumber.empty:
-            return pd.DataFrame()
+            continue
         dfContractNumber['regex'] = dfContractNumber['text'].str.extract(patternDict['contractNumber'])
         contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
 
@@ -297,9 +342,9 @@ def runMEGA(bank: str, month: int):
         Image.fromarray(imgCurrency).show()
         dfCurrency = readImgPytesseractToDataframe(imgCurrency, 11)
         dfCurrency['check'] = dfCurrency['text'].str.contains(patternDict['currency'])
-        dfCurrency = dfCurrency.loc[(dfCurrency['check']) & (dfCurrency['conf'] > 10)]
+        dfCurrency = dfCurrency.loc[(dfCurrency['check']) & (dfCurrency['conf'] > 10)].reset_index(drop=True)
         if dfCurrency.empty:
-            return pd.DataFrame()
+            continue
         dfCurrency['regex'] = dfCurrency['text'].str.extract(patternDict['currency'])
         currency = dfCurrency.loc[dfCurrency.index[0], 'regex']
 
@@ -308,7 +353,7 @@ def runMEGA(bank: str, month: int):
         Image.fromarray(imgPaid).show()
         dfPaid = readImgPytesseractToDataframe(imgPaid, 11)
         dfPaid['check'] = dfPaid['text'].str.contains(patternDict['paid'])
-        dfPaid = dfPaid.loc[(dfPaid['check']) & (dfPaid['conf'] > 10)]
+        dfPaid = dfPaid.loc[(dfPaid['check']) & (dfPaid['conf'] > 10)].reset_index(drop=True)
         dfPaid['regex'] = dfPaid['text'].str.extract(patternDict['paid'])
         if dfPaid.empty:
             paid = 0
@@ -358,7 +403,7 @@ def runSHINKONG(bank: str, month: int):
 
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3}\.\d{2})',
-        'interestRate': r'(\d{1,2}[.|,]\d+%)',
+        'interestRate': r'(\d{1,2}[.,]\d+%)',
         'date': r'(\d{4}/\d{2}/\d{2}~\d{4}/\d{2}/\d{2})',
         'contractNumber': r'(\w+)',
         'currency': r'(VND|USD)'
@@ -374,7 +419,7 @@ def runSHINKONG(bank: str, month: int):
         img = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
 
         # check image with condition
-        if 'Payment Advice' not in readImgPytesseractToString(img):
+        if 'Payment Advice' not in readImgPytesseractToString(img, 6):
             continue
 
         # amount
@@ -382,9 +427,9 @@ def runSHINKONG(bank: str, month: int):
         Image.fromarray(imgAmount).show()
         dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
         dfAmount['check'] = dfAmount['text'].str.contains(patternDict['amount'])
-        dfAmount = dfAmount.loc[(dfAmount['check']) & (dfAmount['conf'] > 10)]
+        dfAmount = dfAmount.loc[(dfAmount['check']) & (dfAmount['conf'] > 10)].reset_index(drop=True)
         if dfAmount.empty:
-            return pd.DataFrame()
+            continue
         dfAmount['regex'] = dfAmount['text'].str.extract(patternDict['amount'])
         amountText = dfAmount.loc[dfAmount.index[0], 'regex']
         amount = float(amountText.replace(',', ''))
@@ -393,7 +438,7 @@ def runSHINKONG(bank: str, month: int):
         dfCurrency = dfAmount.loc[dfAmount['text'].str.contains(patternDict['currency'])].reset_index(drop=True)
         dfCurrency = dfCurrency.loc[(dfCurrency['check']) & (dfCurrency['conf'] > 10)]
         if dfCurrency.empty:
-            return pd.DataFrame()
+            continue
         dfCurrency['regex'] = dfCurrency['text'].str.extract(patternDict['currency'])
         currency = dfCurrency.loc[dfCurrency.index[0], 'regex']
 
@@ -402,9 +447,9 @@ def runSHINKONG(bank: str, month: int):
         Image.fromarray(imgInterestRate).show()
         dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
         dfInterestRate['check'] = dfInterestRate['text'].str.contains(patternDict['interestRate'])
-        dfInterestRate = dfInterestRate.loc[(dfInterestRate['check']) & (dfInterestRate['conf'] > 10)]
+        dfInterestRate = dfInterestRate.loc[(dfInterestRate['check']) & (dfInterestRate['conf'] > 10)].reset_index(drop=True)
         if dfInterestRate.empty:
-            return pd.DataFrame()
+            continue
         dfInterestRate['regex'] = dfInterestRate['text'].str.extract(patternDict['interestRate'])
         interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
         interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
@@ -414,9 +459,9 @@ def runSHINKONG(bank: str, month: int):
         Image.fromarray(imgDate).show()
         dfDate = readImgPytesseractToDataframe(imgDate, 11)
         dfDate['check'] = dfDate['text'].str.contains(patternDict['date'])
-        dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)]
+        dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)].reset_index(drop=True)
         if dfDate.empty:
-            return pd.DataFrame()
+            continue
         dfDate['regex'] = dfDate['text'].str.extract(patternDict['date'])
         dateText = dfDate.loc[dfDate.index[0], 'regex']
         if '~' in dateText:
@@ -436,9 +481,9 @@ def runSHINKONG(bank: str, month: int):
         Image.fromarray(imgContractNumber).show()
         dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
         dfContractNumber['check'] = dfContractNumber['text'].str.contains(patternDict['contractNumber'])
-        dfContractNumber = dfContractNumber.loc[(dfContractNumber['check']) & (dfContractNumber['conf'] > 10)]
+        dfContractNumber = dfContractNumber.loc[(dfContractNumber['check']) & (dfContractNumber['conf'] > 10)].reset_index(drop=True)
         if dfContractNumber.empty:
-            return pd.DataFrame()
+            continue
         dfContractNumber['regex'] = dfContractNumber['text'].str.extract(patternDict['contractNumber'])
         contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
         if contractNumber.startswith('LI'):
@@ -490,7 +535,7 @@ def runYUANTA(bank: str, month: int):
 
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
-        'interestRate': r'(\d{1,2}[.|,]\d+%)',
+        'interestRate': r'(\d{1,2}[.,]\d+%)',
         'date': r'(\d{4}/\d{2}/\d{2}-\d{4}/\d{2}/\d{2})',
         'contractNumber': r'([A-Z]{4}\d{4}[A-Z]{2}\d{5})',
         'currency': r'(VND|USD)'
@@ -503,7 +548,7 @@ def runYUANTA(bank: str, month: int):
         scaleFullImg = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         # check image with condition
-        if 'Interest Payment Notice' not in readImgPytesseractToString(img):
+        if 'Interest Payment Notice' not in readImgPytesseractToString(img, 6):
             continue
 
         # detect table in image
@@ -518,7 +563,7 @@ def runYUANTA(bank: str, month: int):
         # Image.fromarray(imgAmount).show()
         dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
         dfAmount['check'] = dfAmount['text'].str.contains(patternDict['amount'])
-        dfAmount = dfAmount.loc[(dfAmount['check']) & (dfAmount['conf'] > 10)]
+        dfAmount = dfAmount.loc[(dfAmount['check']) & (dfAmount['conf'] > 10)].reset_index(drop=True)
         if dfAmount.empty:
             continue
         dfAmount['regex'] = dfAmount['text'].str.extract(patternDict['amount'])
@@ -530,7 +575,7 @@ def runYUANTA(bank: str, month: int):
         # Image.fromarray(imgCurrency).show()
         dfCurrency = readImgPytesseractToDataframe(imgCurrency, 6)
         dfCurrency['check'] = dfCurrency['text'].str.contains(patternDict['currency'])
-        dfCurrency = dfCurrency.loc[(dfCurrency['check']) & (dfCurrency['conf'] > 10)]
+        dfCurrency = dfCurrency.loc[(dfCurrency['check']) & (dfCurrency['conf'] > 10)].reset_index(drop=True)
         if dfCurrency.empty:
             continue
         dfCurrency['regex'] = dfCurrency['text'].str.extract(patternDict['currency'])
@@ -541,7 +586,7 @@ def runYUANTA(bank: str, month: int):
         # Image.fromarray(imgInterestRate).show()
         dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 4)
         dfInterestRate['check'] = dfInterestRate['text'].str.contains(patternDict['interestRate'])
-        dfInterestRate = dfInterestRate.loc[(dfInterestRate['check']) & (dfInterestRate['conf'] > 10)]
+        dfInterestRate = dfInterestRate.loc[(dfInterestRate['check']) & (dfInterestRate['conf'] > 10)].reset_index(drop=True)
         if dfInterestRate.empty:
             continue
         dfInterestRate['regex'] = dfInterestRate['text'].str.extract(patternDict['interestRate'])
@@ -553,7 +598,7 @@ def runYUANTA(bank: str, month: int):
         # Image.fromarray(imgDate).show()
         dfDate = readImgPytesseractToDataframe(imgDate, 4)
         dfDate['check'] = dfDate['text'].str.contains(patternDict['date'])
-        dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)]
+        dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)].reset_index(drop=True)
         if dfDate.empty:
             continue
         dfDate['regex'] = dfDate['text'].str.extract(patternDict['date'])
@@ -572,7 +617,7 @@ def runYUANTA(bank: str, month: int):
         # Image.fromarray(imgContractNumber).show()
         dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
         dfContractNumber['check'] = dfContractNumber['text'].str.contains(patternDict['contractNumber'])
-        dfContractNumber = dfContractNumber.loc[(dfContractNumber['check']) & (dfContractNumber['conf'] > 10)]
+        dfContractNumber = dfContractNumber.loc[(dfContractNumber['check']) & (dfContractNumber['conf'] > 10)].reset_index(drop=True)
         if dfContractNumber.empty:
             continue
         dfContractNumber['regex'] = dfContractNumber['text'].str.extract(patternDict['contractNumber'])
@@ -623,8 +668,8 @@ def runSHHK(bank: str, month: int):
     images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3}\.\d{2})',
-        'interestRate': r'(\d{1,2}[.|,]\d+%)',
-        'date': r'(\d{4}/\d{2}/\d{2}[-|~]\d{4}/\d{2}/\d{2}|\d{4}/\d{2}/\d{2})',
+        'interestRate': r'(\d{1,2}[.,]\d+%)',
+        'date': r'(\d{4}/\d{2}/\d{2}[-~]\d{4}/\d{2}/\d{2}|\d{4}/\d{2}/\d{2})',
         'contractNumber': r'([A-Z]{2}\d{7})',
         'currency': r'(VND|USD)',
         'paid': r'(\d+,[\d,]+\d{3}\.\d{2}|\d\.\d{2})'
@@ -641,7 +686,7 @@ def runSHHK(bank: str, month: int):
         Image.fromarray(imgAmount).show()
         dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
         dfAmount['check'] = dfAmount['text'].str.contains(patternDict['amount'])
-        dfAmount = dfAmount.loc[(dfAmount['check']) & (dfAmount['conf'] > 10)]
+        dfAmount = dfAmount.loc[(dfAmount['check']) & (dfAmount['conf'] > 10)].reset_index(drop=True)
         if dfAmount.empty:
             continue
         dfAmount['regex'] = dfAmount['text'].str.extract(patternDict['amount'])
@@ -653,7 +698,7 @@ def runSHHK(bank: str, month: int):
         Image.fromarray(imgCurrency).show()
         dfCurrency = readImgPytesseractToDataframe(imgCurrency, 6)
         dfCurrency['check'] = dfCurrency['text'].str.contains(patternDict['currency'])
-        dfCurrency = dfCurrency.loc[(dfCurrency['check']) & (dfCurrency['conf'] > 10)]
+        dfCurrency = dfCurrency.loc[(dfCurrency['check']) & (dfCurrency['conf'] > 10)].reset_index(drop=True)
         if dfCurrency.empty:
             continue
         dfCurrency['regex'] = dfCurrency['text'].str.extract(patternDict['currency'])
@@ -664,7 +709,7 @@ def runSHHK(bank: str, month: int):
         Image.fromarray(imgInterestRate).show()
         dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 4)
         dfInterestRate['check'] = dfInterestRate['text'].str.contains(patternDict['interestRate'])
-        dfInterestRate = dfInterestRate.loc[(dfInterestRate['check']) & (dfInterestRate['conf'] > 10)]
+        dfInterestRate = dfInterestRate.loc[(dfInterestRate['check']) & (dfInterestRate['conf'] > 10)].reset_index(drop=True)
         if dfInterestRate.empty:
             continue
         dfInterestRate['regex'] = dfInterestRate['text'].str.extract(patternDict['interestRate'])
@@ -704,7 +749,7 @@ def runSHHK(bank: str, month: int):
         Image.fromarray(imgContractNumber).show()
         dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 11)
         dfContractNumber['check'] = dfContractNumber['text'].str.contains(patternDict['contractNumber'])
-        dfContractNumber = dfContractNumber.loc[(dfContractNumber['check']) & (dfContractNumber['conf'] > 10)]
+        dfContractNumber = dfContractNumber.loc[(dfContractNumber['check']) & (dfContractNumber['conf'] > 10)].reset_index(drop=True)
         if dfContractNumber.empty:
             continue
         dfContractNumber['regex'] = dfContractNumber['text'].str.extract(patternDict['contractNumber'])
@@ -716,12 +761,164 @@ def runSHHK(bank: str, month: int):
         Image.fromarray(imgPaid).show()
         dfPaid = readImgPytesseractToDataframe(imgPaid, 4)
         dfPaid['check'] = dfPaid['text'].str.contains(patternDict['paid'])
-        dfPaid = dfPaid.loc[(dfPaid['check']) & (dfPaid['conf'] > 10)]
+        dfPaid = dfPaid.loc[(dfPaid['check']) & (dfPaid['conf'] > 10)].reset_index(drop=True)
         if dfPaid.empty:
             continue
         dfPaid['regex'] = dfPaid['text'].str.extract(patternDict['paid'])
         paid = dfPaid.loc[dfPaid.index[0], 'regex']
         paid = float(paid.replace(',',''))
+
+        # remaining
+        remaining = amount - paid
+
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount, currency))
+    balanceTable = pd.DataFrame(
+        records,
+        columns=[
+            'ContractNumber',
+            'TermDays',
+            'TermMonths',
+            'InterestRate',
+            'IssueDate',
+            'ExpireDate',
+            'Amount',
+            'Paid',
+            'Remaining',
+            'InterestAmount',
+            'Currency'
+        ]
+    )
+    # Date
+    if now.hour >= 8:
+        d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
+    else:
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+    balanceTable.insert(0, 'Date', d)
+    # Bank
+    balanceTable.insert(1, 'Bank', 'SHHK')
+
+    return balanceTable
+
+# Done
+def runSINOPAC(bank: str, month: int):
+    now = dt.datetime.now()
+    records = []
+    images = convertPDFtoImage(bank, month)
+    patternDict = {
+        'amount': r'(\d+,[\d,]+\d{3})',
+        'interestRate': r'(\d{1,2}[.|,]\d+%)',
+        'date': r'(\d{1,2}[.|,|;|:]?[A-Z]{3}[.|,|;|:]?\d{4}to\d{1,2}[.|,|;|:]?[A-Z]{3}[.|,|;|:]?\d{4})',
+        'contractNumber': r'(\d{8})',
+        'currency': r'(VND|USD)',
+        'paid': r'(\d+,[\d,]+\d{3}\.\d{2})'
+    }
+    if bank != 'SINOPAC':
+        bank = 'SINOPAC'
+    for img in images:
+        # convert PIL to np array
+        img = np.array(img)
+        # grayscale full image
+        scaleFullImg = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        Image.fromarray(scaleFullImg).show()
+
+        # amount
+        imgAmount = _findCoords(np.array(scaleFullImg), 'amount', bank)
+        Image.fromarray(imgAmount).show()
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
+        dfAmount['check'] = dfAmount['text'].str.contains(patternDict['amount'])
+        dfAmount = dfAmount.loc[(dfAmount['check']) & (dfAmount['conf'] > 10)].reset_index(drop=True)
+        if dfAmount.empty:
+            continue
+        dfAmount['regex'] = dfAmount['text'].str.extract(patternDict['amount'])
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', ''))
+
+        # interest rate
+        imgInterestRate = _findCoords(np.array(scaleFullImg), 'interestRate', bank)
+        Image.fromarray(imgInterestRate).show()
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
+        dfInterestRate['check'] = dfInterestRate['text'].str.contains(patternDict['interestRate'])
+        dfInterestRate = dfInterestRate.loc[(dfInterestRate['check']) & (dfInterestRate['conf'] > 10)].reset_index(drop=True)
+        if dfInterestRate.empty:
+            continue
+        dfInterestRate['regex'] = dfInterestRate['text'].str.extract(patternDict['interestRate'])
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
+
+        # ngày hiệu lực, ngày đáo hạn
+        imgDate = _findCoords(np.array(scaleFullImg), 'date', bank)
+        Image.fromarray(imgDate).show()
+        dfDate = readImgPytesseractToDataframe(imgDate, 11)
+        # group by dataframe theo block_num
+        groupByText = dfDate.groupby(['line_num'])['text'].apply(lambda x: ''.join(list(x)))
+        groupByConf = dfDate.groupby(['line_num'])['conf'].mean()
+        dfDate = pd.concat([groupByText, groupByConf], axis=1)
+        dfDate['text'] = dfDate['text'].apply(lambda x: x.replace('..', '.'))
+        dfDate['check'] = dfDate['text'].str.contains(patternDict['date'])
+        dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)].reset_index(drop=True)
+        if dfDate.empty:
+            continue
+        dfDate['regex'] = dfDate['text'].str.extract(patternDict['date'])
+        dateText = dfDate.loc[dfDate.index[0], 'regex']
+        char = ',.:;'
+        for c in char:
+            if c in dateText:
+                dateText = dateText.replace(c, '')
+
+        issueDateText, expireDateText = dateText.split('to')
+
+        issueDate = dt.datetime.strptime(issueDateText, '%d%b%Y')
+        expireDate = dt.datetime.strptime(expireDateText, '%d%b%Y')
+
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = (expireDate.year - issueDate.year) * 12 + expireDate.month - issueDate.month
+
+        # contract number
+        imgContractNumber = _findCoords(np.array(scaleFullImg), 'contractNumber', bank)
+        Image.fromarray(imgContractNumber).show()
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
+        dfContractNumber['text'] = dfContractNumber['text'].astype(str)
+        dfContractNumber['check'] = dfContractNumber['text'].str.contains(patternDict['contractNumber'])
+        dfContractNumber = dfContractNumber.loc[(dfContractNumber['check']) & (dfContractNumber['conf'] > 10)].reset_index(drop=True)
+        if dfContractNumber.empty:
+            continue
+        dfContractNumber['regex'] = dfContractNumber['text'].str.extract(patternDict['contractNumber'])
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+
+        # paid & currency
+        imgPaid = _findCoords(scaleFullImg, 'paid', bank)
+        Image.fromarray(imgPaid).show()
+        dfPaidCurrency = readImgPytesseractToDataframe(imgPaid, 4)
+
+        # currency
+        dfCurrency = dfPaidCurrency.loc[
+            (dfPaidCurrency['text'].str.contains(patternDict['currency'])) &
+            (dfPaidCurrency['conf'] > 10)
+        ].reset_index(drop=True)
+        if dfCurrency.empty:
+            continue
+        dfCurrency['regex'] = dfCurrency['text'].str.extract(patternDict['currency'])
+        currency = dfCurrency.loc[dfCurrency.index[0], 'regex']
+
+        # paid
+        dfPaid = dfPaidCurrency.loc[
+            (dfPaidCurrency['text'].str.contains(patternDict['paid'])) &
+            (dfPaidCurrency['conf'] > 10)
+        ].reset_index(drop=True)
+        if dfPaid.empty:
+            paid = 0
+        else:
+            dfPaid['regex'] = dfPaid['text'].str.extract(patternDict['paid'])
+            paidText = dfPaid.loc[dfPaid.index[0], 'regex']
+            paid = float(paidText.replace(',', ''))
+        if paid > amount:
+            paid = amount
 
         # remaining
         remaining = amount - paid
@@ -756,6 +953,434 @@ def runSHHK(bank: str, month: int):
                                                  microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0, 'Date', d)
     # Bank
-    balanceTable.insert(1, 'Bank', 'SHHK')
+    balanceTable.insert(1, 'Bank', 'SINOPAC')
 
     return balanceTable
+
+# Done
+def runCHANGHWA(bank: str, month: int):
+    now = dt.datetime.now()
+    records = []
+    images = convertPDFtoImage(bank, month)
+    patternDict = {
+        'amount': r'(\d+,[\d,]+\d{3})',
+        'interestRate': r'(\d{1,2}[.|,]\d+%)',
+        'date': r'(\d{1,2}[A-Z]{3}\.\d{4}TO\d{1,2}[A-Z]{3}\.\d{4})',
+        'contractNumber': r'(\d{2}/\d{4}/[A-Z]{2}/[A-Z]{3})',
+        'currency': r'(VND|USD)',
+        'paid': r'(\d+,[\d,]+\d{3})'
+    }
+    if bank != 'CHANG HWA':
+        bank = 'CHANG HWA'
+    for img in images:
+        # convert PIL to np array
+        img = np.array(img)
+        # grayscale full image
+        scaleFullImg = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        Image.fromarray(scaleFullImg).show()
+        # check image with condition
+        lst_condition = ['INTEREST PAYMENT NOTICE', 'PAYMENT NOTICE']
+        check = all(c not in readImgPytesseractToString(img, 6) for c in lst_condition)
+        if check:
+            continue
+
+        # amount & currency
+        imgAmountCurrency = _findCoords(np.array(scaleFullImg), 'amount', bank)
+        Image.fromarray(imgAmountCurrency).show()
+        dfAmountCurrency = readImgPytesseractToDataframe(imgAmountCurrency, 11)
+        # amount
+        dfAmount = dfAmountCurrency.loc[
+            (dfAmountCurrency['text'].str.contains(patternDict['amount'])) &
+            (dfAmountCurrency['conf'] > 10)
+        ].reset_index(drop=True)
+        if dfAmount.empty:
+            continue
+        dfAmount['regex'] = dfAmount['text'].str.extract(patternDict['amount'])
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', ''))
+
+        # currency
+        dfCurrency = dfAmountCurrency.loc[
+            (dfAmountCurrency['text'].str.contains(patternDict['currency'])) &
+            (dfAmountCurrency['conf'] > 10)
+        ].reset_index(drop=True)
+        if dfCurrency.empty:
+            continue
+        dfCurrency['regex'] = dfCurrency['text'].str.extract(patternDict['currency'])
+        currency = dfCurrency.loc[dfCurrency.index[0], 'regex']
+
+        # interest rate
+        imgInterestRate = _findCoords(np.array(scaleFullImg), 'interestRate', bank)
+        Image.fromarray(imgInterestRate).show()
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
+        dfInterestRate['check'] = dfInterestRate['text'].str.contains(patternDict['interestRate'])
+        dfInterestRate = dfInterestRate.loc[(dfInterestRate['check']) & (dfInterestRate['conf'] > 10)].reset_index(drop=True)
+        if dfInterestRate.empty:
+            continue
+        dfInterestRate['regex'] = dfInterestRate['text'].str.extract(patternDict['interestRate'])
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
+
+        # ngày hiệu lực, ngày đáo hạn
+        imgDate = _findCoords(np.array(scaleFullImg), 'date', bank)
+        Image.fromarray(imgDate).show()
+        dfDate = readImgPytesseractToDataframe(imgDate, 11)
+        # group by dataframe theo block_num
+        groupByText = dfDate.groupby(['line_num'])['text'].apply(lambda x: ''.join(list(x)))
+        groupByConf = dfDate.groupby(['line_num'])['conf'].mean()
+        dfDate = pd.concat([groupByText, groupByConf], axis=1)
+        dfDate['check'] = dfDate['text'].str.contains(patternDict['date'])
+        dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)].reset_index(drop=True)
+        if dfDate.empty:
+            # dfDate = pd.DataFrame()
+            continue
+        dfDate['regex'] = dfDate['text'].str.extract(patternDict['date'])
+        dateText = dfDate.loc[dfDate.index[0], 'regex']
+        dateText = dateText.replace('.', '')
+        issueDateText, expireDateText = dateText.split('TO')
+        issueDate = dt.datetime.strptime(issueDateText, '%d%b%Y')
+        expireDate = dt.datetime.strptime(expireDateText, '%d%b%Y')
+
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = (expireDate.year - issueDate.year) * 12 + expireDate.month - issueDate.month
+
+        # contract number
+        imgContractNumber = _findCoords(np.array(scaleFullImg), 'contractNumber', bank)
+        Image.fromarray(imgContractNumber).show()
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
+        dfContractNumber['text'] = dfContractNumber['text'].astype(str)
+        dfContractNumber['check'] = dfContractNumber['text'].str.contains(patternDict['contractNumber'])
+        dfContractNumber = dfContractNumber.loc[(dfContractNumber['check']) & (dfContractNumber['conf'] > 10)].reset_index(drop=True)
+        if dfContractNumber.empty:
+            continue
+        dfContractNumber['regex'] = dfContractNumber['text'].str.extract(patternDict['contractNumber'])
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+
+        # paid
+        imgPaid = _findCoords(scaleFullImg, 'paid', bank)
+        Image.fromarray(imgPaid).show()
+        paidString = readImgPytesseractToString(imgPaid, 6)
+        if paidString == '':
+            dfPaid = pd.DataFrame()
+        else:
+            dfPaid = readImgPytesseractToDataframe(imgPaid, 4)
+            dfPaid['check'] = dfPaid['text'].str.contains(patternDict['paid'])
+            dfPaid = dfPaid.loc[(dfPaid['check']) & (dfPaid['conf'] > 10)].reset_index(drop=True)
+        if dfPaid.empty:
+            paid = 0
+        else:
+            dfPaid['regex'] = dfPaid['text'].str.extract(patternDict['paid'])
+            paidText = dfPaid.loc[dfPaid.index[0], 'regex']
+            paid = float(paidText.replace(',', ''))
+
+        # remaining
+        remaining = amount - paid
+
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount, currency))
+    balanceTable = pd.DataFrame(
+        records,
+        columns=[
+            'ContractNumber',
+            'TermDays',
+            'TermMonths',
+            'InterestRate',
+            'IssueDate',
+            'ExpireDate',
+            'Amount',
+            'Paid',
+            'Remaining',
+            'InterestAmount',
+            'Currency'
+        ]
+    )
+    # Date
+    if now.hour >= 8:
+        d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
+    else:
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+    balanceTable.insert(0, 'Date', d)
+    # Bank
+    balanceTable.insert(1, 'Bank', 'CHANG HWA')
+
+    return balanceTable
+
+# chưa thấy file PDF có phần trả khoản vay nên tạm để paid = 0
+def runKGI(bank: str, month: int):
+    now = dt.datetime.now()
+    records = []
+    images = convertPDFtoImage(bank, month)
+    patternDict = {
+        'amount': r'(\d+,[\d,]+\d{3}\.\d{2}|\d+,[\d,]+\d{3})',
+        'interestRate': r'(\d{1,2}\.\d+)',
+        'date': r'(\d{4}/\d{2}/\d{2})',
+        'contractNumber': r'([A-Z]{3}\d{7}[A-Z]{2})',
+        'currency': r'(VND|USD)'
+    }
+    for img in images:
+        # convert PIL to np array
+        img = np.array(img)
+        # grayscale full image
+        scaleFullImg = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        Image.fromarray(scaleFullImg).show()
+
+        # check image with condition
+        if 'NOTICE OF LOAN REPAYMENT' not in readImgPytesseractToString(img, 6):
+            continue
+
+        # amount
+        imgAmount = _findCoords(np.array(scaleFullImg), 'amount', bank)
+        Image.fromarray(imgAmount).show()
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
+        dfAmount['check'] = dfAmount['text'].str.contains(patternDict['amount'])
+        dfAmount = dfAmount.loc[(dfAmount['check']) & (dfAmount['conf'] >= 0)].reset_index(drop=True)
+        if dfAmount.empty:
+            continue
+        dfAmount['regex'] = dfAmount['text'].str.extract(patternDict['amount'])
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', ''))
+
+        # currency
+        imgCurrency = _findCoords(np.array(scaleFullImg), 'currency', bank)
+        Image.fromarray(imgCurrency).show()
+        dfCurrency = readImgPytesseractToDataframe(imgCurrency, 6)
+        dfCurrency['check'] = dfCurrency['text'].str.contains(patternDict['currency'])
+        dfCurrency = dfCurrency.loc[(dfCurrency['check']) & (dfCurrency['conf'] > 10)].reset_index(drop=True)
+        if dfCurrency.empty:
+            continue
+        dfCurrency['regex'] = dfCurrency['text'].str.extract(patternDict['currency'])
+        currency = dfCurrency.loc[dfCurrency.index[0], 'regex']
+
+        # interest rate
+        imgInterestRate = _findCoords(np.array(scaleFullImg), 'interestRate', bank)
+        Image.fromarray(imgInterestRate).show()
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 6)
+        dfInterestRate['text'] = dfInterestRate['text'].astype(str)
+        dfInterestRate['check'] = dfInterestRate['text'].str.contains(patternDict['interestRate'])
+        dfInterestRate = dfInterestRate.loc[(dfInterestRate['check']) & (dfInterestRate['conf'] > 10)].reset_index(drop=True)
+        if dfInterestRate.empty:
+            continue
+        dfInterestRate['regex'] = dfInterestRate['text'].str.extract(patternDict['interestRate'])
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText) / 100
+
+        # ngày hiệu lực, ngày đáo hạn
+        imgDate = _findCoords(np.array(scaleFullImg), 'date', bank)
+        Image.fromarray(imgDate).show()
+        dfDate = readImgPytesseractToDataframe(imgDate, 11)
+        dfDate['check'] = dfDate['text'].str.contains(patternDict['date'])
+        dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)].reset_index(drop=True)
+        if dfDate.empty:
+            continue
+        dfDate['regex'] = dfDate['text'].str.extract(patternDict['date'])
+        if dfDate.loc[dfDate.index[0], 'regex'] < dfDate.loc[dfDate.index[1], 'regex']:
+            issueDateText = dfDate.loc[dfDate.index[0], 'regex']
+            expireDateText = dfDate.loc[dfDate.index[1], 'regex']
+        else:
+            issueDateText = dfDate.loc[dfDate.index[1], 'regex']
+            expireDateText = dfDate.loc[dfDate.index[0], 'regex']
+        issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
+        expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
+
+        # Term Days
+        termDays = (expireDate - issueDate).days + 1
+        # Term Months
+        termMonths = (expireDate.year - issueDate.year) * 12 + expireDate.month - issueDate.month
+
+        # contract number
+        imgContractNumber = _findCoords(np.array(scaleFullImg), 'contractNumber', bank)
+        Image.fromarray(imgContractNumber).show()
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
+        dfContractNumber['check'] = dfContractNumber['text'].str.contains(patternDict['contractNumber'])
+        dfContractNumber = dfContractNumber.loc[
+            (dfContractNumber['check']) & (dfContractNumber['conf'] > 10)
+        ].reset_index(drop=True)
+        if dfContractNumber.empty:
+            continue
+        dfContractNumber['regex'] = dfContractNumber['text'].str.extract(patternDict['contractNumber'])
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+
+        # paid
+        paid = 0
+
+        # remaining
+        remaining = amount - paid
+
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount, currency))
+    balanceTable = pd.DataFrame(
+        records,
+        columns=[
+            'ContractNumber',
+            'TermDays',
+            'TermMonths',
+            'InterestRate',
+            'IssueDate',
+            'ExpireDate',
+            'Amount',
+            'Paid',
+            'Remaining',
+            'InterestAmount',
+            'Currency'
+        ]
+    )
+    # Date
+    if now.hour >= 8:
+        d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
+    else:
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+    balanceTable.insert(0, 'Date', d)
+    # Bank
+    balanceTable.insert(1, 'Bank', 'KGI')
+
+    return balanceTable
+
+# chưa thấy file PDF có phần trả khoản vay nên tạm để paid = 0
+def runESUN(bank: str, month: int):
+    now = dt.datetime.now()
+    records = []
+    images = convertPDFtoImage(bank, month)
+    patternDict = {
+        'amount': r'(\d+[,|.][\d,|\d.]+\d{3})',
+        'interestRate': r'(\d{1,2}[,.]+\d+%)',
+        'date': r'(\d{4}/\d{2}/\d{2}[~-]\d{4}/\d{2}/\d{2})',
+        'contractNumber': r'(\d{6})',
+        'currency': r'(VND|USD)'
+    }
+    if bank != 'ESUN':
+        bank = 'ESUN'
+    for img in images:
+        # grayscale full image
+        scaleFullImg = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
+        Image.fromarray(scaleFullImg).show()
+
+        # check image with condition
+        if 'Payment Advice' not in readImgPytesseractToString(img, 6):
+            continue
+
+        # amount & currency
+        imgAmountCurrency = _findCoords(np.array(scaleFullImg), 'amount', bank)
+        Image.fromarray(imgAmountCurrency).show()
+        dfAmountCurrency = readImgPytesseractToDataframe(imgAmountCurrency, 4)
+        # amount
+        dfAmount = dfAmountCurrency.loc[
+            (dfAmountCurrency['text'].str.contains(patternDict['amount'])) &
+            (dfAmountCurrency['conf'] > 10)
+        ].reset_index(drop=True)
+        if dfAmount.empty:
+            continue
+        dfAmount['regex'] = dfAmount['text'].str.extract(patternDict['amount'])
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace('.', '').replace(',', ''))
+
+        # currency
+        dfCurrency = dfAmountCurrency.loc[
+            (dfAmountCurrency['text'].str.contains(patternDict['currency'])) &
+            (dfAmountCurrency['conf'] > 10)
+        ].reset_index(drop=True)
+        if dfCurrency.empty:
+            continue
+        dfCurrency['regex'] = dfCurrency['text'].str.extract(patternDict['currency'])
+        currency = dfCurrency.loc[dfCurrency.index[0], 'regex']
+
+        # interest rate
+        imgInterestRate = _findCoords(np.array(scaleFullImg), 'interestRate', bank)
+        Image.fromarray(imgInterestRate).show()
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 4)
+        dfInterestRate['check'] = dfInterestRate['text'].str.contains(patternDict['interestRate'])
+        dfInterestRate = dfInterestRate.loc[
+            (dfInterestRate['check']) & (dfInterestRate['conf'] > 10)
+        ].reset_index(drop=True)
+        if dfInterestRate.empty:
+            continue
+        dfInterestRate['regex'] = dfInterestRate['text'].str.extract(patternDict['interestRate'])
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace(',', '').replace('%', '')) / 100
+
+        # ngày hiệu lực, ngày đáo hạn
+        imgDate = _findCoords(np.array(scaleFullImg), 'date', bank)
+        Image.fromarray(imgDate).show()
+        dfDate = readImgPytesseractToDataframe(imgDate, 4)
+        # group by dataframe theo block_num
+        groupByText = dfDate.groupby(['line_num'])['text'].apply(lambda x: ''.join(list(x)))
+        groupByConf = dfDate.groupby(['line_num'])['conf'].mean()
+        dfDate = pd.concat([groupByText, groupByConf], axis=1)
+        dfDate['check'] = dfDate['text'].str.contains(patternDict['date'])
+        dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)].reset_index(drop=True)
+        if dfDate.empty:
+            # dfDate = pd.DataFrame()
+            continue
+        dfDate['regex'] = dfDate['text'].str.extract(patternDict['date'])
+        dateText = dfDate.loc[dfDate.index[0], 'regex']
+        if '~' in dateText:
+            issueDateText, expireDateText = dateText.split('~')
+        else:
+            issueDateText, expireDateText = dateText.split('-')
+        issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
+        expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
+
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = (expireDate.year - issueDate.year) * 12 + expireDate.month - issueDate.month
+
+        # contract number
+        imgContractNumber = _findCoords(np.array(scaleFullImg), 'contractNumber', bank)
+        Image.fromarray(imgContractNumber).show()
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
+        dfContractNumber['check'] = dfContractNumber['text'].str.contains(patternDict['contractNumber'])
+        dfContractNumber = dfContractNumber.loc[
+            (dfContractNumber['check']) & (dfContractNumber['conf'] > 10)
+        ].reset_index(drop=True)
+        if dfContractNumber.empty:
+            continue
+        dfContractNumber['regex'] = dfContractNumber['text'].str.extract(patternDict['contractNumber'])
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+        contractNumber = '22OBLN' + contractNumber
+
+        # paid
+        paid = 0
+
+        # remaining
+        remaining = amount - paid
+
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount, currency))
+    balanceTable = pd.DataFrame(
+        records,
+        columns=[
+            'ContractNumber',
+            'TermDays',
+            'TermMonths',
+            'InterestRate',
+            'IssueDate',
+            'ExpireDate',
+            'Amount',
+            'Paid',
+            'Remaining',
+            'InterestAmount',
+            'Currency'
+        ]
+    )
+    # Date
+    if now.hour >= 8:
+        d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
+    else:
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+    balanceTable.insert(0, 'Date', d)
+    # Bank
+    balanceTable.insert(1, 'Bank', 'ESUN')
+
+    return balanceTable
+
