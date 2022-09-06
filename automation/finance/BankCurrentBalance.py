@@ -1,4 +1,22 @@
+import time
+import datetime as dt
+import numpy as np
+import pandas as pd
+import os
+import re
 from automation.finance import *
+from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import ElementNotInteractableException
+from selenium.common.exceptions import ElementClickInterceptedException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support import expected_conditions as EC
+from bs4 import BeautifulSoup
+
+from function import first
+
 
 def runBIDV(bankObject,fromDate,toDate):
     """
@@ -9,9 +27,9 @@ def runBIDV(bankObject,fromDate,toDate):
 
     time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
-    for file in listdir(bankObject.downloadFolder):
+    for file in os.listdir(bankObject.downloadFolder):
         if 'EBK_BC_LICHSUGIAODICH' in file:
-            os.remove(join(bankObject.downloadFolder,file))
+            os.remove(os.path.join(bankObject.downloadFolder,file))
     # Click Menu bar
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'menu-toggle-22'))).click()
     # Click "Tài khoản"
@@ -72,19 +90,19 @@ def runBIDV(bankObject,fromDate,toDate):
             # Đọc file, record data
             while True:
                 checkFunc = lambda x: 'EBK_BC_LICHSUGIAODICH' in x and 'download' not in x
-                downloadFile = first(listdir(bankObject.downloadFolder),checkFunc)
+                downloadFile = first(os.listdir(bankObject.downloadFolder),checkFunc)
                 if downloadFile: # download xong -> có file
                     break
                 time.sleep(1) # chưa download xong -> đợi thêm 1s nữa
 
-            downloadData = pd.read_excel(join(bankObject.downloadFolder,downloadFile))
+            downloadData = pd.read_excel(os.path.join(bankObject.downloadFolder,downloadFile))
             rowLocMask = downloadData.eq('Dư cuối ngày').any(axis=1)
             colLocMask = downloadData.eq('Số dư').any(axis=0)
             balanceString = downloadData.loc[rowLocMask,colLocMask].squeeze()
             balance = float(balanceString.replace(',',''))
             records.append((d,bankObject.bank,account,balance,'VND'))
             # Xóa file
-            os.remove(join(bankObject.downloadFolder,downloadFile))
+            os.remove(os.path.join(bankObject.downloadFolder,downloadFile))
             i += 1
             if i == accountNumber:
                 break
@@ -107,9 +125,9 @@ def runVTB(bankObject,fromDate,toDate):
 
     time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
-    for file in listdir(bankObject.downloadFolder):
+    for file in os.listdir(bankObject.downloadFolder):
         if 'lich-su-giao-dich' in file:
-            os.remove(join(bankObject.downloadFolder,file))
+            os.remove(os.path.join(bankObject.downloadFolder,file))
     # Bắt đầu từ trang chủ
     xpath = '//*[@href="/"]'
     _, MainMenu = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
@@ -172,12 +190,12 @@ def runVTB(bankObject,fromDate,toDate):
             # Đọc file, record data
             while True:
                 checkFunc = lambda x: 'lich-su-giao-dich' in x and 'download' not in x
-                downloadFile = first(listdir(bankObject.downloadFolder),checkFunc)
+                downloadFile = first(os.listdir(bankObject.downloadFolder),checkFunc)
                 if downloadFile: # download xong -> có file
                     break
                 time.sleep(1) # chưa download xong -> đợi thêm 1s nữa
 
-            downloadData = pd.read_excel(join(bankObject.downloadFolder,downloadFile))
+            downloadData = pd.read_excel(os.path.join(bankObject.downloadFolder,downloadFile))
             # Số tài khoản
             rowMask = downloadData.eq('Số dư cuối kỳ/Closing Balance:').any(axis=1)
             balanceString = downloadData.loc[rowMask,downloadData.columns[2]].squeeze()
@@ -187,7 +205,7 @@ def runVTB(bankObject,fromDate,toDate):
             currency = downloadData.loc[rowMask,downloadData.columns[2]].squeeze()
             records.append((d,bankObject.bank,x,balance,currency))
             # Xóa file
-            os.remove(join(bankObject.downloadFolder,downloadFile))
+            os.remove(os.path.join(bankObject.downloadFolder,downloadFile))
 
         bankObject.driver.back()
         bankObject.wait.until(EC.presence_of_element_located((By.LINK_TEXT,'Xem thêm'))).click()
@@ -216,9 +234,9 @@ def runIVB(bankObject,fromDate,toDate):
 
     time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
-    for file in listdir(bankObject.downloadFolder):
+    for file in os.listdir(bankObject.downloadFolder):
         if 'AccountTransacionHistory' in file:
-            os.remove(join(bankObject.downloadFolder,file))
+            os.remove(os.path.join(bankObject.downloadFolder,file))
     # Bắt đầu từ trang chủ
     bankObject.driver.switch_to.default_content()
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,'//*[@class="logoimg"]'))).click()
@@ -266,12 +284,12 @@ def runIVB(bankObject,fromDate,toDate):
             # Đọc file download
             while True:
                 checkFunc = lambda x:'AccountTransacionHistory' in x and 'download' not in x
-                downloadFile = first(listdir(bankObject.downloadFolder),checkFunc)
+                downloadFile = first(os.listdir(bankObject.downloadFolder),checkFunc)
                 if downloadFile:  # download xong -> có file
                     break
                 time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
             downloadTable = pd.read_excel(
-                join(bankObject.downloadFolder,downloadFile),
+                os.path.join(bankObject.downloadFolder,downloadFile),
                 usecols='B:D',
                 skiprows=2,
             )
@@ -280,7 +298,7 @@ def runIVB(bankObject,fromDate,toDate):
             balance = float(balanceString)
             records.append((d,bankObject.bank,account,balance,currency))
             # Xóa file download
-            os.remove(join(bankObject.downloadFolder,downloadFile))
+            os.remove(os.path.join(bankObject.downloadFolder,downloadFile))
             bankObject.driver.execute_script(f'window.scrollTo(0,0)')
 
     balanceTable = pd.DataFrame(
@@ -301,9 +319,9 @@ def runVCB(bankObject,fromDate,toDate):
 
     time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
-    for file in listdir(bankObject.downloadFolder):
+    for file in os.listdir(bankObject.downloadFolder):
         if 'Vietcombank_Account_Statement' in file:
-            os.remove(join(bankObject.downloadFolder,file))
+            os.remove(os.path.join(bankObject.downloadFolder,file))
     # Bắt đầu từ trang chủ
     _, homeButton = bankObject.wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME,'icon-home')))
     homeButton.click()
@@ -355,15 +373,15 @@ def runVCB(bankObject,fromDate,toDate):
             # Đọc file download
             while True:
                 checkFunc = lambda x: 'Vietcombank_Account_Statement' in x and 'download' not in x
-                downloadFile = first(listdir(bankObject.downloadFolder),checkFunc)
+                downloadFile = first(os.listdir(bankObject.downloadFolder),checkFunc)
                 if downloadFile:  # download xong -> có file
                     renameFile = downloadFile.replace('xls','csv')
-                    os.rename(join(bankObject.downloadFolder,downloadFile),join(bankObject.downloadFolder,renameFile))
+                    os.rename(os.path.join(bankObject.downloadFolder,downloadFile),os.path.join(bankObject.downloadFolder,renameFile))
                     downloadFile = renameFile
                     break
                 time.sleep(0.5)  # chưa download xong -> đợi thêm 1s nữa
 
-            with open(join(bankObject.downloadFolder,downloadFile),'rb') as f:
+            with open(os.path.join(bankObject.downloadFolder,downloadFile),'rb') as f:
                 htmlString = f.read()
 
             soup = BeautifulSoup(htmlString,'html5lib')
@@ -376,7 +394,7 @@ def runVCB(bankObject,fromDate,toDate):
             currency = soup.find(text='Loại tiền:').find_next().text
             records.append((d,bankObject.bank,account,balance,currency))
             # delete download file
-            os.remove(join(bankObject.downloadFolder,downloadFile))
+            os.remove(os.path.join(bankObject.downloadFolder,downloadFile))
 
     balanceTable = pd.DataFrame(
         records,
@@ -396,9 +414,9 @@ def runEIB(bankObject,fromDate,toDate):
 
     time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
-    for file in listdir(bankObject.downloadFolder):
+    for file in os.listdir(bankObject.downloadFolder):
         if 'LichSuTaiKhoan' in file:
-            os.remove(join(bankObject.downloadFolder,file))
+            os.remove(os.path.join(bankObject.downloadFolder,file))
     # Click Trang chủ
     xpath = "//a[@href='/KHDN/home']"
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
@@ -469,18 +487,18 @@ def runEIB(bankObject,fromDate,toDate):
             # Đọc file download
             while True:
                 checkFunc = lambda x:'LichSuTaiKhoan' in x and 'download' not in x
-                downloadFile = first(listdir(bankObject.downloadFolder),checkFunc)
+                downloadFile = first(os.listdir(bankObject.downloadFolder),checkFunc)
                 if downloadFile:  # download xong -> có file
                     break
                 time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
 
-            downloadData = pd.read_excel(join(bankObject.downloadFolder,downloadFile))
+            downloadData = pd.read_excel(os.path.join(bankObject.downloadFolder,downloadFile))
             # Số dư cuối kỳ
             rowMask = downloadData.eq('Số dư cuối kỳ / Current Balance ').any(axis=1)
             balance = float(downloadData.loc[rowMask,downloadData.columns[-2]].squeeze())
             records.append((d,bankObject.bank,account,balance,currency))
             # Xóa file
-            os.remove(join(bankObject.downloadFolder,downloadFile))
+            os.remove(os.path.join(bankObject.downloadFolder,downloadFile))
 
         bankObject.driver.back()
 
@@ -509,9 +527,9 @@ def runOCB(bankObject,fromDate,toDate):
 
     time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
-    for file in listdir(bankObject.downloadFolder):
+    for file in os.listdir(bankObject.downloadFolder):
         if 'TransactionHistory' in file:
-            os.remove(join(bankObject.downloadFolder,file))
+            os.remove(os.path.join(bankObject.downloadFolder,file))
     # Bắt đầu từ main menu
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'main-menu-icon'))).click()
     # Click Thông tin tài khoản --> Sao kê tài khoản
@@ -574,12 +592,12 @@ def runOCB(bankObject,fromDate,toDate):
             # Đọc file download
             while True:
                 checkFunc = lambda x:'TransactionHistory' in x and 'download' not in x
-                downloadFile = first(listdir(bankObject.downloadFolder),checkFunc)
+                downloadFile = first(os.listdir(bankObject.downloadFolder),checkFunc)
                 if downloadFile:  # download xong -> có file
                     break
                 time.sleep(0.5)  # chưa download xong -> đợi thêm 0.5s nữa
             downloadTable = pd.read_excel(
-                join(bankObject.downloadFolder,downloadFile),
+                os.path.join(bankObject.downloadFolder,downloadFile),
                 usecols='C:D',
                 skiprows=3,
             )
@@ -592,7 +610,7 @@ def runOCB(bankObject,fromDate,toDate):
             currency = downloadTable.loc[rowMask,downloadTable.columns[-1]].squeeze()
             records.append((d,bankObject.bank,accountNumber,balance,currency))
             # Xóa file
-            os.remove(join(bankObject.downloadFolder,downloadFile))
+            os.remove(os.path.join(bankObject.downloadFolder,downloadFile))
             # Scroll lên đầu trang
             bankObject.driver.execute_script(f'window.scrollTo(0,0)')
             time.sleep(0.5) # tránh click khi chưa scroll xong
@@ -619,9 +637,9 @@ def runTCB(bankObject,fromDate,toDate):
 
     time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
-    for file in listdir(bankObject.downloadFolder):
+    for file in os.listdir(bankObject.downloadFolder):
         if 'enquiry' in file:
-            os.remove(join(bankObject.downloadFolder,file))
+            os.remove(os.path.join(bankObject.downloadFolder,file))
     # Check tab "Thông tin tài khoản" có bung chưa (đã được click trước đó), phải bung rồi mới hiện tab "Truy vấn giao dịch tài khoản"
     xpath = '//*[contains(text(),"Truy vấn giao dịch tài khoản")]'
     queryElement = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
@@ -662,12 +680,12 @@ def runTCB(bankObject,fromDate,toDate):
             # Đọc file download
             while True:
                 checkFunc = lambda x: 'enquiry' in x and 'download' not in x
-                downloadFile = first(listdir(bankObject.downloadFolder),checkFunc)
+                downloadFile = first(os.listdir(bankObject.downloadFolder),checkFunc)
                 if downloadFile:  # download xong -> có file
                     break
                 time.sleep(0.5)  # chưa download xong -> đợi thêm 0.5s nữa
             balanceString = pd.read_csv(
-                join(bankObject.downloadFolder,downloadFile),
+                os.path.join(bankObject.downloadFolder,downloadFile),
                 skiprows=4,
                 usecols=['So du'],
                 nrows=1,
@@ -677,7 +695,7 @@ def runTCB(bankObject,fromDate,toDate):
             else:
                 balance = None # cho compatible với database NULL
             # Xóa file
-            os.remove(join(bankObject.downloadFolder,downloadFile))
+            os.remove(os.path.join(bankObject.downloadFolder,downloadFile))
             records.append((d,bankObject.bank,account,balance,currency))
             # Back ra trang tài khoản
             bankObject.wait.until(EC.presence_of_element_located((By.ID,'nbackbtn'))).click()

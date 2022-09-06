@@ -1,4 +1,22 @@
 from automation.finance import *
+import numpy as np
+import pandas as pd
+import os
+from os import listdir
+from os.path import join
+import time
+import re
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import ElementNotInteractableException
+from selenium.common.exceptions import ElementClickInterceptedException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support import expected_conditions as EC
+from bs4 import BeautifulSoup
+from function import first
+
 
 # có CAPTCHA
 def runBIDV(bankObject,fromDate,toDate):

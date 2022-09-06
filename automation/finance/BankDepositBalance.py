@@ -1,7 +1,23 @@
-import re
-import time
-import pandas as pd
 from automation.finance import *
+import numpy as np
+import pandas as pd
+import os
+from os import listdir
+from os.path import join
+import time
+import datetime as dt
+import re
+from selenium.common.exceptions import ElementNotInteractableException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support import expected_conditions as EC
+from function import first
+
+###############################################################################
+
+###############################################################################
+
+
 
 def runBIDV(bankObject):
 
@@ -337,11 +353,11 @@ def runOCB(bankObject):
     xpath = '//*[@class="bd-pagination__number"]'
     pageButtonElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
     pageNumbers = [elem.text for elem in pageButtonElements if elem.text in '0123456789' and elem.text]
-    if not pageNumbers:
+    if not pageNumbers: # không qua trang mới
         pageNumbers.append('1')
     mapper = dict()
     for pageNumber in pageNumbers:
-        if pageNumber != '1':
+        if pageNumber != '1': # Ở trang 1 thì ko cần click chọn trang
             # Click chọn trang
             xpath = f'//*[@class="bd-pagination__number" and text()="{pageNumber}"]'
             bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
@@ -366,7 +382,7 @@ def runOCB(bankObject):
     cols = ['Date','Bank','AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount','Currency']
     balanceTable = downloadTable[cols]
     # Xóa file
-    # os.remove(join(bankObject.downloadFolder,downloadFile))
+    os.remove(join(bankObject.downloadFolder,downloadFile))
 
     return balanceTable
 

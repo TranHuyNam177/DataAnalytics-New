@@ -1,7 +1,16 @@
-import time
+import numpy as np
 import pandas as pd
-import selenium
-import selenium.webdriver
+import os
+from os import listdir
+from os.path import join
+import time
+import datetime as dt
+import re
+from selenium.common.exceptions import ElementNotInteractableException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support import expected_conditions as EC
+from function import first
 from automation.finance import *
 
 def runOCB(bankObject):
@@ -420,6 +429,8 @@ def runMEGA(bankObject):
     # Balance Overview
     for rowElement in rowElements:
         rowString = rowElement.text
+        if rowString == 'no data':
+            continue
         accountNumber = re.search(r'\b(VND|USD)\s[\d-]*\b',rowString).group()
         # Issue Date, Expire Date
         issueDateText, expireDateText = re.findall(r'\b\d{4}/\d{2}/\d{2}\b',rowString)
