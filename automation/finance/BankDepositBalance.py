@@ -197,7 +197,11 @@ def runIVB(bankObject):
     bankObject.driver.switch_to.frame('mainframe')
     while True:
         xpath = '//*[@id="sa_layer_pan"]/span'
-        bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,xpath))).click()
+        clickElement = bankObject.driver.find_elements(By.XPATH,xpath)
+        if not clickElement:
+            return pd.DataFrame()
+        else:
+            clickElement[0].click()
         # Lấy thông tin
         records = []
         rowElements = bankObject.driver.find_elements(By.XPATH,'//*[@id="SAccount"]/tbody/tr')[:-1] # bỏ dòng Tổng

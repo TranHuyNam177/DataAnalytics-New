@@ -158,20 +158,37 @@ def _findCoords(pdfImage, name, bank):
     w, h = smallImage.shape[::-1]
     top, left = _findTopLeftPoint(pdfImage, smallImage)
     if bank == 'MEGA':
-        if name in ('contractNumber', 'currency'):
+        if name == 'date':
+            right = int(left + h * 2.1 - 5)
+            left = int(left + 1.7 * h)
+            bottom = int(top + 0.58 * w)
+            top = top + 20
+        elif name == 'amount':
+            right = int(left + h * 2.2)
+            left = int(left + 1.2 * h)
+            bottom = top + w + 15
+            top = int(top + w * 0.66)
+        elif name == 'interestRate':
+            right = int(left + h * 2.3 - 10)
+            left = int(left + 1.2 * h)
+            bottom = int(top + w / 2)
+            top = int(top + 0.1 * w)
+        elif name == 'contractNumber':
+            right = left + h + 3 - 5
+            left = int(left + 2 * h / 3 - 5)
             top = top + w - 5
-            right = left + h + 5
-            return pdfImage[left:right, top:]
-        elif name == 'paid':
-            top = top + w - 5
+            bottom = int(top + w * 0.6 - 15)
+        elif name == 'currency':
+            left = int(left + 2 * h / 3 + 1.5)
+            right = int(left + h / 5)
+            top = int(top + 0.65 * w + 1.5)
             bottom = top + w
-            right = left + h + 5
-            return pdfImage[left:right, top:bottom]
         else:
-            bottom = top + w
-            right = left + h * 2
-            left = left + h - 5
-            return pdfImage[left:right, top:bottom]
+            right = int(left + 0.7 * h)
+            left = int(left + h / 3 - 5)
+            top = int(top + 0.6 * w)
+            bottom = top * 2 + 10
+        return pdfImage[left:right, top:bottom]
     elif bank == 'SHINKONG':
         top = top + w - 5
         right = left + h
@@ -286,6 +303,21 @@ def _findCoords(pdfImage, name, bank):
             top = top + w
             right = left + h + 5
         return pdfImage[left:right, top:]
+    elif bank == 'TCB':
+        if name in ('contractNumber', 'interestRate', 'date'):
+            top = top + w
+            right = left + h
+            return pdfImage[left:right, top:]
+        elif name == 'currency':
+            bottom = top + w
+            left = left + 3 * h
+            right = left + h
+            return pdfImage[left:right, top:bottom]
+        else:
+            top = top + w
+            bottom = top + w + 30
+            right = left + h
+            return pdfImage[left:right, top:bottom]
     else:  # CATHAY
         if name == 'contractNumber':
             top = top + w
@@ -308,8 +340,8 @@ def runMEGA(bank: str, month: int):
 
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
-        'interestRate': r'(\d{1,2}[.,]\d+%)',
-        'date': r'(\d{4}/\d{2}/\d{2}[~-]+?\d{4}/\d{2}/\d{2})',
+        'interestRate': r'(\d+\.\d+%)',
+        'date': r'(\d{4}/\d{2}/\d{2}[~-]+\d{4}/\d{2}/\d{2})',
         'contractNumber': r'(\d{14})',
         'paid': r'(\d+,[\d,]+\d{3}\.\d{2})',
         'currency': r'(VND|USD)'
@@ -317,34 +349,18 @@ def runMEGA(bank: str, month: int):
     for img in images:
         # scale image to gray
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
-        # Deskewing text
-        gray = cv2.bitwise_not(fullImageScale)
-        thresh = cv2.threshold(gray, 0, 255,cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-        coords = np.column_stack(np.where(thresh > 0))
-        angle = cv2.minAreaRect(coords)[-1]
-        if angle < 1:
-            if angle < -45:
-                angle = -(90 + angle)
-            else:
-                angle = -angle - 0.5
-            (h, w) = img.shape[:2]
-            center = (w // 2, h // 2)
-            M = cv2.getRotationMatrix2D(center, angle, 1.0)
-            fullImageScale = cv2.warpAffine(fullImageScale, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
-
         # show image from pdf
         Image.fromarray(fullImageScale).show()
 
         # check image with condition
-        lst_condition = ['INTEREST PAYMENT NOTICE', 'PAYMENT NOTICE', 'INTEREST PAYMENT']
-        check = all(c not in readImgPytesseractToString(fullImageScale, 6) for c in lst_condition)
+        check = 'INTEREST PAYMENT NOTICE' not in readImgPytesseractToString(fullImageScale, 6)
         if check:
             continue
 
         # amount
         imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
         Image.fromarray(imgAmount).show()
-        dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 6)
         dfAmount['check'] = dfAmount['text'].str.contains(patternDict['amount'])
         dfAmount = dfAmount.loc[(dfAmount['check']) & (dfAmount['conf'] > 10)]
         if dfAmount.empty:
@@ -356,7 +372,7 @@ def runMEGA(bank: str, month: int):
         # interest rate
         imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
         Image.fromarray(imgInterestRate).show()
-        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 4)
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 6)
         dfInterestRate['check'] = dfInterestRate['text'].str.contains(patternDict['interestRate'])
         dfInterestRate = dfInterestRate.loc[(dfInterestRate['check']) & (dfInterestRate['conf'] > 10)]
         if dfInterestRate.empty:
@@ -367,9 +383,13 @@ def runMEGA(bank: str, month: int):
 
         # ngày hiệu lực, ngày đáo hạn
         imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
-        # imgDate = imgDate[:-5, :]
+        imgDate = cv2.resize(imgDate, (405, 55))
         Image.fromarray(imgDate).show()
-        dfDate = readImgPytesseractToDataframe(imgDate, 4)
+        dfDate = readImgPytesseractToDataframe(imgDate, 6)
+        # group by dataframe theo line_num
+        groupByText = dfDate.groupby(['line_num'])['text'].apply(lambda x: ''.join(list(x)))
+        groupByConf = dfDate.groupby(['line_num'])['conf'].mean()
+        dfDate = pd.concat([groupByText, groupByConf], axis=1)
         dfDate['check'] = dfDate['text'].str.contains(patternDict['date'])
         dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)]
         if dfDate.empty:
@@ -391,7 +411,7 @@ def runMEGA(bank: str, month: int):
         # contract number
         imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
         Image.fromarray(imgContractNumber).show()
-        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 6)
         dfContractNumber['check'] = dfContractNumber['text'].str.contains(patternDict['contractNumber'])
         dfContractNumber = dfContractNumber.loc[(dfContractNumber['check']) & (dfContractNumber['conf'] > 10)]
         if dfContractNumber.empty:
@@ -402,7 +422,7 @@ def runMEGA(bank: str, month: int):
         # currency
         imgCurrency = _findCoords(np.array(fullImageScale), 'currency', bank)
         Image.fromarray(imgCurrency).show()
-        dfCurrency = readImgPytesseractToDataframe(imgCurrency, 11)
+        dfCurrency = readImgPytesseractToDataframe(imgCurrency, 6)
         dfCurrency['check'] = dfCurrency['text'].str.contains(patternDict['currency'])
         dfCurrency = dfCurrency.loc[(dfCurrency['check']) & (dfCurrency['conf'] > 10)]
         if dfCurrency.empty:
@@ -415,12 +435,12 @@ def runMEGA(bank: str, month: int):
         Image.fromarray(imgPaid).show()
         dfPaid = readImgPytesseractToDataframe(imgPaid, 4)
         dfPaid['check'] = dfPaid['text'].str.contains(patternDict['paid'])
-        dfPaid = dfPaid.loc[(dfPaid['check']) & (dfPaid['conf'] > 10)]
+        dfPaid = dfPaid.loc[dfPaid['check']]
         dfPaid['regex'] = dfPaid['text'].str.extract(patternDict['paid'])
         if dfPaid.empty:
             paid = 0
         else:
-            paid = dfPaid.loc[dfPaid.index[0], 'regex']
+            paid = amount
 
         # remaining
         remaining = amount - paid
@@ -465,7 +485,7 @@ def runSHINKONG(bank: str, month: int):
 
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3}\.\d{2})',
-        'interestRate': r'(\d{1,2}[.,]\d+%)',
+        'interestRate': r'(\d+[.,]\d+%)',
         'date': r'(\d{4}/\d{2}/\d{2}~\d{4}/\d{2}/\d{2})',
         'contractNumber': r'(\w+)',
         'currency': r'(VND|USD)'
@@ -599,7 +619,7 @@ def runYUANTA(bank: str, month: int):
     records = []
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
-        'interestRate': r'(\d{1,2}[.,]\d+%)',
+        'interestRate': r'(\d+[.,]\d+%)',
         'date': r'(\d{4}/\d{2}/\d{2}-\d{4}/\d{2}/\d{2})',
         'contractNumber': r'(\d{4}[A-Z]{2}\d{5})',
         'currency': r'(VND|USD)'
@@ -732,7 +752,7 @@ def runSHHK(bank: str, month: int):
     images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3}\.\d{2})',
-        'interestRate': r'(\d{1,2}[.,]\d+%)',
+        'interestRate': r'(\d+[.,]\d+%)',
         'date': r'(\d{4}/\d{2}/\d{2}[-~]\d{4}/\d{2}/\d{2}|\d{4}/\d{2}/\d{2})',
         'contractNumber': r'([A-Z]{2}\d{7})',
         'currency': r'(VND|USD)',
@@ -873,7 +893,7 @@ def runSINOPAC(bank: str, month: int):
     images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
-        'interestRate': r'(\d{1,2}[.|,]\d+%)',
+        'interestRate': r'(\d+[.|,]\d+%)',
         'date': r'(\d{1,2}[.,;:]?[A-Z]{3}[.,;:]?\d{4}to\d{1,2}[.,;:]?[A-Z]{3}[.,;:]?\d{4})',
         'contractNumber': r'(\d{8})',
         'currency': r'(VND|USD)',
@@ -1024,7 +1044,7 @@ def runCHANGHWA(bank: str, month: int):
     images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
-        'interestRate': r'(\d{1,2}[.|,]\d+%)',
+        'interestRate': r'(\d+[.|,]\d+%)',
         'date': r'(\d{1,2}[A-Z]{3}\.\d{4}TO\d{1,2}[A-Z]{3}\.\d{4})',
         'contractNumber': r'(\d{2}/\d{4}/[A-Z]{2}/[A-Z]{3})',
         'currency': r'(VND|USD)',
@@ -1177,7 +1197,7 @@ def runKGI(bank: str, month: int):
     images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3}\.\d{2}|\d+,[\d,]+\d{3})',
-        'interestRate': r'(\d{1,2}\.\d+)',
+        'interestRate': r'(\d+\.\d+)',
         'date': r'(\d{4}/\d{2}/\d{2})',
         'contractNumber': r'([A-Z]{3}\d{7}[A-Z]{2})',
         'currency': r'(VND|USD)'
@@ -1309,7 +1329,7 @@ def runESUN(bank: str, month: int):
     records = []
     patternDict = {
         'amount': r'(\d+[,|.][\d,|\d.]+\d{3})',
-        'interestRate': r'(\d{1,2}[,.]+\d+%)',
+        'interestRate': r'(\d+[,.]+\d+%)',
         'date': r'(\d{4}/\d{2}/\d{2}[~-]\d{4}/\d{2}/\d{2})',
         'contractNumber': r'(\d{6})',
         'currency': r'(VND|USD)'
@@ -1452,7 +1472,7 @@ def runCATHAY(bank: str, month: int):
     images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,?[\d,]+\d{3}\.\d{2})',
-        'interestRate': r'(\d{1,2}\.+\d+%)',
+        'interestRate': r'(\d+\.\d+%)',
         'date': r'(\d{4}/\d{2}/\d{2}~\d{4}/\d{2}/\d{2})',
         'currency': r'(VND|USD)',
         'contractNumber': r'(\d{1}[A-Z]{7}\d{7})'
@@ -1627,7 +1647,7 @@ def runBOP(bank: str, month: int):
     images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
-        'interestRate': r'(\d{1,2}\.+\d+%)',
+        'interestRate': r'(\d+\.\d+%)',
         'date': r'(\d{4}\d{2}\d{2})',
         'currency': r'(VND|USD)'
     }
@@ -1760,7 +1780,7 @@ def runFIRST(bank: str, month: int):
     images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
-        'interestRate': r'(\d{1,2}\.+\d+%)',
+        'interestRate': r'(\d+\.\d+%)',
         'date': r'(\d{4}\.\d{1,2}\.\d{1,2}~\d{4}\.\d{1,2}\.\d{1,2})',
         'currency': r'(VND|USD)',
         'contractNumber': r'([A-Z]\d[A-Z]\d{7})',
@@ -1891,13 +1911,14 @@ def runFIRST(bank: str, month: int):
 
     return balanceTable
 
+# chưa thấy file PDF có phần trả khoản vay nên tạm để paid = 0
 def runUBOT(bank: str, month: int):
     now = dt.datetime.now()
     records = []
     images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
-        'interestRate': r'(\d{1,2}\.+\d+%)',
+        'interestRate': r'(\d+\.\d+%)',
         'date': r'(\d{4}\.\d{1,2}\.\d{1,2}-\d{4}\.\d{1,2}\.\d{1,2})',
         'currency': r'(VND|USD)',
         'contractNumber': r'(\d{2}/\d{4}/[A-Z]{2}/[A-Z]{3}[-]+[A-Z]{5})',
@@ -2035,6 +2056,135 @@ def runUBOT(bank: str, month: int):
 
     return balanceTable
 
+def runTCB(bank: str, month: int):
+    now = dt.datetime.now()
+    records = []
+    images = convertPDFtoImage(bank, month)
+    patternDict = {
+        'amount': r'(\d+,[\d,]+\d{3})',
+        'interestRate': r'(\d+\.\d+%)',
+        'date': r'(\d{2}/\d{2}/\d{4}-\d{2}/\d{2}/\d{4})',
+        'currency': r'(VND|USD)',
+        'contractNumber': r'([A-Z]{4}\d[A-Z]{2}\d{5})'
+    }
+    for img in images:
+        # grayscale full image
+        fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
+        Image.fromarray(fullImageScale).show()
+
+        # check image with condition
+        check = 'INTEREST PAYMENT NOTICE' not in readImgPytesseractToString(img, 6)
+        if check:
+            continue
+
+        # amount
+        imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
+        Image.fromarray(imgAmount).show()
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
+        dfAmount['check'] = dfAmount['text'].str.contains(patternDict['amount'])
+        dfAmount = dfAmount.loc[(dfAmount['check']) & (dfAmount['conf'] >= 0)]
+        if dfAmount.empty:
+            continue
+        dfAmount['regex'] = dfAmount['text'].str.extract(patternDict['amount'])
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', ''))
+
+        # currency
+        imgCurrency = _findCoords(np.array(fullImageScale), 'currency', bank)
+        Image.fromarray(imgCurrency).show()
+        dfCurrency = readImgPytesseractToDataframe(imgCurrency, 4)
+        dfCurrency['check'] = dfCurrency['text'].str.contains(patternDict['currency'])
+        dfCurrency = dfCurrency.loc[(dfCurrency['check']) & (dfCurrency['conf'] > 10)]
+        if dfCurrency.empty:
+            continue
+        dfCurrency['regex'] = dfCurrency['text'].str.extract(patternDict['currency'])
+        currency = dfCurrency.loc[dfCurrency.index[0], 'regex']
+
+        # interest rate
+        imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
+        Image.fromarray(imgInterestRate).show()
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 4)
+        dfInterestRate['check'] = dfInterestRate['text'].str.contains(patternDict['interestRate'])
+        dfInterestRate = dfInterestRate.loc[(dfInterestRate['check']) & (dfInterestRate['conf'] > 10)]
+        if dfInterestRate.empty:
+            continue
+        dfInterestRate['regex'] = dfInterestRate['text'].str.extract(patternDict['interestRate'])
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace('%', '')) / 100
+
+        # ngày hiệu lực, ngày đáo hạn
+        imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
+        Image.fromarray(imgDate).show()
+        dfDate = readImgPytesseractToDataframe(imgDate, 4)
+        # group by dataframe theo block_num
+        groupByText = dfDate.groupby(['block_num'])['text'].apply(lambda x: ''.join(list(x)))
+        groupByConf = dfDate.groupby(['block_num'])['conf'].mean()
+        dfDate = pd.concat([groupByText, groupByConf], axis=1)
+        dfDate['check'] = dfDate['text'].str.contains(patternDict['date'])
+        dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)]
+        if dfDate.empty:
+            # dfDate = pd.DataFrame()
+            continue
+        dfDate['regex'] = dfDate['text'].str.extract(patternDict['date'])
+        dateText = dfDate.loc[dfDate.index[0], 'regex']
+        issueDateText, expireDateText = dateText.split('-')
+        issueDate = dt.datetime.strptime(issueDateText, '%d/%m/%Y')
+        expireDate = dt.datetime.strptime(expireDateText, '%d/%m/%Y')
+
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = round(termDays / 30)
+
+        # contract number
+        imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
+        Image.fromarray(imgContractNumber).show()
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
+        dfContractNumber['check'] = dfContractNumber['text'].str.contains(patternDict['contractNumber'])
+        dfContractNumber = dfContractNumber.loc[(dfContractNumber['check']) & (dfContractNumber['conf'] > 10)]
+        if dfContractNumber.empty:
+            continue
+        dfContractNumber['regex'] = dfContractNumber['text'].str.extract(patternDict['contractNumber'])
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+
+        # paid
+        paid = 0
+
+        # remaining
+        remaining = amount - paid
+
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid,
+                        remaining, interestAmount, currency))
+    balanceTable = pd.DataFrame(
+        records,
+        columns=[
+            'ContractNumber',
+            'TermDays',
+            'TermMonths',
+            'InterestRate',
+            'IssueDate',
+            'ExpireDate',
+            'Amount',
+            'Paid',
+            'Remaining',
+            'InterestAmount',
+            'Currency'
+        ]
+    )
+    # Date
+    if now.hour >= 8:
+        d = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    else:
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+    balanceTable.insert(0, 'Date', d)
+    # Bank
+    balanceTable.insert(1, 'Bank', bank)
+
+    return balanceTable
 
 
 

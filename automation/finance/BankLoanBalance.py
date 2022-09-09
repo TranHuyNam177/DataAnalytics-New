@@ -192,9 +192,14 @@ def runIVB(bankObject):
     bankObject.wait.until(EC.visibility_of_element_located((By.ID,'1_1'))).click()
     # Click "Thông tin vay"
     bankObject.driver.switch_to.frame('mainframe')
+    time.sleep(1)
     while True:
         xpath = '//*[@id="fd_layer_pan"]/span'
-        bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,xpath))).click()
+        clickElement = bankObject.driver.find_elements(By.XPATH,xpath)
+        if not clickElement:
+            return pd.DataFrame()
+        else:
+            clickElement[0].click()
         xpath = '//*[contains(@data-th,"Số Hợp đồng")]/a'
         contractElements = bankObject.driver.find_elements(By.XPATH,xpath)
         URLs = [e.get_attribute('href') for e in contractElements]
