@@ -1,9 +1,8 @@
-import re
+import pandas as pd
 
 from automation import *
 import cv2 as cv
 import warnings
-from skimage.morphology import skeletonize
 
 warnings.filterwarnings("ignore", 'This pattern has match groups')
 
@@ -38,6 +37,7 @@ warnings.filterwarnings("ignore", 'This pattern has match groups')
         - 1 file có 2 page giống nhau, page nào PRINCIPAL PAYABLE khác 0 thì đọc
     5.5 UBOT:
         - contract number lấy Contract No.
+        - Anh Duy: công ty có trả vay rồi nhưng không có file PDF, chỉ có 1 file tờ đã thanh toán thôi
     5.6 TAISHIN:
          - File tháng 1 có bảng gồm cả 3 tháng vì bên cty mình yêu cầu thống kê lãi vay 3 tháng gần nhất
          - Bên Finance sẽ báo cho bên TAISHIN tháng nào gửi file tháng đó, không gửi gộp
@@ -62,10 +62,7 @@ def detect_table(inputImage):
     """
     Hàm nhận diện bảng trong 1 image
     """
-    # Load iamge, grayscale, adaptive threshold
-    image = np.array(inputImage)
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 51, 9)
+    thresh = cv2.adaptiveThreshold(inputImage, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 51, 9)
     # Fill rectangular contours
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
@@ -78,13 +75,13 @@ def detect_table(inputImage):
     cnts = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
     img_list = []
-    for c in reversed(cnts):
+    for c in reversed(cnts):  # dùng reversed chỗ này vì hình được đọc từ dưới lên trên
         x, y, w, h = cv2.boundingRect(c)
         if x > w and y > h:
             continue
-        roi = image[y:y + h, x:x + w]
+        roi = inputImage[y:y + h, x:x + w]
         img_list.append(roi)
-    return img_list
+    return img_list  # return ra list chứa image là table (đã scale về array 2 chiều)
 
 
 def readImgPytesseractToString(img, numConfig: int):
@@ -104,8 +101,26 @@ def readImgPytesseractToDataframe(img, numConfig: int):
         config=f'--psm {numConfig}',
         output_type='data.frame'
     )
-    df = df[df['conf'] != -1]
+    df = df[df['conf'] != -1].reset_index(drop=True)
     return df
+
+def groupByDataFrame(df):
+    """
+    Hàm trả về 1 dataframe sau khi đã groupby 2 cột text và conf
+    """
+    # group by dataframe theo block_num
+    groupByText = df.groupby(['block_num'])['text'].apply(lambda x: ''.join(list(x)))
+    groupByConf = df.groupby(['block_num'])['conf'].mean()
+    dfGroupBy = pd.concat([groupByText, groupByConf], axis=1)
+    return dfGroupBy
+
+def erosionAndDilation(img, f: str, array: int):
+    kernel = np.ones((array, array), np.uint8)
+    if f == 'e':
+        newImg = cv2.erode(img, kernel, iterations=1)
+    else:
+        newImg = cv2.dilate(img, kernel, iterations=1)
+    return newImg
 
 def _findTopLeftPoint(pdfImage, smallImage):
     pdfImage = np.array(pdfImage)  # đảm bảo image được đưa về numpy array
@@ -133,11 +148,7 @@ def _findTopLeftPointCATHAY(pdfImage, smallImage):
     return topLeftList
 
 def _findCoords(pdfImage, name, bank):
-    if bank == 'ESUN' and name in ('interestRate', 'date'):
-        fileName = 'values.png'
-    elif bank == 'MEGA' and name in ('date', 'paid'):
-        fileName = 'values.png'
-    elif bank == 'ENTIE' and name in ('contractNumber', 'interestRate'):
+    if (bank == 'ESUN' and name in ('interestRate', 'date')) or (bank == 'MEGA' and name in ('date', 'paid')) or (bank == 'ENTIE' and name in ('contractNumber', 'interestRate')):
         fileName = 'values.png'
     elif name == 'amount':
         fileName = 'amount.png'
@@ -190,10 +201,10 @@ def _findCoords(pdfImage, name, bank):
             bottom = int(top + w / 2)
             top = int(top + 0.1 * w)
         elif name == 'contractNumber':
-            right = left + h + 3 - 5
+            right = left + h + 7
             left = int(left + 2 * h / 3 - 5)
             top = top + w - 5
-            bottom = int(top + w * 0.6 - 15)
+            bottom = int(top + w * 0.6)
         else:
             right = int(left + 0.7 * h)
             left = int(left + h / 3 - 5)
@@ -216,7 +227,7 @@ def _findCoords(pdfImage, name, bank):
     elif bank == 'YUANTA':
         if name == 'contractNumber':
             top = int(top + w * 1.4 + 5)
-            left = int(left + 1.3 * h - 7)
+            left = int(left + 1.29 * h - 3)
             right = int(left + h / 3 - 10)
             bottom = None
         else:
@@ -360,16 +371,17 @@ def _findCoords(pdfImage, name, bank):
         if name == 'values':
             top = int(top + 0.27 * w)
             left = left + h - 20
-            right = int(left + 1.25 * h)
+            right = left + h + 30
         else:
             right = left - 10
             left = int(left - h / 2)
             top = int(top + 0.32 * w)
         return pdfImage[left:right, top:]
     else:  # CATHAY
-        top = top + w
-        bottom = top + w * 4
-        right = int(left + h / 3 + 5)
+        right = int(left + h / 2)
+        left = int(left - h / 4)
+        bottom = top + w
+        top = int(top + 0.3 * w)
         return pdfImage[left:right, top:bottom]
 
 # Done
@@ -423,10 +435,8 @@ def runMEGA(bank: str, month: int):
             imgDate = cv2.resize(imgDate, (405, 55))
             Image.fromarray(imgDate).show()
             dfDate = readImgPytesseractToDataframe(imgDate, 6)
-            # group by dataframe theo line_num
-            groupByText = dfDate.groupby(['line_num'])['text'].apply(lambda x: ''.join(list(x)))
-            groupByConf = dfDate.groupby(['line_num'])['conf'].mean()
-            dfDate = pd.concat([groupByText, groupByConf], axis=1)
+            # dùng hàm groupByDataFrame
+            dfDate = groupByDataFrame(dfDate)
             dfDate['check'] = dfDate['text'].str.contains(patternDict['date'])
             dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)]
             if dfDate.empty:
@@ -447,10 +457,12 @@ def runMEGA(bank: str, month: int):
             termMonths = round(termDays/30)
             # contract number
             imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
+            _, imgContractNumber = cv2.threshold(imgContractNumber, 200, 255, cv.THRESH_BINARY)
             Image.fromarray(imgContractNumber).show()
-            dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 6)
+            dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 11)
+            dfContractNumber = groupByDataFrame(dfContractNumber)
             dfContractNumber['check'] = dfContractNumber['text'].str.contains(patternDict['contractNumber'])
-            dfContractNumber = dfContractNumber.loc[(dfContractNumber['check']) & (dfContractNumber['conf'] > 10)]
+            dfContractNumber = dfContractNumber.loc[(dfContractNumber['check']) & (dfContractNumber['conf'] > 0)]
             if dfContractNumber.empty:
                 continue
             dfContractNumber['regex'] = dfContractNumber['text'].str.extract(patternDict['contractNumber'])
@@ -458,7 +470,7 @@ def runMEGA(bank: str, month: int):
             # paid
             imgPaid = _findCoords(np.array(fullImageScale), 'paid', bank)
             Image.fromarray(imgPaid).show()
-            dfPaid = readImgPytesseractToDataframe(imgPaid, 4)
+            dfPaid = readImgPytesseractToDataframe(imgPaid, 6)
             dfPaid['check'] = dfPaid['text'].str.contains(patternDict['paid'])
             dfPaid = dfPaid.loc[dfPaid['check']]
             dfPaid['regex'] = dfPaid['text'].str.extract(patternDict['paid'])
@@ -502,7 +514,7 @@ def runMEGA(bank: str, month: int):
 
     return balanceTable
 
-# chưa thấy file PDF có phần trả khoản vay nên tạm để paid = 0
+# done
 def runSHINKONG(bank: str, month: int):
     now = dt.datetime.now()
     records = []
@@ -511,7 +523,8 @@ def runSHINKONG(bank: str, month: int):
         'amount': r'(\d+,[\d,]+\d{3}\.\d{2})',
         'interestRate': r'(\d+[.,]\d+%)',
         'date': r'(\d{4}/\d{2}/\d{2}~\d{4}/\d{2}/\d{2})',
-        'contractNumber': r'([A-Z]\d[A-Z]{7}\d{5})',
+        'contractNumber': r'([A-Z]\d[A-Z]{7}\d{5}|[A-Z]{9}\d{5})',
+        'paid': r'(\d+,[\d,]+\d{3}\.\d{2})',
     }
     for img in images:
         # scale image to gray
@@ -578,8 +591,18 @@ def runSHINKONG(bank: str, month: int):
                 continue
             dfContractNumber['regex'] = dfContractNumber['text'].str.extract(patternDict['contractNumber'])
             contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+            if contractNumber.startswith('LI'):
+                contractNumber = contractNumber.replace('LI', 'L1')
             # paid
-            paid = 0
+            imgPaid = _findCoords(np.array(fullImageScale), 'paid', bank)
+            Image.fromarray(imgPaid).show()
+            dfPaid = readImgPytesseractToDataframe(imgPaid, 11)
+            dfPaid['check'] = dfPaid['text'].str.contains(patternDict['paid'])
+            dfPaid = dfPaid.loc[(dfPaid['check']) & (dfPaid['conf'] > 10)]
+            if dfPaid.empty:
+                paid = 0
+            else:
+                paid = amount
             # remaining
             remaining = amount - paid
             # interest amount
@@ -637,13 +660,11 @@ def runYUANTA(bank: str, month: int):
             continue
         try:
             # detect table in image
-            tables = detect_table(img)
-            table = tables[0]
-            # grayscale table image
-            scaleTable = cv2.cvtColor(table, cv2.COLOR_BGR2GRAY)
-            Image.fromarray(scaleTable).show()
+            tables = detect_table(fullImageScale)
+            table = tables[0]  # vì chỉ có 1 bảng trong hình nên phần tử đầu tiên luôn là bảng đó
+            Image.fromarray(table).show()
             # amount
-            imgAmount = _findCoords(np.array(scaleTable), 'amount', bank)
+            imgAmount = _findCoords(np.array(table), 'amount', bank)
             Image.fromarray(imgAmount).show()
             dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
             dfAmount['check'] = dfAmount['text'].str.contains(patternDict['amount'])
@@ -654,7 +675,7 @@ def runYUANTA(bank: str, month: int):
             amountText = dfAmount.loc[dfAmount.index[0], 'regex']
             amount = float(amountText.replace(',', ''))
             # interest rate
-            imgInterestRate = _findCoords(np.array(scaleTable), 'interestRate', bank)
+            imgInterestRate = _findCoords(np.array(table), 'interestRate', bank)
             Image.fromarray(imgInterestRate).show()
             dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 4)
             dfInterestRate['check'] = dfInterestRate['text'].str.contains(patternDict['interestRate'])
@@ -665,7 +686,7 @@ def runYUANTA(bank: str, month: int):
             interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
             interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
             # ngày hiệu lực, ngày đáo hạn
-            imgDate = _findCoords(np.array(scaleTable), 'date', bank)
+            imgDate = _findCoords(np.array(table), 'date', bank)
             Image.fromarray(imgDate).show()
             dfDate = readImgPytesseractToDataframe(imgDate, 4)
             dfDate['check'] = dfDate['text'].str.contains(patternDict['date'])
@@ -904,11 +925,9 @@ def runSINOPAC(bank: str, month: int):
             # ngày hiệu lực, ngày đáo hạn
             imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
             Image.fromarray(imgDate).show()
-            dfDate = readImgPytesseractToDataframe(imgDate, 11)
-            # group by dataframe theo line_num
-            groupByText = dfDate.groupby(['line_num'])['text'].apply(lambda x: ''.join(list(x)))
-            groupByConf = dfDate.groupby(['line_num'])['conf'].mean()
-            dfDate = pd.concat([groupByText, groupByConf], axis=1)
+            dfDate = readImgPytesseractToDataframe(imgDate, 6)
+            # dùng hàm groupByDataFrame
+            dfDate = groupByDataFrame(dfDate)
             dfDate['text'] = dfDate['text'].apply(lambda x: x.replace('..', '.'))
             dfDate['check'] = dfDate['text'].str.contains(patternDict['date'])
             dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)]
@@ -1005,10 +1024,8 @@ def runCHANGHWA(bank: str, month: int):
     if bank != 'CHANG HWA':
         bank = 'CHANG HWA'
     for img in images:
-        # convert PIL to np array
-        img = np.array(img)
         # grayscale full image
-        fullImageScale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
         Image.fromarray(fullImageScale).show()
         # check image with condition
         lst_condition = ['INTEREST PAYMENT NOTICE', 'PAYMENT NOTICE']
@@ -1042,10 +1059,8 @@ def runCHANGHWA(bank: str, month: int):
             imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
             Image.fromarray(imgDate).show()
             dfDate = readImgPytesseractToDataframe(imgDate, 11)
-            # group by dataframe theo block_num
-            groupByText = dfDate.groupby(['block_num'])['text'].apply(lambda x: ''.join(list(x)))
-            groupByConf = dfDate.groupby(['block_num'])['conf'].mean()
-            dfDate = pd.concat([groupByText, groupByConf], axis=1)
+            # dùng hàm groupByDataFrame
+            dfDate = groupByDataFrame(dfDate)
             dfDate['check'] = dfDate['text'].str.contains(patternDict['date'])
             dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)]
             if dfDate.empty:
@@ -1076,13 +1091,13 @@ def runCHANGHWA(bank: str, month: int):
             # paid
             imgPaid = _findCoords(fullImageScale, 'paid', bank)
             Image.fromarray(imgPaid).show()
-            paidString = readImgPytesseractToString(imgPaid, 6)
-            if paidString == '':
-                dfPaid = pd.DataFrame()
-            else:
-                dfPaid = readImgPytesseractToDataframe(imgPaid, 4)
+            dfPaid = readImgPytesseractToDataframe(imgPaid, 4)
+            try:
+                # dùng try except chỗ này vì có trường hợp ảnh trả ra là 1 ảnh trắng, nên dfPaid rỗng
                 dfPaid['check'] = dfPaid['text'].str.contains(patternDict['paid'])
                 dfPaid = dfPaid.loc[(dfPaid['check']) & (dfPaid['conf'] > 10)]
+            except (Exception, ):
+                dfPaid = pd.DataFrame()
             if dfPaid.empty:
                 paid = 0
             else:
@@ -1292,10 +1307,8 @@ def runESUN(bank: str, month: int):
             imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
             Image.fromarray(imgDate).show()
             dfDate = readImgPytesseractToDataframe(imgDate, 4)
-            # group by dataframe theo block_num
-            groupByText = dfDate.groupby(['block_num'])['text'].apply(lambda x: ''.join(list(x)))
-            groupByConf = dfDate.groupby(['block_num'])['conf'].mean()
-            dfDate = pd.concat([groupByText, groupByConf], axis=1)
+            # dùng hàm groupByDataFrame
+            dfDate = groupByDataFrame(dfDate)
             dfDate['check'] = dfDate['text'].str.contains(patternDict['date'])
             dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)]
             if dfDate.empty:
@@ -1379,8 +1392,8 @@ def runCATHAY(bank: str, month: int):
     records = []
     images = convertPDFtoImage(bank, month)
     patternDict = {
-        'amount': r'(\d+,?[\d,]+\d{3}\.\d{2})',
-        'interestRate': r'(\d+\.\d+%)',
+        'amount': r'(\d+[,.][\d,\d.]+\d{3}\.\d{2})',
+        'interestRate': r'(\d+[.,]+\d+%)',
         'date': r'(\d{4}/\d{2}/\d{2}~\d{4}/\d{2}/\d{2})',
         'contractNumber': r'(\d{1}[A-Z]{7}\d{7})'
     }
@@ -1395,15 +1408,14 @@ def runCATHAY(bank: str, month: int):
         try:
             # contract number
             imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
+            imgContractNumber = erosionAndDilation(imgContractNumber, 'e', 3)
             Image.fromarray(imgContractNumber).show()
             dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 11)
-            # group by dfContractNumber theo block_num
-            groupByText = dfContractNumber.groupby(['block_num'])['text'].apply(lambda x: ''.join(list(x)))
-            groupByConf = dfContractNumber.groupby(['block_num'])['conf'].mean()
-            dfContractNumber = pd.concat([groupByText, groupByConf], axis=1)
+            # dùng hàm groupByDataFrame
+            dfContractNumber = groupByDataFrame(dfContractNumber)
             dfContractNumber['check'] = dfContractNumber['text'].str.contains(patternDict['contractNumber'])
             dfContractNumber = dfContractNumber.loc[
-                (dfContractNumber['check']) & (dfContractNumber['conf'] > 5)
+                (dfContractNumber['check']) & (dfContractNumber['conf'] >= 0)
             ]
             if dfContractNumber.empty:
                 continue
@@ -1424,10 +1436,8 @@ def runCATHAY(bank: str, month: int):
                 imgDate = fullImageScale[left:rightDate, topDate:bottomDate]
                 Image.fromarray(imgDate).show()
                 dfDate = readImgPytesseractToDataframe(imgDate, 11)
-                # group by dataframe theo block_num
-                groupByText = dfDate.groupby(['block_num'])['text'].apply(lambda x: ''.join(list(x)))
-                groupByConf = dfDate.groupby(['block_num'])['conf'].mean()
-                dfDate = pd.concat([groupByText, groupByConf], axis=1)
+                # dùng hàm groupByDataFrame
+                dfDate = groupByDataFrame(dfDate)
                 dfDate['check'] = dfDate['text'].str.contains(patternDict['date'])
                 dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)]
                 if dfDate.empty:
@@ -1447,35 +1457,35 @@ def runCATHAY(bank: str, month: int):
                 # Term Months
                 termMonths = round(termDays / 30)
                 # amount
-                topAmount = top + w * 10 - 50
+                topAmount = top + w * 8
                 bottomAmount = top + w * 14 - 43
-                rightAmount = left + h + 5
+                rightAmount = left + h + 6
                 leftAmount = left - 3
                 # Amount image
                 imgAmount = fullImageScale[leftAmount:rightAmount, topAmount:bottomAmount]
+                imgAmount = erosionAndDilation(imgAmount, 'e', 3)
                 Image.fromarray(imgAmount).show()
                 dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
-                groupByText = dfAmount.groupby(['line_num'])['text'].apply(lambda x: ''.join(list(x)))
-                groupByConf = dfAmount.groupby(['line_num'])['conf'].mean()
-                dfAmount = pd.concat([groupByText, groupByConf], axis=1)
+                # dùng hàm groupByDataFrame
+                dfAmount = groupByDataFrame(dfAmount)
                 dfAmount['check'] = dfAmount['text'].str.contains(patternDict['amount'])
                 dfAmount = dfAmount.loc[(dfAmount['check']) & (dfAmount['conf'] > 0)]
                 if dfAmount.empty:
                     continue
                 dfAmount['regex'] = dfAmount['text'].str.extract(patternDict['amount'])
+                print("amount confidence: ", dfAmount.loc[dfAmount.index[0], 'conf'])
                 amountText = dfAmount.loc[dfAmount.index[0], 'regex']
                 amount = float(amountText.replace(',', ''))
                 # interest rate
-                topInterestRate = top + w * 15 + 8
-                bottomInterestRate = top + w * 19
+                bottomInterestRate = top + w * 20
+                topInterestRate = top + w * 14
                 rightInterestRate = int(left + h + 6.5)
                 # interest image
                 imgInterestRate = fullImageScale[left:rightInterestRate, topInterestRate:bottomInterestRate]
                 Image.fromarray(imgInterestRate).show()
                 dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
-                groupByText = dfInterestRate.groupby(['block_num'])['text'].apply(lambda x: ''.join(list(x)))
-                groupByConf = dfInterestRate.groupby(['block_num'])['conf'].mean()
-                dfInterestRate = pd.concat([groupByText, groupByConf], axis=1)
+                # dùng hàm groupByDataFrame
+                dfInterestRate = groupByDataFrame(dfInterestRate)
                 dfInterestRate['check'] = dfInterestRate['text'].str.contains(patternDict['interestRate'])
                 dfInterestRate = dfInterestRate.loc[
                     (dfInterestRate['check']) & (dfInterestRate['conf'] > 10)
@@ -1664,6 +1674,9 @@ def runFIRST(bank: str, month: int):
         # grayscale full image
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
         Image.fromarray(fullImageScale).show()
+        check = 'LOAN REPAYMENT CONFIRMATION' in readImgPytesseractToString(fullImageScale, 6)
+        if check:
+            continue
         try:
             # amount
             imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
@@ -1691,10 +1704,8 @@ def runFIRST(bank: str, month: int):
             imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
             Image.fromarray(imgDate).show()
             dfDate = readImgPytesseractToDataframe(imgDate, 11)
-            # group by dataframe theo block_num
-            groupByText = dfDate.groupby(['block_num'])['text'].apply(lambda x: ''.join(list(x)))
-            groupByConf = dfDate.groupby(['block_num'])['conf'].mean()
-            dfDate = pd.concat([groupByText, groupByConf], axis=1)
+            # dùng hàm groupByDataFrame
+            dfDate = groupByDataFrame(dfDate)
             dfDate['check'] = dfDate['text'].str.contains(patternDict['date'])
             dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)]
             if dfDate.empty:
@@ -1798,10 +1809,8 @@ def runUBOT(bank: str, month: int):
             imgAmountCurrency = _findCoords(np.array(fullImageScale), 'amount', bank)
             Image.fromarray(imgAmountCurrency).show()
             dfAmount = readImgPytesseractToDataframe(imgAmountCurrency, 4)
-            # group by dataframe theo block_num
-            groupByText = dfAmount.groupby(['block_num'])['text'].apply(lambda x: ''.join(list(x)))
-            groupByConf = dfAmount.groupby(['block_num'])['conf'].mean()
-            dfAmount = pd.concat([groupByText, groupByConf], axis=1)
+            # dùng hàm groupByDataFrame
+            dfAmount = groupByDataFrame(dfAmount)
             dfAmount['check'] = dfAmount['text'].str.contains(patternDict['amount'])
             dfAmount = dfAmount.loc[(dfAmount['check']) & (dfAmount['conf'] >= 0)]
             if dfAmount.empty:
@@ -1813,10 +1822,8 @@ def runUBOT(bank: str, month: int):
             imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
             Image.fromarray(imgInterestRate).show()
             dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
-            # group by dataframe theo block_num
-            groupByText = dfInterestRate.groupby(['block_num'])['text'].apply(lambda x: ''.join(list(x)))
-            groupByConf = dfInterestRate.groupby(['block_num'])['conf'].mean()
-            dfInterestRate = pd.concat([groupByText, groupByConf], axis=1)
+            # dùng hàm groupByDataFrame
+            dfInterestRate = groupByDataFrame(dfInterestRate)
             dfInterestRate['check'] = dfInterestRate['text'].str.contains(patternDict['interestRate'])
             dfInterestRate = dfInterestRate.loc[(dfInterestRate['check']) & (dfInterestRate['conf'] > 10)]
             if dfInterestRate.empty:
@@ -1829,10 +1836,8 @@ def runUBOT(bank: str, month: int):
             imgDate = cv2.resize(imgDate, (500, 32), interpolation=cv2.INTER_NEAREST)
             Image.fromarray(imgDate).show()
             dfDate = readImgPytesseractToDataframe(imgDate, 11)
-            # group by dataframe theo line_num
-            groupByText = dfDate.groupby(['line_num'])['text'].apply(lambda x: ''.join(list(x)))
-            groupByConf = dfDate.groupby(['line_num'])['conf'].mean()
-            dfDate = pd.concat([groupByText, groupByConf], axis=1)
+            # dùng hàm groupByDataFrame
+            dfDate = groupByDataFrame(dfDate)
             dfDate['check'] = dfDate['text'].str.contains(patternDict['date'])
             dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)]
             if dfDate.empty:
@@ -1942,10 +1947,8 @@ def runTCB(bank: str, month: int):
             imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
             Image.fromarray(imgDate).show()
             dfDate = readImgPytesseractToDataframe(imgDate, 4)
-            # group by dataframe theo block_num
-            groupByText = dfDate.groupby(['block_num'])['text'].apply(lambda x: ''.join(list(x)))
-            groupByConf = dfDate.groupby(['block_num'])['conf'].mean()
-            dfDate = pd.concat([groupByText, groupByConf], axis=1)
+            # dùng hàm groupByDataFrame
+            dfDate = groupByDataFrame(dfDate)
             dfDate['check'] = dfDate['text'].str.contains(patternDict['date'])
             dfDate = dfDate.loc[(dfDate['check']) & (dfDate['conf'] > 10)]
             if dfDate.empty:
@@ -2024,8 +2027,7 @@ def runENTIE(bank: str, month: int):
     for img in images:
         # grayscale full image
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
-        kernel = np.ones((3, 3), np.uint8)
-        fullImageScale = cv2.erode(fullImageScale, kernel, iterations=1)
+        fullImageScale = erosionAndDilation(fullImageScale, 'e', 3)
         Image.fromarray(fullImageScale).show()
         # check condition in page to read
         imgCondition = _findCoords(np.array(fullImageScale), 'condition', bank)
@@ -2039,10 +2041,8 @@ def runENTIE(bank: str, month: int):
             imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
             Image.fromarray(imgAmount).show()
             dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
-            # group by dataframe theo block_num
-            groupByText = dfAmount.groupby(['block_num'])['text'].apply(lambda x: ''.join(list(x)))
-            groupByConf = dfAmount.groupby(['block_num'])['conf'].mean()
-            dfAmount = pd.concat([groupByText, groupByConf], axis=1)
+            # dùng hàm groupByDataFrame
+            dfAmount = groupByDataFrame(dfAmount)
             dfAmount['check'] = dfAmount['text'].str.contains(patternDict['amount'])
             dfAmount = dfAmount.loc[(dfAmount['check']) & (dfAmount['conf'] > 10)]
             if dfAmount.empty:
@@ -2054,10 +2054,8 @@ def runENTIE(bank: str, month: int):
             imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
             Image.fromarray(imgInterestRate).show()
             dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
-            # group by dataframe theo block_num
-            groupByText = dfInterestRate.groupby(['block_num'])['text'].apply(lambda x: ''.join(list(x)))
-            groupByConf = dfInterestRate.groupby(['block_num'])['conf'].mean()
-            dfInterestRate = pd.concat([groupByText, groupByConf], axis=1)
+            # dùng hàm groupByDataFrame
+            dfInterestRate = groupByDataFrame(dfInterestRate)
             dfInterestRate['check'] = dfInterestRate['text'].str.contains(patternDict['interestRate'])
             dfInterestRate = dfInterestRate.loc[(dfInterestRate['check']) & (dfInterestRate['conf'] > 10)]
             if dfInterestRate.empty:
@@ -2069,10 +2067,8 @@ def runENTIE(bank: str, month: int):
             imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
             Image.fromarray(imgDate).show()
             dfDate = readImgPytesseractToDataframe(imgDate, 11)
-            # group by dataframe theo block_num
-            groupByText = dfDate.groupby(['block_num'])['text'].apply(lambda x: ''.join(list(x)))
-            groupByConf = dfDate.groupby(['block_num'])['conf'].mean()
-            dfDate = pd.concat([groupByText, groupByConf], axis=1)
+            # dùng hàm groupByDataFrame
+            dfDate = groupByDataFrame(dfDate)
             # lấy termDays từ pattern "termDays" trong dictionary ở trên từ image
             dfTermDays = dfDate.loc[dfDate['text'].str.contains(patternDict['termDays'])].copy()
             # lấy date từ pattern "date" trong dictionary ở trên từ image
@@ -2096,14 +2092,12 @@ def runENTIE(bank: str, month: int):
             termMonths = round(termDays/30)
             # contract number
             imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            imgContractNumber = cv2.dilate(imgContractNumber, kernel, iterations=1)
+            imgContractNumber = erosionAndDilation(imgContractNumber, 'd', 3)
             Image.fromarray(imgContractNumber).show()
             dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 11)
             dfContractNumber['text'] = dfContractNumber['text'].astype(str)
-            # group by dataframe theo block_num
-            groupByText = dfContractNumber.groupby(['block_num'])['text'].apply(lambda x: ''.join(list(x)))
-            groupByConf = dfContractNumber.groupby(['block_num'])['conf'].mean()
-            dfContractNumber = pd.concat([groupByText, groupByConf], axis=1)
+            # dùng hàm groupByDataFrame
+            dfContractNumber = groupByDataFrame(dfContractNumber)
             dfContractNumber['check'] = dfContractNumber['text'].str.contains(patternDict['contractNumber'])
             dfContractNumber = dfContractNumber.loc[(dfContractNumber['check']) & (dfContractNumber['conf'] > 10)]
             if dfContractNumber.empty:
@@ -2174,7 +2168,7 @@ def runTAISHIN(bank: str, month: int):
         dfValue = readImgPytesseractToDataframe(valueImage, 11)
         dfValue = dfValue.loc[
             (dfValue['text'].str.contains(r'[0-9]+')) &
-            (dfValue['conf'] > 10)
+            (dfValue['conf'] > 20)
         ]
         try:
             # amount
