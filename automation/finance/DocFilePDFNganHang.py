@@ -1,5 +1,4 @@
 from automation import *
-import cv2 as cv
 import warnings
 
 warnings.filterwarnings("ignore", 'This pattern has match groups')
@@ -137,15 +136,15 @@ def erosionAndDilation(img, f: str, array: int):
 def _findTopLeftPoint(pdfImage, smallImage):
     pdfImage = np.array(pdfImage)  # đảm bảo image được đưa về numpy array
     smallImage = np.array(smallImage)  # đảm bảo image được đưa về numpy array
-    matchResult = cv.matchTemplate(pdfImage, smallImage, cv.TM_CCOEFF)
-    _, _, _, topLeft = cv.minMaxLoc(matchResult)
+    matchResult = cv2.matchTemplate(pdfImage, smallImage, cv2.TM_CCOEFF)
+    _, _, _, topLeft = cv2.minMaxLoc(matchResult)
     return topLeft[0], topLeft[1]  # cho compatible với openCV
 
 def _findTopLeftPointCATHAY(pdfImage, smallImage):
     pdfImage = np.array(pdfImage)  # đảm bảo image để được đưa về numpy array
     smallImage = np.array(smallImage)  # đảm bảo image để được đưa về numpy array
 
-    matchResult = cv.matchTemplate(pdfImage, smallImage, cv.TM_SQDIFF)
+    matchResult = cv2.matchTemplate(pdfImage, smallImage, cv2.TM_SQDIFF)
     # get all the matches:
     matchResult2 = np.reshape(matchResult, matchResult.shape[0] * matchResult.shape[1])
     sort = np.argsort(matchResult2)
@@ -188,7 +187,7 @@ def _findCoords(pdfImage, name, bank):
             'or "expireDate" or "condition" or "values"'
         )
     smallImagePath = os.path.join(os.path.dirname(__file__), 'bank_img', f'{bank}', fileName)
-    smallImage = cv.imread(smallImagePath, 0)  # hình trắng đen (array 2 chiều)
+    smallImage = cv2.imread(smallImagePath, 0)  # hình trắng đen (array 2 chiều)
     w, h = smallImage.shape[::-1]
     top, left = _findTopLeftPoint(pdfImage, smallImage)
     if bank == 'MEGA':
@@ -484,7 +483,7 @@ def runMEGA(bank: str, month: int):
             termMonths = round(termDays/30)
             # contract number
             imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            imgContractNumber = cv.GaussianBlur(imgContractNumber, (3, 3), 0)
+            imgContractNumber = cv2.GaussianBlur(imgContractNumber, (3, 3), 0)
             dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 6)
             dfContractNumber = groupByDataFrame(dfContractNumber)
             dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 0)
@@ -1330,7 +1329,7 @@ def runCATHAY(bank: str, month: int):
             contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
             # các trường thông tin khác
             containingPath = os.path.join(os.path.dirname(__file__), 'bank_img', f'{bank}', 'check.png')
-            containingImage = cv.imread(containingPath, 0)  # hình trắng đen (array 2 chiều)
+            containingImage = cv2.imread(containingPath, 0)  # hình trắng đen (array 2 chiều)
             w, h = containingImage.shape[::-1]
             topLeftList = _findTopLeftPointCATHAY(containingImage, fullImageScale)
             for topLeft in topLeftList:
@@ -1660,9 +1659,9 @@ def runUBOT(bank: str, month: int):
         if check:
             continue
         try:
-            # amount & currency
-            imgAmountCurrency = _findCoords(np.array(fullImageScale), 'amount', bank)
-            dfAmount = readImgPytesseractToDataframe(imgAmountCurrency, 4)
+            # amount
+            imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
+            dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
             dfAmount = groupByDataFrame(dfAmount)
             dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 0)
             if dfAmount.empty:
@@ -1848,7 +1847,7 @@ def runENTIE(bank: str, month: int):
         'amount': r'(\d+[,.][\d,\d.]+\d{3})',
         'interestRate': r'(\d+[,.]\d+%)',
         'date': r'(\d{4}/\d{2}/\d{2}TO\d{4}/\d{2}/\d{2})',
-        'contractNumber': r'(\d{11}[-]+\d{1,2})',
+        'contractNumber': r'(\d{11}[-]\d{2})',
         'termDays': r'(\d{1,2}[A-Z]{4})'
     }
     for img in images:
@@ -1873,8 +1872,8 @@ def runENTIE(bank: str, month: int):
             amount = float(amountText.replace(',', '').replace('.', ''))
             # interest rate
             imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
-            imgInterestRate = cv.morphologyEx(imgInterestRate, cv.MORPH_OPEN, (3, 3))
-            imgInterestRate = cv.GaussianBlur(imgInterestRate, (5, 5), 0)
+            imgInterestRate = cv2.morphologyEx(imgInterestRate, cv2.MORPH_OPEN, (3, 3))
+            imgInterestRate = cv2.GaussianBlur(imgInterestRate, (5, 5), 0)
             dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 6)
             dfInterestRate = groupByDataFrame(dfInterestRate)
             dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
@@ -1884,7 +1883,7 @@ def runENTIE(bank: str, month: int):
             interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
             # ngày hiệu lực, ngày đáo hạn
             imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
-            imgDate = cv.GaussianBlur(imgDate, (3, 3), 0)
+            imgDate = cv2.GaussianBlur(imgDate, (3, 3), 0)
             dfDate = readImgPytesseractToDataframe(imgDate, 6)
             dfDate = groupByDataFrame(dfDate)
             # termDaysString in image
@@ -1907,8 +1906,8 @@ def runENTIE(bank: str, month: int):
             termMonths = round(termDays/30)
             # contract number
             imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            imgContractNumber = cv.morphologyEx(imgContractNumber, cv.MORPH_CLOSE, (5, 5))
-            imgContractNumber = cv.GaussianBlur(imgContractNumber, (3, 3), 0)
+            imgContractNumber = cv2.morphologyEx(imgContractNumber, cv2.MORPH_CLOSE, (5, 5))
+            imgContractNumber = cv2.GaussianBlur(imgContractNumber, (3, 3), 0)
             dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 11)
             if dfContractNumber['text'].dtype == 'float64':
                 dfContractNumber['text'] = dfContractNumber['text'].astype('Int64').astype('str')
