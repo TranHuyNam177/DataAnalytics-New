@@ -209,7 +209,7 @@ def _findCoords(pdfImage, name, bank):
             top = int(top + 0.1 * w)
         elif name == 'contractNumber':
             right = left + h + 7
-            left = int(left + 2 * h / 3 - 5)
+            left = int(left + 2 * h / 3 - 15)
             top = top + w - 5
             bottom = int(top + w * 0.6)
         else:
@@ -484,7 +484,7 @@ def runMEGA(bank: str, month: int):
             termMonths = round(termDays/30)
             # contract number
             imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            _, imgContractNumber = cv2.threshold(imgContractNumber, 200, 255, cv.THRESH_BINARY)
+            imgContractNumber = cv.GaussianBlur(imgContractNumber, (3, 3), 0)
             dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 6)
             dfContractNumber = groupByDataFrame(dfContractNumber)
             dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 0)
