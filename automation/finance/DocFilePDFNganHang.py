@@ -1,7 +1,3 @@
-import os.path
-
-import pandas as pd
-
 from automation import *
 import warnings
 
