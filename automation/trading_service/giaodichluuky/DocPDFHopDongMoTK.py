@@ -12,18 +12,13 @@ def convertPDFtoImage(pathPDF):
     )
     return images
 
-
-def _findTopLeftPoint(pdfImage, smallImage):
-    matchResult = cv2.matchTemplate(pdfImage, smallImage, cv2.TM_CCOEFF)
-    _, _, _, topLeft = cv2.minMaxLoc(matchResult)
-    return topLeft[0], topLeft[1]
-
-
 def _findCoords(pdfImage, sex):
     smallImagePath = os.path.join(os.path.dirname(__file__), 'img', 'sex.png')
     smallImage = cv2.imread(smallImagePath, 0)  # hình trắng đen (array 2 chiều)
     w, h = smallImage.shape[::-1]
-    top, left = _findTopLeftPoint(pdfImage, smallImage)
+    matchResult = cv2.matchTemplate(pdfImage, smallImage, cv2.TM_CCOEFF)
+    _, _, _, topLeft = cv2.minMaxLoc(matchResult)
+    top, left = topLeft
     right = left + h
     if sex == 'male':
         bottom = int(top + w / 2 - 8)

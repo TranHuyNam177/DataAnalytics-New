@@ -2106,7 +2106,7 @@ def runBank(month: int):
     frames = []
     directory = join(realpath(dirname(__file__)), 'bank', f'THÁNG {month}')
     for fileName in os.listdir(directory):
-        if not fileName.endswith('.pdf'):
+        if (not fileName.endswith('.pdf')) or 'VAY SINO' in fileName:
             continue
         filePDFPath = os.path.join(directory, fileName)
         listImages = convertPDFtoImage(filePDFPath)
