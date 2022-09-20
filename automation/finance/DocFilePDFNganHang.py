@@ -1,3 +1,7 @@
+import os.path
+
+import pandas as pd
+
 from automation import *
 import warnings
 
@@ -42,12 +46,12 @@ warnings.filterwarnings("ignore", 'This pattern has match groups')
         - contract number: 4 chữ cái đầu set cứng
 """
 
-def convertPDFtoImage(bankName: str, month: int):
+def convertPDFtoImage(pathPDF):
     """
     Hàm chuyển từng trang trong PDF sang image
     """
-    directory = join(realpath(dirname(__file__)), 'bank', f'THÁNG {month}')
-    pathPDF = join(directory, f'{bankName}.pdf')
+    # directory = join(realpath(dirname(__file__)), 'bank', f'THÁNG {month}')
+    # pathPDF = join(directory, f'{bankName}.pdf')
     images = convert_from_path(
         pdf_path=pathPDF,
         poppler_path=r'C:\Users\namtran\poppler-0.68.0\bin'
@@ -422,12 +426,9 @@ def _findCoords(pdfImage, name, bank):
         top = int(top + 0.3 * w)
         return pdfImage[left:right, top:bottom]
 
-def runMEGA(bank: str, month: int):
+def runMEGA(bank, listImages):
     now = dt.datetime.now()
     records = []
-    images = convertPDFtoImage(bank, month)
-    if bank != 'MEGA':
-        bank = 'MEGA'
     patternDict = {
         'amount': r'(\d+[,.][\d,\d.]+\d{3})',
         'interestRate': r'(\d+[,.]\d+%)',
@@ -435,7 +436,7 @@ def runMEGA(bank: str, month: int):
         'contractNumber': r'(\d{14})',
         'paid': r'(\d+,[\d,]+\d{3}\.\d{2})',
     }
-    for img in images:
+    for img in listImages:
         # scale image to gray
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
         # check image with condition
@@ -443,72 +444,69 @@ def runMEGA(bank: str, month: int):
         if check:
             continue
         Image.fromarray(fullImageScale).show()
-        try:
-            # amount
-            imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
-            dfAmount = readImgPytesseractToDataframe(imgAmount, 6)
-            dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
-            if dfAmount.empty:
-                continue
-            amountText = dfAmount.loc[dfAmount.index[0], 'regex']
-            amount = float(amountText.replace(',', '').replace('.', ''))
-            # interest rate
-            imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
-            dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 6)
-            dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
-            if dfInterestRate.empty:
-                continue
-            interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
-            interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
-            # ngày hiệu lực, ngày đáo hạn
-            imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
-            imgDate = cv2.resize(imgDate, (405, 55))
-            dfDate = readImgPytesseractToDataframe(imgDate, 6)
-            dfDate = groupByDataFrame(dfDate)
-            dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
-            if dfDate.empty:
-                continue
-            dateText = dfDate.loc[dfDate.index[0], 'regex']
-            if '~' in dateText:
-                issueDateText, expireDateText = dateText.split('~')
-            else:
-                issueDateText, expireDateText = dateText.split('-')
-            issueDate = dt.datetime.strptime(issueDateText.replace('-', ''), '%Y/%m/%d')
-            expireDate = dt.datetime.strptime(expireDateText.replace('-', ''), '%Y/%m/%d')
-            if issueDate > expireDate:
-                continue
-            # Term Days
-            termDays = (expireDate - issueDate).days
-            # Term Months
-            termMonths = round(termDays/30)
-            # contract number
-            imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            imgContractNumber = cv2.GaussianBlur(imgContractNumber, (3, 3), 0)
-            dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 6)
-            dfContractNumber = groupByDataFrame(dfContractNumber)
-            dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 0)
-            if dfContractNumber.empty:
-                continue
-            contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
-            # interest amount
-            interestAmount = amount * termDays * interestRate / 360
-            # paid
-            imgPaid = _findCoords(np.array(fullImageScale), 'paid', bank)
-            dfPaid = readImgPytesseractToDataframe(imgPaid, 6)
-            dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 10)
-            if dfPaid.empty:
-                paid = 0
-            else:
-                paidText = dfPaid.loc[dfPaid.index[0], 'regex']
-                paid = float(paidText.replace(',', ''))
-                paid = round(paid - interestAmount, 2)
-            # remaining
-            remaining = amount - paid
-
-            # Append data
-            records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
-        except (Exception, ):
+        # amount
+        imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 6)
+        dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
+        if dfAmount.empty:
             continue
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', '').replace('.', ''))
+        # interest rate
+        imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 6)
+        dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
+        if dfInterestRate.empty:
+            continue
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
+        # ngày hiệu lực, ngày đáo hạn
+        imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
+        imgDate = cv2.resize(imgDate, (405, 55))
+        dfDate = readImgPytesseractToDataframe(imgDate, 6)
+        dfDate = groupByDataFrame(dfDate)
+        dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
+        if dfDate.empty:
+            continue
+        dateText = dfDate.loc[dfDate.index[0], 'regex']
+        if '~' in dateText:
+            issueDateText, expireDateText = dateText.split('~')
+        else:
+            issueDateText, expireDateText = dateText.split('-')
+        issueDate = dt.datetime.strptime(issueDateText.replace('-', ''), '%Y/%m/%d')
+        expireDate = dt.datetime.strptime(expireDateText.replace('-', ''), '%Y/%m/%d')
+        if issueDate > expireDate:
+            continue
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = round(termDays/30)
+        # contract number
+        imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
+        imgContractNumber = cv2.GaussianBlur(imgContractNumber, (3, 3), 0)
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 6)
+        dfContractNumber = groupByDataFrame(dfContractNumber)
+        dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 0)
+        if dfContractNumber.empty:
+            continue
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+        # paid
+        imgPaid = _findCoords(np.array(fullImageScale), 'paid', bank)
+        dfPaid = readImgPytesseractToDataframe(imgPaid, 6)
+        dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 10)
+        if dfPaid.empty:
+            paid = 0
+        else:
+            paidText = dfPaid.loc[dfPaid.index[0], 'regex']
+            paid = float(paidText.replace(',', ''))
+            paid = round(paid - interestAmount, 2)
+        # remaining
+        remaining = amount - paid
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
+
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -537,10 +535,9 @@ def runMEGA(bank: str, month: int):
 
     return balanceTable
 
-def runSHINKONG(bank: str, month: int):
+def runSHINKONG(bank, listImages):
     now = dt.datetime.now()
     records = []
-    images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
         'interestRate': r'(\d+[,.]\d+%)',
@@ -548,7 +545,7 @@ def runSHINKONG(bank: str, month: int):
         'contractNumber': r'([A-Z]\d[A-Z]{7}\d{5}|[A-Z]{9}\d{5})',
         'paid': r'(\d+,[\d,]+\d{3}\.\d{2})',
     }
-    for img in images:
+    for img in listImages:
         # scale image to gray
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
         # using opening morphological
@@ -558,70 +555,67 @@ def runSHINKONG(bank: str, month: int):
         if 'Payment Advice' not in readImgPytesseractToString(fullImageScale, 6):
             continue
         Image.fromarray(fullImageScale).show()
-        try:
-            # amount
-            imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
-            dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
-            dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
-            if dfAmount.empty:
-                continue
-            amountText = dfAmount.loc[dfAmount.index[0], 'regex']
-            amount = float(amountText.replace(',', ''))
-            # interest rate
-            imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
-            dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
-            dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
-            if dfInterestRate.empty:
-                continue
-            interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
-            interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
-            # ngày hiệu lực, ngày đáo hạn
-            imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
-            dfDate = readImgPytesseractToDataframe(imgDate, 11)
-            dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
-            if dfDate.empty:
-                continue
-            dateText = dfDate.loc[dfDate.index[0], 'regex']
-            if '~' in dateText:
-                issueDateText, expireDateText = dateText.split('~')
-            else:
-                issueDateText, expireDateText = dateText.split('-')
-            issueDate = dt.datetime.strptime(issueDateText.replace('-', ''), '%Y/%m/%d')
-            expireDate = dt.datetime.strptime(expireDateText.replace('-', ''), '%Y/%m/%d')
-            if issueDate > expireDate:
-                continue
-            # Term Days
-            termDays = (expireDate - issueDate).days
-            # Term Months
-            termMonths = round(termDays / 30)
-            # contract number
-            imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 6)
-            dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
-            if dfContractNumber.empty:
-                continue
-            contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
-            if contractNumber.startswith('LI'):
-                contractNumber = contractNumber.replace('LI', 'L1')
-            # interest amount
-            interestAmount = amount * termDays * interestRate / 360
-            # paid
-            imgPaid = _findCoords(np.array(fullImageScale), 'paid', bank)
-            dfPaid = readImgPytesseractToDataframe(imgPaid, 11)
-            dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 10)
-            if dfPaid.empty:
-                paid = 0
-            else:
-                paidText = dfPaid.loc[dfPaid.index[0], 'regex']
-                paid = float(paidText.replace(',', ''))
-                paid = round(paid - interestAmount, 2)
-            # remaining
-            remaining = amount - paid
-
-            # Append data
-            records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
-        except (Exception, ):
+        # amount
+        imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
+        dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
+        if dfAmount.empty:
             continue
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', ''))
+        # interest rate
+        imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
+        dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
+        if dfInterestRate.empty:
+            continue
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
+        # ngày hiệu lực, ngày đáo hạn
+        imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
+        dfDate = readImgPytesseractToDataframe(imgDate, 11)
+        dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
+        if dfDate.empty:
+            continue
+        dateText = dfDate.loc[dfDate.index[0], 'regex']
+        if '~' in dateText:
+            issueDateText, expireDateText = dateText.split('~')
+        else:
+            issueDateText, expireDateText = dateText.split('-')
+        issueDate = dt.datetime.strptime(issueDateText.replace('-', ''), '%Y/%m/%d')
+        expireDate = dt.datetime.strptime(expireDateText.replace('-', ''), '%Y/%m/%d')
+        if issueDate > expireDate:
+            continue
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = round(termDays / 30)
+        # contract number
+        imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 6)
+        dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
+        if dfContractNumber.empty:
+            continue
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+        if contractNumber.startswith('LI'):
+            contractNumber = contractNumber.replace('LI', 'L1')
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+        # paid
+        imgPaid = _findCoords(np.array(fullImageScale), 'paid', bank)
+        dfPaid = readImgPytesseractToDataframe(imgPaid, 11)
+        dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 10)
+        if dfPaid.empty:
+            paid = 0
+        else:
+            paidText = dfPaid.loc[dfPaid.index[0], 'regex']
+            paid = float(paidText.replace(',', ''))
+            paid = round(paid - interestAmount, 2)
+        # remaining
+        remaining = amount - paid
+
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -651,7 +645,7 @@ def runSHINKONG(bank: str, month: int):
     return balanceTable
 
 # chưa thấy file PDF có phần trả khoản vay nên tạm để paid = 0
-def runYUANTA(bank: str, month: int):
+def runYUANTA(bank, listImages):
     now = dt.datetime.now()
     records = []
     patternDict = {
@@ -660,69 +654,65 @@ def runYUANTA(bank: str, month: int):
         'date': r'(\d{4}/\d{2}/\d{2}-\d{4}/\d{2}/\d{2})',
         'contractNumber': r'(\d{4}[A-Z]{2}\d{5})'
     }
-    images = convertPDFtoImage(bank, month)
-
-    for img in images:
+    for img in listImages:
         # grayscale full image
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
         # check image with condition
         if 'Interest Payment Notice' not in readImgPytesseractToString(fullImageScale, 6):
             continue
         Image.fromarray(fullImageScale).show()
-        try:
-            # detect table in image
-            tables = detect_table(fullImageScale)
-            table = tables[0]  # vì chỉ có 1 bảng trong hình nên phần tử đầu tiên luôn là bảng đó
-            # amount
-            imgAmount = _findCoords(np.array(table), 'amount', bank)
-            dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
-            dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
-            if dfAmount.empty:
-                continue
-            amountText = dfAmount.loc[dfAmount.index[0], 'regex']
-            amount = float(amountText.replace(',', ''))
-            # interest rate
-            imgInterestRate = _findCoords(np.array(table), 'interestRate', bank)
-            dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 4)
-            dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
-            if dfInterestRate.empty:
-                continue
-            interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
-            interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
-            # ngày hiệu lực, ngày đáo hạn
-            imgDate = _findCoords(np.array(table), 'date', bank)
-            dfDate = readImgPytesseractToDataframe(imgDate, 4)
-            dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
-            if dfDate.empty:
-                continue
-            dateText = dfDate.loc[dfDate.index[0], 'regex']
-            issueDateText, expireDateText = dateText.split('-')
-            issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
-            expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
-            if issueDate > expireDate:
-                continue
-            # Term Days
-            termDays = (expireDate - issueDate).days
-            # Term Months
-            termMonths = round(termDays / 30)
-            # contract number
-            imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 6)
-            dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
-            if dfContractNumber.empty:
-                continue
-            contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
-            contractNumber = 'AOBU' + contractNumber
-            # paid
-            paid = 0
-            # remaining
-            remaining = amount - paid
-            # interest amount
-            interestAmount = amount * termDays * interestRate / 360
-            # Append data
-            records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
-        except (Exception, ):
+
+        # detect table in image
+        tables = detect_table(fullImageScale)
+        table = tables[0]  # vì chỉ có 1 bảng trong hình nên phần tử đầu tiên luôn là bảng đó
+        # amount
+        imgAmount = _findCoords(np.array(table), 'amount', bank)
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
+        dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
+        if dfAmount.empty:
             continue
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', ''))
+        # interest rate
+        imgInterestRate = _findCoords(np.array(table), 'interestRate', bank)
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 4)
+        dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
+        if dfInterestRate.empty:
+            continue
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
+        # ngày hiệu lực, ngày đáo hạn
+        imgDate = _findCoords(np.array(table), 'date', bank)
+        dfDate = readImgPytesseractToDataframe(imgDate, 4)
+        dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
+        if dfDate.empty:
+            continue
+        dateText = dfDate.loc[dfDate.index[0], 'regex']
+        issueDateText, expireDateText = dateText.split('-')
+        issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
+        expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
+        if issueDate > expireDate:
+            continue
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = round(termDays / 30)
+        # contract number
+        imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 6)
+        dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
+        if dfContractNumber.empty:
+            continue
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+        contractNumber = 'AOBU' + contractNumber
+        # paid
+        paid = 0
+        # remaining
+        remaining = amount - paid
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -752,10 +742,9 @@ def runYUANTA(bank: str, month: int):
     return balanceTable
 
 # Done
-def runSHHK(bank: str, month: int):
+def runSHHK(bank, listImages):
     now = dt.datetime.now()
     records = []
-    images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
         'interestRate': r'(\d+[,.]\d+%)',
@@ -764,77 +753,74 @@ def runSHHK(bank: str, month: int):
         'paid': r'(\d+,[\d,]+\d{3}\.\d{2})'
     }
 
-    for img in images:
+    for img in listImages:
         # grayscale full image
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
         Image.fromarray(fullImageScale).show()
-        try:
-            # amount
-            imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
-            dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
-            dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
-            if dfAmount.empty:
-                continue
-            amountText = dfAmount.loc[dfAmount.index[0], 'regex']
-            amount = float(amountText.replace(',', ''))
-            # interest rate
-            imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
-            dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 4)
-            dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
-            if dfInterestRate.empty:
-                continue
-            interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
-            interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
-            # ngày hiệu lực, ngày đáo hạn
-            imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
-            dfDate = readImgPytesseractToDataframe(imgDate, 6)
-            dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
-            if dfDate.empty:
-                continue
-            elif dfDate['check'].count() == 2:
-                issueDateText = dfDate.loc[dfDate.index[0], 'regex']
-                expireDateText = dfDate.loc[dfDate.index[1], 'regex']
-                issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
-                expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
-            else:
-                dateText = dfDate.loc[dfDate.index[0], 'regex']
-                if '~' in dateText:
-                    issueDateText, expireDateText = dateText.split('~')
-                else:
-                    issueDateText, expireDateText = dateText.split('-')
-                issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
-                expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
-            if issueDate > expireDate:
-                continue
-            # Term Days
-            termDays = (expireDate - issueDate).days
-            # Term Months
-            termMonths = round(termDays / 30)
-            # contract number
-            imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 11)
-            dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
-            if dfContractNumber.empty:
-                continue
-            contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
-            contractNumber = contractNumber.replace(contractNumber[0:2], '888LN')
-            # paid
-            imgPaid = _findCoords(np.array(fullImageScale), 'paid', bank)
-            dfPaid = readImgPytesseractToDataframe(imgPaid, 4)
-            dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 10)
-            if dfPaid.empty:
-                paid = 0
-            else:
-                paid = dfPaid.loc[dfPaid.index[0], 'regex']
-                paid = float(paid.replace(',', ''))
-            # remaining
-            remaining = amount - paid
-            # interest amount
-            interestAmount = amount * termDays * interestRate / 360
-            # Append data
-            records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
-        except (Exception, ):
+        # amount
+        imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
+        dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
+        if dfAmount.empty:
             continue
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', ''))
+        # interest rate
+        imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 4)
+        dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
+        if dfInterestRate.empty:
+            continue
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
+        # ngày hiệu lực, ngày đáo hạn
+        imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
+        dfDate = readImgPytesseractToDataframe(imgDate, 6)
+        dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
+        if dfDate.empty:
+            continue
+        elif dfDate['check'].count() == 2:
+            issueDateText = dfDate.loc[dfDate.index[0], 'regex']
+            expireDateText = dfDate.loc[dfDate.index[1], 'regex']
+            issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
+            expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
+        else:
+            dateText = dfDate.loc[dfDate.index[0], 'regex']
+            if '~' in dateText:
+                issueDateText, expireDateText = dateText.split('~')
+            else:
+                issueDateText, expireDateText = dateText.split('-')
+            issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
+            expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
+        if issueDate > expireDate:
+            continue
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = round(termDays / 30)
+        # contract number
+        imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 11)
+        dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
+        if dfContractNumber.empty:
+            continue
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+        contractNumber = contractNumber.replace(contractNumber[0:2], '888LN')
+        # paid
+        imgPaid = _findCoords(np.array(fullImageScale), 'paid', bank)
+        dfPaid = readImgPytesseractToDataframe(imgPaid, 4)
+        dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 10)
+        if dfPaid.empty:
+            paid = 0
+        else:
+            paid = dfPaid.loc[dfPaid.index[0], 'regex']
+            paid = float(paid.replace(',', ''))
+        # remaining
+        remaining = amount - paid
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -864,10 +850,9 @@ def runSHHK(bank: str, month: int):
     return balanceTable
 
 # Done
-def runSINOPAC(bank: str, month: int):
+def runSINOPAC(bank, listImages):
     now = dt.datetime.now()
     records = []
-    images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
         'interestRate': r'(\d+[,.]\d+%)',
@@ -875,78 +860,72 @@ def runSINOPAC(bank: str, month: int):
         'contractNumber': r'(\d{8})',
         'paid': r'(\d+[,][\d,]+\d{3}\.\d{2})'
     }
-    if bank != 'SINOPAC':
-        bank = 'SINOPAC'
-    for img in images:
+    for img in listImages:
         img = img.rotate(-90, expand=1)
         # grayscale full image
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
         Image.fromarray(fullImageScale).show()
-        try:
-            # amount
-            imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
-
-            dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
-            dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
-            if dfAmount.empty:
-                continue
-            amountText = dfAmount.loc[dfAmount.index[0], 'regex']
-            amount = float(amountText.replace(',', ''))
-            # interest rate
-            imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
-            dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
-            dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
-            if dfInterestRate.empty:
-                continue
-            interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
-            interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
-            # ngày hiệu lực, ngày đáo hạn
-            imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
-            dfDate = readImgPytesseractToDataframe(imgDate, 6)
-            dfDate = groupByDataFrame(dfDate)
-            dfDate['text'] = dfDate['text'].apply(lambda x: x.replace('..', '.'))
-            dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
-            if dfDate.empty:
-                continue
-            dateText = dfDate.loc[dfDate.index[0], 'regex']
-            char = ',.:;'
-            for c in char:
-                if c in dateText:
-                    dateText = dateText.replace(c, '')
-            issueDateText, expireDateText = dateText.split('to')
-            issueDate = dt.datetime.strptime(issueDateText, '%d%b%Y')
-            expireDate = dt.datetime.strptime(expireDateText, '%d%b%Y')
-            if issueDate > expireDate:
-                continue
-            # Term Days
-            termDays = (expireDate - issueDate).days
-            # Term Months
-            termMonths = round(termDays / 30)
-            # contract number
-            imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
-            dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
-            if dfContractNumber.empty:
-                continue
-            contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
-            # interest amount
-            interestAmount = amount * termDays * interestRate / 360
-            # paid
-            imgPaid = _findCoords(fullImageScale, 'paid', bank)
-            dfPaid = readImgPytesseractToDataframe(imgPaid, 4)
-            dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 10)
-            if dfPaid.empty:
-                paid = 0
-            else:
-                paidText = dfPaid.loc[dfPaid.index[0], 'regex']
-                paid = float(paidText.replace(',',''))
-                paid = round(paid - interestAmount, 2)
-            # remaining
-            remaining = amount - paid
-            # Append data
-            records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
-        except (Exception, ):
+        # amount
+        imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
+        dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
+        if dfAmount.empty:
             continue
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', ''))
+        # interest rate
+        imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
+        dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
+        if dfInterestRate.empty:
+            continue
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
+        # ngày hiệu lực, ngày đáo hạn
+        imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
+        dfDate = readImgPytesseractToDataframe(imgDate, 6)
+        dfDate = groupByDataFrame(dfDate)
+        dfDate['text'] = dfDate['text'].apply(lambda x: x.replace('..', '.'))
+        dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
+        if dfDate.empty:
+            continue
+        dateText = dfDate.loc[dfDate.index[0], 'regex']
+        char = ',.:;'
+        for c in char:
+            if c in dateText:
+                dateText = dateText.replace(c, '')
+        issueDateText, expireDateText = dateText.split('to')
+        issueDate = dt.datetime.strptime(issueDateText, '%d%b%Y')
+        expireDate = dt.datetime.strptime(expireDateText, '%d%b%Y')
+        if issueDate > expireDate:
+            continue
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = round(termDays / 30)
+        # contract number
+        imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
+        dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
+        if dfContractNumber.empty:
+            continue
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+        # paid
+        imgPaid = _findCoords(fullImageScale, 'paid', bank)
+        dfPaid = readImgPytesseractToDataframe(imgPaid, 4)
+        dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 10)
+        if dfPaid.empty:
+            paid = 0
+        else:
+            paidText = dfPaid.loc[dfPaid.index[0], 'regex']
+            paid = float(paidText.replace(',',''))
+            paid = round(paid - interestAmount, 2)
+        # remaining
+        remaining = amount - paid
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -976,10 +955,9 @@ def runSINOPAC(bank: str, month: int):
     return balanceTable
 
 # Done
-def runCHANGHWA(bank: str, month: int):
+def runCHANGHWA(bank, listImages):
     now = dt.datetime.now()
     records = []
-    images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
         'interestRate': r'(\d+[.,]\d+%)',
@@ -987,9 +965,7 @@ def runCHANGHWA(bank: str, month: int):
         'contractNumber': r'(\d{2}/\d{4}/[A-Z]{2}/[A-Z]{3})',
         'paid': r'(\d+,[\d,]+\d{3})'
     }
-    if bank != 'CHANG HWA':
-        bank = 'CHANG HWA'
-    for img in images:
+    for img in listImages:
         # grayscale full image
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
         # check image with condition
@@ -998,66 +974,63 @@ def runCHANGHWA(bank: str, month: int):
         if check:
             continue
         Image.fromarray(fullImageScale).show()
-        try:
-            # amount
-            imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
-            dfAmount = readImgPytesseractToDataframe(imgAmount, 6)
-            dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
-            if dfAmount.empty:
-                continue
-            amountText = dfAmount.loc[dfAmount.index[0], 'regex']
-            amount = float(amountText.replace(',', ''))
-            # interest rate
-            imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
-            dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
-            dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
-            if dfInterestRate.empty:
-                continue
-            dfInterestRate['regex'] = dfInterestRate['text'].str.extract(patternDict['interestRate'])
-            interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
-            interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
-            # ngày hiệu lực, ngày đáo hạn
-            imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
-            dfDate = readImgPytesseractToDataframe(imgDate, 11)
-            dfDate = groupByDataFrame(dfDate)
-            dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
-            if dfDate.empty:
-                continue
-            dateText = dfDate.loc[dfDate.index[0], 'regex']
-            dateText = dateText.replace('.', '')
-            issueDateText, expireDateText = dateText.split('TO')
-            issueDate = dt.datetime.strptime(issueDateText, '%d%b%Y')
-            expireDate = dt.datetime.strptime(expireDateText, '%d%b%Y')
-            if issueDate > expireDate:
-                continue
-            # Term Days
-            termDays = (expireDate - issueDate).days
-            # Term Months
-            termMonths = round(termDays / 30)
-            # contract number
-            imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
-            dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
-            if dfContractNumber.empty:
-                continue
-            contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
-            # paid
-            imgPaid = _findCoords(fullImageScale, 'paid', bank)
-            dfPaid = readImgPytesseractToDataframe(imgPaid, 4)
-            dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 10)
-            if dfPaid.empty:
-                paid = 0
-            else:
-                paidText = dfPaid.loc[dfPaid.index[0], 'regex']
-                paid = float(paidText.replace(',', ''))
-            # remaining
-            remaining = amount - paid
-            # interest amount
-            interestAmount = amount * termDays * interestRate / 360
-            # Append data
-            records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
-        except (Exception, ):
+        # amount
+        imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 6)
+        dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
+        if dfAmount.empty:
             continue
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', ''))
+        # interest rate
+        imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
+        dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
+        if dfInterestRate.empty:
+            continue
+        dfInterestRate['regex'] = dfInterestRate['text'].str.extract(patternDict['interestRate'])
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
+        # ngày hiệu lực, ngày đáo hạn
+        imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
+        dfDate = readImgPytesseractToDataframe(imgDate, 11)
+        dfDate = groupByDataFrame(dfDate)
+        dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
+        if dfDate.empty:
+            continue
+        dateText = dfDate.loc[dfDate.index[0], 'regex']
+        dateText = dateText.replace('.', '')
+        issueDateText, expireDateText = dateText.split('TO')
+        issueDate = dt.datetime.strptime(issueDateText, '%d%b%Y')
+        expireDate = dt.datetime.strptime(expireDateText, '%d%b%Y')
+        if issueDate > expireDate:
+            continue
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = round(termDays / 30)
+        # contract number
+        imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
+        dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
+        if dfContractNumber.empty:
+            continue
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+        # paid
+        imgPaid = _findCoords(fullImageScale, 'paid', bank)
+        dfPaid = readImgPytesseractToDataframe(imgPaid, 4)
+        dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 10)
+        if dfPaid.empty:
+            paid = 0
+        else:
+            paidText = dfPaid.loc[dfPaid.index[0], 'regex']
+            paid = float(paidText.replace(',', ''))
+        # remaining
+        remaining = amount - paid
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -1087,75 +1060,71 @@ def runCHANGHWA(bank: str, month: int):
     return balanceTable
 
 # chưa thấy file PDF có phần trả khoản vay nên tạm để paid = 0
-def runKGI(bank: str, month: int):
+def runKGI(bank, listImages):
     now = dt.datetime.now()
     records = []
-    images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
         'interestRate': r'(\d+[.,]\d+)',
         'date': r'(\d{4}/\d{2}/\d{2})',
         'contractNumber': r'([A-Z]{3}\d{7}[A-Z]{2})'
     }
-    for img in images:
+    for img in listImages:
         # grayscale full image
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
         # check image with condition
         if 'NOTICE OF LOAN REPAYMENT' not in readImgPytesseractToString(fullImageScale, 6):
             continue
         Image.fromarray(fullImageScale).show()
-        try:
-            # amount
-            imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
-            dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
-            dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 0)
-            if dfAmount.empty:
-                continue
-            amountText = dfAmount.loc[dfAmount.index[0], 'regex']
-            amount = float(amountText.replace(',', ''))
-            # interest rate
-            imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
-            dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 6)
-            dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
-            if dfInterestRate.empty:
-                continue
-            interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
-            interestRate = float(interestRateText.replace(',', '.')) / 100
-            # ngày hiệu lực, ngày đáo hạn
-            imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
-            dfDate = readImgPytesseractToDataframe(imgDate, 11)
-            dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
-            if dfDate.empty:
-                continue
-            if dfDate.loc[dfDate.index[0], 'regex'] < dfDate.loc[dfDate.index[1], 'regex']:
-                issueDateText = dfDate.loc[dfDate.index[0], 'regex']
-                expireDateText = dfDate.loc[dfDate.index[1], 'regex']
-            else:
-                issueDateText = dfDate.loc[dfDate.index[1], 'regex']
-                expireDateText = dfDate.loc[dfDate.index[0], 'regex']
-            issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
-            expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
-            # Term Days
-            termDays = (expireDate - issueDate).days + 1
-            # Term Months
-            termMonths = round(termDays / 30)
-            # contract number
-            imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
-            dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
-            if dfContractNumber.empty:
-                continue
-            contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
-            # paid
-            paid = 0
-            # remaining
-            remaining = amount - paid
-            # interest amount
-            interestAmount = amount * termDays * interestRate / 360
-            # Append data
-            records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
-        except (Exception, ):
+        # amount
+        imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
+        dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 0)
+        if dfAmount.empty:
             continue
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', ''))
+        # interest rate
+        imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 6)
+        dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
+        if dfInterestRate.empty:
+            continue
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace(',', '.')) / 100
+        # ngày hiệu lực, ngày đáo hạn
+        imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
+        dfDate = readImgPytesseractToDataframe(imgDate, 11)
+        dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
+        if dfDate.empty:
+            continue
+        if dfDate.loc[dfDate.index[0], 'regex'] < dfDate.loc[dfDate.index[1], 'regex']:
+            issueDateText = dfDate.loc[dfDate.index[0], 'regex']
+            expireDateText = dfDate.loc[dfDate.index[1], 'regex']
+        else:
+            issueDateText = dfDate.loc[dfDate.index[1], 'regex']
+            expireDateText = dfDate.loc[dfDate.index[0], 'regex']
+        issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
+        expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
+        # Term Days
+        termDays = (expireDate - issueDate).days + 1
+        # Term Months
+        termMonths = round(termDays / 30)
+        # contract number
+        imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
+        dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
+        if dfContractNumber.empty:
+            continue
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+        # paid
+        paid = 0
+        # remaining
+        remaining = amount - paid
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -1185,7 +1154,7 @@ def runKGI(bank: str, month: int):
     return balanceTable
 
 # Done
-def runESUN(bank: str, month: int):
+def runESUN(bank, listImages):
     now = dt.datetime.now()
     records = []
     patternDict = {
@@ -1195,80 +1164,72 @@ def runESUN(bank: str, month: int):
         'contractNumber': r'(\d{6})',
         'paid': r'(\d+[,.][\d,\d.]+\d{3})'
     }
-    images = convertPDFtoImage(bank, month)
-    if bank != 'ESUN':
-        bank = 'ESUN'
-
-    for img in images:
+    for img in listImages:
         # grayscale full image
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
         # check image with condition
         if 'Payment Advice' not in readImgPytesseractToString(fullImageScale, 6):
             continue
         Image.fromarray(fullImageScale).show()
-        try:
-            # amount
-            imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
-            dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
-            dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
-            if dfAmount.empty:
-                continue
-            amountText = dfAmount.loc[dfAmount.index[0], 'regex']
-            amount = float(amountText.replace(',', '').replace('.', ''))
-            # interest rate
-            imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
-            dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 4)
-            dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
-            if dfInterestRate.empty:
-                continue
-            interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
-            interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
-            # ngày hiệu lực, ngày đáo hạn
-            imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
-            dfDate = readImgPytesseractToDataframe(imgDate, 4)
-            dfDate = groupByDataFrame(dfDate)
-            dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
-            if dfDate.empty:
-                continue
-            dateText = dfDate.loc[dfDate.index[0], 'regex']
-            if '~' in dateText:
-                issueDateText, expireDateText = dateText.split('~')
-            else:
-                issueDateText, expireDateText = dateText.split('-')
-            issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
-            expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
-            if issueDate > expireDate:
-                continue
-            # Term Days
-            termDays = (expireDate - issueDate).days
-            # Term Months
-            termMonths = round(termDays / 30)
-            # contract number
-            imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 6)
-            dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
-            if dfContractNumber.empty:
-                continue
-            contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
-            contractNumber = '22OBLN' + contractNumber
-            # paid
-            imgPaid = _findCoords(np.array(fullImageScale), 'paid', bank)
-            Image.fromarray(imgPaid).show()
-            dfPaid = readImgPytesseractToDataframe(imgPaid, 11)
-            dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 10)
-            if dfPaid.empty:
-                paid = 0
-            else:
-                paidText = dfPaid.loc[dfPaid.index[0], 'regex']
-                paid = float(paidText.replace(',', '').replace('.', ''))
-            # remaining
-            remaining = amount - paid
-            # interest amount
-            interestAmount = amount * termDays * interestRate / 360
-            # Append data
-            records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
-        except (Exception, ):
+        # amount
+        imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
+        dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
+        if dfAmount.empty:
             continue
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', '').replace('.', ''))
+        # interest rate
+        imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 4)
+        dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
+        if dfInterestRate.empty:
+            continue
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
+        # ngày hiệu lực, ngày đáo hạn
+        imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
+        dfDate = readImgPytesseractToDataframe(imgDate, 4)
+        dfDate = groupByDataFrame(dfDate)
+        dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
+        if dfDate.empty:
+            continue
+        dateText = dfDate.loc[dfDate.index[0], 'regex']
+        if '~' in dateText:
+            issueDateText, expireDateText = dateText.split('~')
+        else:
+            issueDateText, expireDateText = dateText.split('-')
+        issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
+        expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
+        if issueDate > expireDate:
+            continue
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = round(termDays / 30)
+        # contract number
+        imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 6)
+        dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
+        if dfContractNumber.empty:
+            continue
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+        contractNumber = '22OBLN' + contractNumber
+        # paid
+        imgPaid = _findCoords(np.array(fullImageScale), 'paid', bank)
+        dfPaid = readImgPytesseractToDataframe(imgPaid, 11)
+        dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 10)
+        if dfPaid.empty:
+            paid = 0
+        else:
+            paidText = dfPaid.loc[dfPaid.index[0], 'regex']
+            paid = float(paidText.replace(',', '').replace('.', ''))
+        # remaining
+        remaining = amount - paid
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -1298,17 +1259,16 @@ def runESUN(bank: str, month: int):
     return balanceTable
 
 # viết lại CATHAY (có sử dụng opencv):
-def runCATHAY(bank: str, month: int):
+def runCATHAY(bank, listImages):
     now = dt.datetime.now()
     records = []
-    images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
         'interestRate': r'(\d+[.,]+\d+%)',
         'date': r'(\d{4}/\d{2}/\d{2}~\d{4}/\d{2}/\d{2})',
         'contractNumber': r'(\d{1}[A-Z]{7}\d{7})'
     }
-    for img in images:
+    for img in listImages:
         # grayscale full image
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
         # check image with condition
@@ -1317,93 +1277,90 @@ def runCATHAY(bank: str, month: int):
         if not check:
             continue
         Image.fromarray(fullImageScale).show()
-        try:
-            # contract number
-            imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            imgContractNumber = erosionAndDilation(imgContractNumber, 'e', 3)
-            dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 11)
-            dfContractNumber = groupByDataFrame(dfContractNumber)
-            dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
-            if dfContractNumber.empty:
-                continue
-            contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
-            # các trường thông tin khác
-            containingPath = os.path.join(os.path.dirname(__file__), 'bank_img', f'{bank}', 'check.png')
-            containingImage = cv2.imread(containingPath, 0)  # hình trắng đen (array 2 chiều)
-            w, h = containingImage.shape[::-1]
-            topLeftList = _findTopLeftPointCATHAY(containingImage, fullImageScale)
-            for topLeft in topLeftList:
-                top, left = topLeft
-                # Ngày hiệu lực, ngày đáo hạn
-                topDate = top + w * 2 - 10
-                bottomDate = top + w * 8 + 10
-                rightDate = left + h + 7
-                # Date image
-                imgDate = fullImageScale[left:rightDate, topDate:bottomDate]
-                dfDate = readImgPytesseractToDataframe(imgDate, 11)
-                dfDate = groupByDataFrame(dfDate)
-                dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
-                if dfDate.empty:
-                    continue
-                dateText = dfDate.loc[dfDate.index[0], 'regex']
-                if '~' in dateText:
-                    issueDateText, expireDateText = dateText.split('~')
-                else:
-                    issueDateText, expireDateText = dateText.split('-')
-                issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
-                expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
-                if issueDate > expireDate:
-                    continue
-                # Term Days
-                termDays = (expireDate - issueDate).days
-                # Term Months
-                termMonths = round(termDays / 30)
-                # amount
-                topAmount = top + w * 8
-                bottomAmount = top + w * 14 - 44
-                rightAmount = left + h + 6
-                leftAmount = left - 3
-                # Amount image
-                imgAmount = fullImageScale[leftAmount:rightAmount, topAmount:bottomAmount]
-                imgAmount = erosionAndDilation(imgAmount, 'e', 3)
-                dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
-                dfAmount = groupByDataFrame(dfAmount)
-                dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 0)
-                if dfAmount.empty:
-                    continue
-                amountText = dfAmount.loc[dfAmount.index[0], 'regex']
-                amount = float(amountText.replace(',', ''))
-                # interest rate
-                bottomInterestRate = top + w * 20
-                topInterestRate = top + w * 14
-                rightInterestRate = int(left + h + 6.5)
-                # interest image
-                imgInterestRate = fullImageScale[left:rightInterestRate, topInterestRate:bottomInterestRate]
-                dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
-                dfInterestRate = groupByDataFrame(dfInterestRate)
-                dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
-                if dfInterestRate.empty:
-                    continue
-                interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
-                interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
-                # interest amount
-                interestAmount = amount * termDays * interestRate / 360
-                # paid
-                bottomPaid = top + w
-                leftPaid = left + h
-                rightPaid = left + h * 2
-                imgPaid = fullImageScale[leftPaid:rightPaid, top:bottomPaid]
-                paidText = readImgPytesseractToString(imgPaid, 6)
-                if 'CAP' in paidText:
-                    paid = amount
-                else:
-                    paid = 0
-                # remaining
-                remaining = amount - paid
-                # Append data
-                records.append([contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount])
-        except (Exception,):
+        # contract number
+        imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
+        imgContractNumber = erosionAndDilation(imgContractNumber, 'e', 3)
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 11)
+        dfContractNumber = groupByDataFrame(dfContractNumber)
+        dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
+        if dfContractNumber.empty:
             continue
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+        # các trường thông tin khác
+        containingPath = os.path.join(os.path.dirname(__file__), 'bank_img', f'{bank}', 'check.png')
+        containingImage = cv2.imread(containingPath, 0)  # hình trắng đen (array 2 chiều)
+        w, h = containingImage.shape[::-1]
+        topLeftList = _findTopLeftPointCATHAY(containingImage, fullImageScale)
+        for topLeft in topLeftList:
+            top, left = topLeft
+            # Ngày hiệu lực, ngày đáo hạn
+            topDate = top + w * 2 - 10
+            bottomDate = top + w * 8 + 10
+            rightDate = left + h + 7
+            # Date image
+            imgDate = fullImageScale[left:rightDate, topDate:bottomDate]
+            dfDate = readImgPytesseractToDataframe(imgDate, 11)
+            dfDate = groupByDataFrame(dfDate)
+            dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
+            if dfDate.empty:
+                continue
+            dateText = dfDate.loc[dfDate.index[0], 'regex']
+            if '~' in dateText:
+                issueDateText, expireDateText = dateText.split('~')
+            else:
+                issueDateText, expireDateText = dateText.split('-')
+            issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
+            expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
+            if issueDate > expireDate:
+                continue
+            # Term Days
+            termDays = (expireDate - issueDate).days
+            # Term Months
+            termMonths = round(termDays / 30)
+            # amount
+            topAmount = top + w * 8
+            bottomAmount = top + w * 14 - 44
+            rightAmount = left + h + 6
+            leftAmount = left - 3
+            # Amount image
+            imgAmount = fullImageScale[leftAmount:rightAmount, topAmount:bottomAmount]
+            imgAmount = erosionAndDilation(imgAmount, 'e', 3)
+            dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
+            dfAmount = groupByDataFrame(dfAmount)
+            dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 0)
+            if dfAmount.empty:
+                continue
+            amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+            amount = float(amountText.replace(',', ''))
+            # interest rate
+            bottomInterestRate = top + w * 20
+            topInterestRate = top + w * 14
+            rightInterestRate = int(left + h + 6.5)
+            # interest image
+            imgInterestRate = fullImageScale[left:rightInterestRate, topInterestRate:bottomInterestRate]
+            dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
+            dfInterestRate = groupByDataFrame(dfInterestRate)
+            dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
+            if dfInterestRate.empty:
+                continue
+            interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+            interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
+            # interest amount
+            interestAmount = amount * termDays * interestRate / 360
+            # paid
+            bottomPaid = top + w
+            leftPaid = left + h
+            rightPaid = left + h * 2
+            imgPaid = fullImageScale[leftPaid:rightPaid, top:bottomPaid]
+            paidText = readImgPytesseractToString(imgPaid, 6)
+            if 'CAP' in paidText:
+                paid = amount
+            else:
+                paid = 0
+            # remaining
+            remaining = amount - paid
+            # Append data
+            records.append([contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount])
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -1433,16 +1390,15 @@ def runCATHAY(bank: str, month: int):
     return balanceTable
 
 # Mới có file của tháng 8 nên chưa có nhiều data để test, không thấy contractNumber trong file nên để là None
-def runBOP(bank: str, month: int):
+def runBOP(bank, listImages):
     now = dt.datetime.now()
     records = []
-    images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
         'interestRate': r'(\d+[,.]\d+%)',
         'date': r'(\d{4}\d{2}\d{2})'
     }
-    for img in images:
+    for img in listImages:
         img = img.rotate(-90, expand=1)
         # grayscale full image
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
@@ -1450,58 +1406,55 @@ def runBOP(bank: str, month: int):
         if 'Interest Rate Notice' not in readImgPytesseractToString(fullImageScale, 6):
             continue
         Image.fromarray(fullImageScale).show()
-        try:
-            # amount
-            imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
-            dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
-            dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
-            if dfAmount.empty:
-                continue
-            amountText = dfAmount.loc[dfAmount.index[0], 'regex']
-            amount = float(amountText.replace(',', ''))
-            # interest rate
-            imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
-            dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 4)
-            dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
-            if dfInterestRate.empty:
-                continue
-            interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
-            interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
-            # ngày hiệu lực, ngày đáo hạn
-            # ngày hiệu lực
-            imgIssueDate = _findCoords(np.array(fullImageScale), 'issueDate', bank)
-            dfIssueDate = readImgPytesseractToDataframe(imgIssueDate, 4)
-            dfIssueDate = checkPatternRegexInDataFrame(dfIssueDate, patternDict['date'], 10)
-            if dfIssueDate.empty:
-                continue
-            issueDateText = dfIssueDate.loc[dfIssueDate.index[0], 'regex']
-            issueDate = dt.datetime.strptime(issueDateText, '%Y%m%d')
-            # ngày đáo hạn
-            imgExpireDate = _findCoords(np.array(fullImageScale), 'expireDate', bank)
-            dfExpireDate = readImgPytesseractToDataframe(imgExpireDate, 4)
-            dfExpireDate = checkPatternRegexInDataFrame(dfExpireDate, patternDict['date'], 10)
-            if dfExpireDate.empty:
-                continue
-            expireDateText = dfExpireDate.loc[dfExpireDate.index[0], 'regex']
-            expireDate = dt.datetime.strptime(expireDateText, '%Y%m%d')
-            if issueDate > expireDate:
-                continue
-            # Term Days
-            termDays = (expireDate - issueDate).days
-            # Term Months
-            termMonths = round(termDays / 30)
-            # contract number
-            contractNumber = None
-            # paid
-            paid = 0
-            # remaining
-            remaining = amount - paid
-            # interest amount
-            interestAmount = amount * termDays * interestRate / 360
-            # Append data
-            records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
-        except (Exception, ):
+        # amount
+        imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
+        dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
+        if dfAmount.empty:
             continue
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', ''))
+        # interest rate
+        imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 4)
+        dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
+        if dfInterestRate.empty:
+            continue
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
+        # ngày hiệu lực, ngày đáo hạn
+        # ngày hiệu lực
+        imgIssueDate = _findCoords(np.array(fullImageScale), 'issueDate', bank)
+        dfIssueDate = readImgPytesseractToDataframe(imgIssueDate, 4)
+        dfIssueDate = checkPatternRegexInDataFrame(dfIssueDate, patternDict['date'], 10)
+        if dfIssueDate.empty:
+            continue
+        issueDateText = dfIssueDate.loc[dfIssueDate.index[0], 'regex']
+        issueDate = dt.datetime.strptime(issueDateText, '%Y%m%d')
+        # ngày đáo hạn
+        imgExpireDate = _findCoords(np.array(fullImageScale), 'expireDate', bank)
+        dfExpireDate = readImgPytesseractToDataframe(imgExpireDate, 4)
+        dfExpireDate = checkPatternRegexInDataFrame(dfExpireDate, patternDict['date'], 10)
+        if dfExpireDate.empty:
+            continue
+        expireDateText = dfExpireDate.loc[dfExpireDate.index[0], 'regex']
+        expireDate = dt.datetime.strptime(expireDateText, '%Y%m%d')
+        if issueDate > expireDate:
+            continue
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = round(termDays / 30)
+        # contract number
+        contractNumber = None
+        # paid
+        paid = 0
+        # remaining
+        remaining = amount - paid
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -1531,10 +1484,9 @@ def runBOP(bank: str, month: int):
     return balanceTable
 
 # Done
-def runFIRST(bank: str, month: int):
+def runFIRST(bank, listImages):
     now = dt.datetime.now()
     records = []
-    images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
         'interestRate': r'(\d+[,.]\d+%)',
@@ -1542,7 +1494,7 @@ def runFIRST(bank: str, month: int):
         'contractNumber': r'([A-Z]\d[A-Z]\d{7})',
         'paid': r'(\d+,[\d,]+\d{3})'
     }
-    for img in images:
+    for img in listImages:
         # grayscale full image
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
         # check image with condition
@@ -1550,64 +1502,61 @@ def runFIRST(bank: str, month: int):
         if check:
             continue
         Image.fromarray(fullImageScale).show()
-        try:
-            # amount
-            imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
-            dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
-            dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
-            if dfAmount.empty:
-                continue
-            amountText = dfAmount.loc[dfAmount.index[0], 'regex']
-            amount = float(amountText.replace(',', ''))
-            # interest rate
-            imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
-            dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
-            dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
-            if dfInterestRate.empty:
-                continue
-            interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
-            interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
-            # ngày hiệu lực, ngày đáo hạn
-            imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
-            dfDate = readImgPytesseractToDataframe(imgDate, 11)
-            dfDate = groupByDataFrame(dfDate)
-            dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
-            if dfDate.empty:
-                continue
-            dateText = dfDate.loc[dfDate.index[0], 'regex']
-            issueDateText, expireDateText = dateText.split('~')
-            issueDate = dt.datetime.strptime(issueDateText, '%Y.%m.%d')
-            expireDate = dt.datetime.strptime(expireDateText, '%Y.%m.%d')
-            if issueDate > expireDate:
-                continue
-            # Term Days
-            termDays = (expireDate - issueDate).days
-            # Term Months
-            termMonths = round(termDays / 30)
-            # contract number
-            imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
-            dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
-            if dfContractNumber.empty:
-                continue
-            contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
-            # paid
-            imgPaid = _findCoords(fullImageScale, 'paid', bank)
-            dfPaid = readImgPytesseractToDataframe(imgPaid, 4)
-            dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 10)
-            if dfPaid.empty:
-                paid = 0
-            else:
-                paidText = dfPaid.loc[dfPaid.index[0], 'regex']
-                paid = float(paidText.replace(',', ''))
-            # remaining
-            remaining = amount - paid
-            # interest amount
-            interestAmount = amount * termDays * interestRate / 360
-            # Append data
-            records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
-        except (Exception, ):
+        # amount
+        imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
+        dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
+        if dfAmount.empty:
             continue
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', ''))
+        # interest rate
+        imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
+        dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
+        if dfInterestRate.empty:
+            continue
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
+        # ngày hiệu lực, ngày đáo hạn
+        imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
+        dfDate = readImgPytesseractToDataframe(imgDate, 11)
+        dfDate = groupByDataFrame(dfDate)
+        dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
+        if dfDate.empty:
+            continue
+        dateText = dfDate.loc[dfDate.index[0], 'regex']
+        issueDateText, expireDateText = dateText.split('~')
+        issueDate = dt.datetime.strptime(issueDateText, '%Y.%m.%d')
+        expireDate = dt.datetime.strptime(expireDateText, '%Y.%m.%d')
+        if issueDate > expireDate:
+            continue
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = round(termDays / 30)
+        # contract number
+        imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
+        dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
+        if dfContractNumber.empty:
+            continue
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+        # paid
+        imgPaid = _findCoords(fullImageScale, 'paid', bank)
+        dfPaid = readImgPytesseractToDataframe(imgPaid, 4)
+        dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 10)
+        if dfPaid.empty:
+            paid = 0
+        else:
+            paidText = dfPaid.loc[dfPaid.index[0], 'regex']
+            paid = float(paidText.replace(',', ''))
+        # remaining
+        remaining = amount - paid
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -1637,81 +1586,77 @@ def runFIRST(bank: str, month: int):
     return balanceTable
 
 # Không có file trả khoản vay, chỉ có file thanh toán đã trả -> chưa xác định được paid -> để paid = 0
-def runUBOT(bank: str, month: int):
+def runUBOT(bank, listImages):
     now = dt.datetime.now()
     records = []
-    images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
         'interestRate': r'(\d+[,.]\d+%)',
         'date': r'(\d{4}\.\d{1,2}\.\d{1,2}-\d{4}\.\d{1,2}\.\d{1,2})',
         'contractNumber': r'(\d{2}/\d{4}/[A-Z]{2}/[A-Z]{3}[-]+[A-Z]{5})'
     }
-    for img in images:
+    for img in listImages:
         img = img.rotate(-90, expand=1)
         # grayscale full image
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
-        Image.fromarray(fullImageScale).show()
 
         # check image with condition
         lst_condition = ['Interest Payment Notice', 'Payment Notice', 'Interest Payment']
         check = all(c not in readImgPytesseractToString(fullImageScale, 6) for c in lst_condition)
         if check:
             continue
-        try:
-            # amount
-            imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
-            dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
-            dfAmount = groupByDataFrame(dfAmount)
-            dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 0)
-            if dfAmount.empty:
-                continue
-            amountText = dfAmount.loc[dfAmount.index[0], 'regex']
-            amount = float(amountText.replace(',', ''))
-            # interest rate
-            imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
-            dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
-            dfInterestRate = groupByDataFrame(dfInterestRate)
-            dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
-            if dfInterestRate.empty:
-                continue
-            interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
-            interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
-            # ngày hiệu lực, ngày đáo hạn
-            imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
-            imgDate = cv2.resize(imgDate, (500, 32), interpolation=cv2.INTER_NEAREST)
-            dfDate = readImgPytesseractToDataframe(imgDate, 11)
-            dfDate = groupByDataFrame(dfDate)
-            dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
-            if dfDate.empty:
-                continue
-            dateText = dfDate.loc[dfDate.index[0], 'regex']
-            issueDateText, expireDateText = dateText.split('-')
-            issueDate = dt.datetime.strptime(issueDateText, '%Y.%m.%d')
-            expireDate = dt.datetime.strptime(expireDateText, '%Y.%m.%d')
-            if issueDate > expireDate:
-                continue
-            # Term Days
-            termDays = (expireDate - issueDate).days
-            # Term Months
-            termMonths = round(termDays/30)
-            # contract number
-            imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
-            dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
-            if dfContractNumber.empty:
-                continue
-            contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
-            # paid
-            paid = 0
-            # remaining
-            remaining = amount - paid
-            # interest amount
-            interestAmount = amount * termDays * interestRate / 360
-            # Append data
-            records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
-        except (Exception, ):
+        Image.fromarray(fullImageScale).show()
+        # amount
+        imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
+        dfAmount = groupByDataFrame(dfAmount)
+        dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 0)
+        if dfAmount.empty:
             continue
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', ''))
+        # interest rate
+        imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
+        dfInterestRate = groupByDataFrame(dfInterestRate)
+        dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
+        if dfInterestRate.empty:
+            continue
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
+        # ngày hiệu lực, ngày đáo hạn
+        imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
+        imgDate = cv2.resize(imgDate, (500, 32), interpolation=cv2.INTER_NEAREST)
+        dfDate = readImgPytesseractToDataframe(imgDate, 11)
+        dfDate = groupByDataFrame(dfDate)
+        dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
+        if dfDate.empty:
+            continue
+        dateText = dfDate.loc[dfDate.index[0], 'regex']
+        issueDateText, expireDateText = dateText.split('-')
+        issueDate = dt.datetime.strptime(issueDateText, '%Y.%m.%d')
+        expireDate = dt.datetime.strptime(expireDateText, '%Y.%m.%d')
+        if issueDate > expireDate:
+            continue
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = round(termDays/30)
+        # contract number
+        imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
+        dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
+        if dfContractNumber.empty:
+            continue
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+        # paid
+        paid = 0
+        # remaining
+        remaining = amount - paid
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -1741,17 +1686,16 @@ def runUBOT(bank: str, month: int):
     return balanceTable
 
 # dữ liệu ít, mới chỉ có file 1 tháng, chưa có file trả vay nên tạm set paid = 0
-def runTCB(bank: str, month: int):
+def runTCB(bank, listImages):
     now = dt.datetime.now()
     records = []
-    images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,[\d,]+\d{3})',
         'interestRate': r'(\d+[,.]\d+%)',
         'date': r'(\d{2}/\d{2}/\d{4}-\d{2}/\d{2}/\d{4})',
         'contractNumber': r'([A-Z]{4}\d[A-Z]{2}\d{5})'
     }
-    for img in images:
+    for img in listImages:
         # grayscale full image
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
         # check image with condition
@@ -1759,57 +1703,54 @@ def runTCB(bank: str, month: int):
         if check:
             continue
         Image.fromarray(fullImageScale).show()
-        try:
-            # amount
-            imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
-            dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
-            dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 0)
-            if dfAmount.empty:
-                continue
-            amountText = dfAmount.loc[dfAmount.index[0], 'regex']
-            amount = float(amountText.replace(',', ''))
-            # interest rate
-            imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
-            dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 4)
-            dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
-            if dfInterestRate.empty:
-                continue
-            interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
-            interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
-            # ngày hiệu lực, ngày đáo hạn
-            imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
-            dfDate = readImgPytesseractToDataframe(imgDate, 4)
-            dfDate = groupByDataFrame(dfDate)
-            dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
-            if dfDate.empty:
-                continue
-            dateText = dfDate.loc[dfDate.index[0], 'regex']
-            issueDateText, expireDateText = dateText.split('-')
-            issueDate = dt.datetime.strptime(issueDateText, '%d/%m/%Y')
-            expireDate = dt.datetime.strptime(expireDateText, '%d/%m/%Y')
-            if issueDate > expireDate:
-                continue
-            # Term Days
-            termDays = (expireDate - issueDate).days
-            # Term Months
-            termMonths = round(termDays / 30)
-            # contract number
-            imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
-            dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
-            if dfContractNumber.empty:
-                continue
-            contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
-            # paid
-            paid = 0
-            # remaining
-            remaining = amount - paid
-            # interest amount
-            interestAmount = amount * termDays * interestRate / 360
-            # Append data
-            records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
-        except (Exception, ):
+        # amount
+        imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
+        dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 0)
+        if dfAmount.empty:
             continue
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', ''))
+        # interest rate
+        imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 4)
+        dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
+        if dfInterestRate.empty:
+            continue
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
+        # ngày hiệu lực, ngày đáo hạn
+        imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
+        dfDate = readImgPytesseractToDataframe(imgDate, 4)
+        dfDate = groupByDataFrame(dfDate)
+        dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
+        if dfDate.empty:
+            continue
+        dateText = dfDate.loc[dfDate.index[0], 'regex']
+        issueDateText, expireDateText = dateText.split('-')
+        issueDate = dt.datetime.strptime(issueDateText, '%d/%m/%Y')
+        expireDate = dt.datetime.strptime(expireDateText, '%d/%m/%Y')
+        if issueDate > expireDate:
+            continue
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = round(termDays / 30)
+        # contract number
+        imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 4)
+        dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
+        if dfContractNumber.empty:
+            continue
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+        # paid
+        paid = 0
+        # remaining
+        remaining = amount - paid
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -1839,10 +1780,9 @@ def runTCB(bank: str, month: int):
     return balanceTable
 
 # chưa thấy file PDF có phần trả khoản vay nên tạm để paid = 0
-def runENTIE(bank: str, month: int):
+def runENTIE(bank, listImages):
     now = dt.datetime.now()
     records = []
-    images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+[,.][\d,\d.]+\d{3})',
         'interestRate': r'(\d+[,.]\d+%)',
@@ -1850,7 +1790,7 @@ def runENTIE(bank: str, month: int):
         'contractNumber': r'(\d{11}[-]\d{2})',
         'termDays': r'(\d{1,2}[A-Z]{4})'
     }
-    for img in images:
+    for img in listImages:
         # grayscale full image
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
         # check condition in page to read
@@ -1858,74 +1798,71 @@ def runENTIE(bank: str, month: int):
         condition = readImgPytesseractToString(imgCondition, 11)
         condition = re.sub(r'[:A-Z\n\s\']', '', condition)
         if len(condition) < 12:
-            Image.fromarray(fullImageScale).show()
             continue
-        try:
-            # amount
-            imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
-            dfAmount = readImgPytesseractToDataframe(imgAmount, 6)
-            dfAmount = groupByDataFrame(dfAmount)
-            dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 0)
-            if dfAmount.empty:
-                continue
-            amountText = dfAmount.loc[dfAmount.index[0], 'regex']
-            amount = float(amountText.replace(',', '').replace('.', ''))
-            # interest rate
-            imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
-            imgInterestRate = cv2.morphologyEx(imgInterestRate, cv2.MORPH_OPEN, (3, 3))
-            imgInterestRate = cv2.GaussianBlur(imgInterestRate, (5, 5), 0)
-            dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 6)
-            dfInterestRate = groupByDataFrame(dfInterestRate)
-            dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
-            if dfInterestRate.empty:
-                continue
-            interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
-            interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
-            # ngày hiệu lực, ngày đáo hạn
-            imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
-            imgDate = cv2.GaussianBlur(imgDate, (3, 3), 0)
-            dfDate = readImgPytesseractToDataframe(imgDate, 6)
-            dfDate = groupByDataFrame(dfDate)
-            # termDaysString in image
-            dfTermDays = checkPatternRegexInDataFrame(dfDate, patternDict['termDays'], 10)
-            termDaysText = dfTermDays.loc[dfTermDays.index[0], 'regex']
-            termDaysInImage = int(re.sub('[A-Z]', '', termDaysText))
-            # dateString in image
-            dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
-            if dfDate.empty:
-                continue
-            dateText = dfDate.loc[dfDate.index[0], 'regex']
-            issueDateText, expireDateText = dateText.split('TO')
-            issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
-            expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
-            # Term Days
-            termDays = (expireDate - issueDate).days
-            if (termDays < 0) or (termDaysInImage != termDays):
-                continue
-            # Term Months
-            termMonths = round(termDays/30)
-            # contract number
-            imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            imgContractNumber = cv2.morphologyEx(imgContractNumber, cv2.MORPH_CLOSE, (5, 5))
-            imgContractNumber = cv2.GaussianBlur(imgContractNumber, (3, 3), 0)
-            dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 11)
-            if dfContractNumber['text'].dtype == 'float64':
-                dfContractNumber['text'] = dfContractNumber['text'].astype('Int64').astype('str')
-            dfContractNumber = groupByDataFrame(dfContractNumber)
-            dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
-            if dfContractNumber.empty:
-                continue
-            contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
-            # paid
-            paid = 0
-            # remaining
-            remaining = amount - paid
-            # interest amount
-            interestAmount = amount * termDays * interestRate / 360
-            # Append data
-            records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
-        except (Exception, ):
+        Image.fromarray(fullImageScale).show()
+        # amount
+        imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 6)
+        dfAmount = groupByDataFrame(dfAmount)
+        dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 0)
+        if dfAmount.empty:
             continue
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', '').replace('.', ''))
+        # interest rate
+        imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
+        imgInterestRate = cv2.morphologyEx(imgInterestRate, cv2.MORPH_OPEN, (3, 3))
+        imgInterestRate = cv2.GaussianBlur(imgInterestRate, (5, 5), 0)
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 6)
+        dfInterestRate = groupByDataFrame(dfInterestRate)
+        dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
+        if dfInterestRate.empty:
+            continue
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
+        # ngày hiệu lực, ngày đáo hạn
+        imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
+        imgDate = cv2.GaussianBlur(imgDate, (3, 3), 0)
+        dfDate = readImgPytesseractToDataframe(imgDate, 6)
+        dfDate = groupByDataFrame(dfDate)
+        # termDaysString in image
+        dfTermDays = checkPatternRegexInDataFrame(dfDate, patternDict['termDays'], 10)
+        termDaysText = dfTermDays.loc[dfTermDays.index[0], 'regex']
+        termDaysInImage = int(re.sub('[A-Z]', '', termDaysText))
+        # dateString in image
+        dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
+        if dfDate.empty:
+            continue
+        dateText = dfDate.loc[dfDate.index[0], 'regex']
+        issueDateText, expireDateText = dateText.split('TO')
+        issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
+        expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        if (termDays < 0) or (termDaysInImage != termDays):
+            continue
+        # Term Months
+        termMonths = round(termDays/30)
+        # contract number
+        imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
+        imgContractNumber = cv2.morphologyEx(imgContractNumber, cv2.MORPH_CLOSE, (5, 5))
+        imgContractNumber = cv2.GaussianBlur(imgContractNumber, (3, 3), 0)
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 11)
+        if dfContractNumber['text'].dtype == 'float64':
+            dfContractNumber['text'] = dfContractNumber['text'].astype('Int64').astype('str')
+        dfContractNumber = groupByDataFrame(dfContractNumber)
+        dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
+        if dfContractNumber.empty:
+            continue
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+        # paid
+        paid = 0
+        # remaining
+        remaining = amount - paid
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -1955,19 +1892,16 @@ def runENTIE(bank: str, month: int):
     return balanceTable
 
 # chưa thấy file PDF có phần trả khoản vay nên tạm để paid = 0
-def runTAISHIN(bank: str, month: int):
+def runTAISHIN(bank, listImages):
     now = dt.datetime.now()
     records = []
-    images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+,\d{3})',
         'interestRate': r'(\d+[,.]\d+%)',
         'date': r'(\d{4}/\d{2}/\d{2})',
         'contractNumber': r'([A-Z]{4}\d{2}[A-Z]{2}\d{8})'
     }
-    if bank != 'TAISHIN':
-        bank = 'TAISHIN'
-    for img in images:
+    for img in listImages:
         # grayscale full image
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
         # check condition in page to read
@@ -1981,50 +1915,47 @@ def runTAISHIN(bank: str, month: int):
             (dfValue['text'].str.contains(r'[0-9]+')) &
             (dfValue['conf'] > 20)
         ]
-        try:
-            # amount
-            dfAmount = checkPatternRegexInDataFrame(dfValue, patternDict['amount'], 10)
-            if dfAmount.empty:
-                continue
-            amountText = dfAmount.loc[dfAmount.index[0], 'regex']
-            amount = float(amountText.replace(',', '')) * 1000
-            # interest rate
-            dfInterestRate = checkPatternRegexInDataFrame(dfValue, patternDict['interestRate'], 10)
-            if dfInterestRate.empty:
-                continue
-            interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
-            interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
-            # ngày hiệu lực, ngày đáo hạn
-            dfDate = checkPatternRegexInDataFrame(dfValue, patternDict['date'], 10)
-            if dfDate.empty:
-                continue
-            issueDateText = dfDate.loc[dfDate.index[0], 'regex']
-            expireDateText = dfDate.loc[dfDate.index[1], 'regex']
-            issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
-            expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
-            if issueDate > expireDate:
-                continue
-            # Term Days
-            termDays = (expireDate - issueDate).days
-            # Term Months
-            termMonths = round(termDays/30)
-            # contract number
-            imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 11)
-            dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
-            if dfContractNumber.empty:
-                continue
-            contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
-            # paid
-            paid = 0
-            # remaining
-            remaining = amount - paid
-            # interest amount
-            interestAmount = amount * termDays * interestRate / 360
-            # Append data
-            records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
-        except (Exception, ):
+        # amount
+        dfAmount = checkPatternRegexInDataFrame(dfValue, patternDict['amount'], 10)
+        if dfAmount.empty:
             continue
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', '')) * 1000
+        # interest rate
+        dfInterestRate = checkPatternRegexInDataFrame(dfValue, patternDict['interestRate'], 10)
+        if dfInterestRate.empty:
+            continue
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
+        # ngày hiệu lực, ngày đáo hạn
+        dfDate = checkPatternRegexInDataFrame(dfValue, patternDict['date'], 10)
+        if dfDate.empty:
+            continue
+        issueDateText = dfDate.loc[dfDate.index[0], 'regex']
+        expireDateText = dfDate.loc[dfDate.index[1], 'regex']
+        issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
+        expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
+        if issueDate > expireDate:
+            continue
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = round(termDays/30)
+        # contract number
+        imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 11)
+        dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
+        if dfContractNumber.empty:
+            continue
+        contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
+        # paid
+        paid = 0
+        # remaining
+        remaining = amount - paid
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -2053,10 +1984,9 @@ def runTAISHIN(bank: str, month: int):
 
     return balanceTable
 
-def runFUBON(bank: str, month: int):
+def runFUBON(bank, listImages):
     now = dt.datetime.now()
     records = []
-    images = convertPDFtoImage(bank, month)
     patternDict = {
         'amount': r'(\d+[,.][\d,\d.]+\d{3})',
         'interestRate': r'(\d+[,.]+\d+)',
@@ -2064,86 +1994,86 @@ def runFUBON(bank: str, month: int):
         'contractNumber': r'(\d{14})',
         'paid': r'(\d+,[\d,]+\d{3}\.\d{2})'
     }
-    for img in images:
+    for img in listImages:
         # grayscale full image
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
         # check condition in page to read
-        check = 'Notice of Interest Payment' not in readImgPytesseractToString(fullImageScale, 6)
+        lst_condition = ['Notice of Interest Payment', 'Interest Payment']
+        check = all(c not in readImgPytesseractToString(fullImageScale, 6) for c in lst_condition)
         if check:
             continue
         Image.fromarray(fullImageScale).show()
-        try:
-            # amount
-            imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
-            dfAmount = readImgPytesseractToDataframe(imgAmount, 6)
-            dfAmount = groupByDataFrame(dfAmount)
-            dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
-            if dfAmount.empty:
-                continue
-            amountText = dfAmount.loc[dfAmount.index[0], 'regex']
-            amount = float(amountText.replace(',', '').replace('.', ''))
-            # interest rate
-            imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
-            dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 6)
-            dfInterestRate = groupByDataFrame(dfInterestRate)
-            dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
-            if dfInterestRate.empty:
-                continue
-            interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
-            interestRate = float(interestRateText.replace(',', '.')) / 100
-            # ngày hiệu lực, ngày đáo hạn
-            # ngày hiệu lực
-            imgIssueDate = _findCoords(np.array(fullImageScale), 'issueDate', bank)
-            dfIssueDate = readImgPytesseractToDataframe(imgIssueDate, 6)
-            dfIssueDate = groupByDataFrame(dfIssueDate)
-            dfIssueDate = checkPatternRegexInDataFrame(dfIssueDate, patternDict['date'], 10)
-            if dfIssueDate.empty:
-                continue
-            issueDateText = dfIssueDate.loc[dfIssueDate.index[0], 'regex']
-            issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
-            # ngày đáo hạn
-            imgExpireDate = _findCoords(np.array(fullImageScale), 'expireDate', bank)
-            dfExpireDate = readImgPytesseractToDataframe(imgExpireDate, 6)
-            dfExpireDate = groupByDataFrame(dfExpireDate)
-            dfExpireDate = checkPatternRegexInDataFrame(dfExpireDate, patternDict['date'], 10)
-            if dfExpireDate.empty:
-                continue
-            expireDateText = dfExpireDate.loc[dfExpireDate.index[0], 'regex']
-            expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
-            if issueDate > expireDate:
-                continue
-            # Term Days
-            termDays = (expireDate - issueDate).days
-            # Term Months
-            termMonths = round(termDays / 30)
-            # contract number
-            imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 6)
-            dfContractNumber = groupByDataFrame(dfContractNumber)
-            dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
-            if dfContractNumber.empty:
-                continue
-            contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
-            # interest amount
-            interestAmount = amount * termDays * interestRate / 360
-            # paid
-            imgPaid = _findCoords(np.array(fullImageScale), 'paid', bank)
-            dfPaid = readImgPytesseractToDataframe(imgPaid, 6)
-            dfPaid = groupByDataFrame(dfPaid)
-            dfPaid['check'] = dfPaid['text'].str.contains(patternDict['paid'])
-            dfPaid = dfPaid.loc[(dfPaid['check']) & (dfPaid['conf'] > 10)]
-            if dfPaid.empty:
-                paid = 0
-            else:
-                paidText = dfPaid.loc[dfPaid.index[0], 'regex']
-                paid = float(paidText.replace(',', ''))
-                paid = round(paid - interestAmount, 2)
-            # remaining
-            remaining = amount - paid
-            # Append data
-            records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
-        except (Exception,):
+        # amount
+        imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
+        imgAmount = cv2.morphologyEx(imgAmount, cv2.MORPH_OPEN, (9, 9))
+        imgAmount = cv2.GaussianBlur(imgAmount, (3, 3), 0)
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 6)
+        dfAmount = groupByDataFrame(dfAmount)
+        dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 0)
+        if dfAmount.empty:
             continue
+        amountText = dfAmount.loc[dfAmount.index[0], 'regex']
+        amount = float(amountText.replace(',', '').replace('.', ''))
+        # interest rate
+        imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
+        _, imgInterestRate = cv2.threshold(imgInterestRate, 200, 255, cv2.THRESH_BINARY)
+        imgInterestRate = cv2.morphologyEx(imgInterestRate, cv2.MORPH_OPEN, (9, 9))
+        imgInterestRate = cv2.GaussianBlur(imgInterestRate, (5, 5), 0)
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
+        dfInterestRate = groupByDataFrame(dfInterestRate)
+        dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 0)
+        if dfInterestRate.empty:
+            continue
+        interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
+        interestRate = float(interestRateText.replace(',', '.')) / 100
+        # ngày hiệu lực, ngày đáo hạn
+        # ngày hiệu lực
+        imgIssueDate = _findCoords(np.array(fullImageScale), 'issueDate', bank)
+        imgIssueDate = erosionAndDilation(imgIssueDate, 'e', 3)
+        imgIssueDate = cv2.GaussianBlur(imgIssueDate, (5, 5), 0)
+        dfIssueDate = readImgPytesseractToDataframe(imgIssueDate, 6)
+        dfIssueDate = groupByDataFrame(dfIssueDate)
+        dfIssueDate = checkPatternRegexInDataFrame(dfIssueDate, patternDict['date'], 10)
+        if dfIssueDate.empty:
+            continue
+        issueDateText = dfIssueDate.loc[dfIssueDate.index[0], 'regex']
+        issueDate = dt.datetime.strptime(issueDateText, '%Y/%m/%d')
+        # ngày đáo hạn
+        imgExpireDate = _findCoords(np.array(fullImageScale), 'expireDate', bank)
+        imgExpireDate = erosionAndDilation(imgExpireDate, 'e', 3)
+        imgExpireDate = cv2.GaussianBlur(imgExpireDate, (5, 5), 0)
+        dfExpireDate = readImgPytesseractToDataframe(imgExpireDate, 6)
+        dfExpireDate = groupByDataFrame(dfExpireDate)
+        dfExpireDate = checkPatternRegexInDataFrame(dfExpireDate, patternDict['date'], 10)
+        if dfExpireDate.empty:
+            continue
+        expireDateText = dfExpireDate.loc[dfExpireDate.index[0], 'regex']
+        expireDate = dt.datetime.strptime(expireDateText, '%Y/%m/%d')
+        if issueDate > expireDate:
+            continue
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = round(termDays / 30)
+        # contract number
+        contractNumber = ''
+        # interest amount
+        interestAmount = amount * termDays * interestRate / 360
+        # paid
+        imgPaid = _findCoords(np.array(fullImageScale), 'paid', bank)
+        dfPaid = readImgPytesseractToDataframe(imgPaid, 6)
+        dfPaid = groupByDataFrame(dfPaid)
+        dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 10)
+        if dfPaid.empty:
+            paid = 0
+        else:
+            paidText = dfPaid.loc[dfPaid.index[0], 'regex']
+            paid = float(paidText.replace(',', ''))
+            paid = round(paid - interestAmount, 2)
+        # remaining
+        remaining = amount - paid
+        # Append data
+        records.append((contractNumber, termDays, termMonths, interestRate, issueDate, expireDate, amount, paid, remaining, interestAmount))
     balanceTable = pd.DataFrame(
         records,
         columns=[
@@ -2171,3 +2101,69 @@ def runFUBON(bank: str, month: int):
     balanceTable['Currency'] = 'USD'
 
     return balanceTable
+
+def runBank(month: int):
+    frames = []
+    directory = join(realpath(dirname(__file__)), 'bank', f'THÁNG {month}')
+    for fileName in os.listdir(directory):
+        if not fileName.endswith('.pdf'):
+            continue
+        filePDFPath = os.path.join(directory, fileName)
+        listImages = convertPDFtoImage(filePDFPath)
+        if 'BOP' in fileName:
+            bank = 'BOP'
+            df = runBOP(bank, listImages)
+        elif 'CATHAY' in fileName:
+            bank = 'CATHAY'
+            df = runCATHAY(bank, listImages)
+        elif 'CHANG HWA' in fileName:
+            bank = 'CHANG HWA'
+            df = runCHANGHWA(bank, listImages)
+        elif 'ENTIE' in fileName:
+            bank = 'ENTIE'
+            df = runENTIE(bank, listImages)
+        elif 'ESUN' in fileName:
+            bank = 'ESUN'
+            df = runESUN(bank, listImages)
+        elif 'FIRST' in fileName:
+            bank = 'FIRST'
+            df = runFIRST(bank, listImages)
+        elif 'FUBON' in fileName:
+            bank = 'FUBON'
+            df = runFUBON(bank, listImages)
+        elif 'KGI' in fileName:
+            bank = 'KGI'
+            df = runKGI(bank, listImages)
+        elif 'MEGA' in fileName:
+            bank = 'MEGA'
+            df = runMEGA(bank, listImages)
+        elif 'SHHK' in fileName:
+            bank = 'SHHK'
+            df = runSHHK(bank, listImages)
+        elif 'SHINKONG' in fileName:
+            bank = 'SHINKONG'
+            df = runSHINKONG(bank, listImages)
+        elif 'SINOPAC' in fileName:
+            bank = 'SINOPAC'
+            df = runSINOPAC(bank, listImages)
+        elif 'TCB' in fileName:
+            bank = 'TCB'
+            df = runTCB(bank, listImages)
+        elif 'TAISHIN' in fileName:
+            bank = 'TAISHIN'
+            df = runTAISHIN(bank, listImages)
+        elif 'UBOT' in fileName:
+            bank = 'UBOT'
+            df = runUBOT(bank, listImages)
+        elif 'YUANTA' in fileName:
+            bank = 'YUANTA'
+            df = runYUANTA(bank, listImages)
+        else:
+            continue
+        frames.append(df)
+    balanceTable = pd.concat(frames, ignore_index=True)
+    return balanceTable
+
+
+
+
