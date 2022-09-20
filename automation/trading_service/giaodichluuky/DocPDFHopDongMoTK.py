@@ -40,7 +40,7 @@ def docFilePDF(customerName: str):
             pdfContent = PyPDF2.PdfReader(filePDFPath).pages[0].extract_text()
             # Số tài khoản
             soTK = re.search(r'(Số tài khoản :) (.*)\n', pdfContent).group(2)
-            soTK = soTK.replace('Số tài khoản : ', '').replace('\n', '').replace(' ', '')
+            soTK = soTK.replace(' ', '')
             if soTK == '022':
                 soTK = ''
             # Khách hàng
@@ -76,8 +76,8 @@ def docFilePDF(customerName: str):
             pdfImage = convertPDFtoImage(filePDFPath)[0]
             pdfImage = cv2.cvtColor(np.array(pdfImage), cv2.COLOR_BGR2GRAY)
             _, pdfImage = cv2.threshold(pdfImage, 200, 255, cv2.THRESH_BINARY)
-            imgMale = _findCoords(np.array(pdfImage), 'male')
-            imgFemale = _findCoords(np.array(pdfImage), 'female')
+            imgMale = _findCoords(pdfImage, 'male')
+            imgFemale = _findCoords(pdfImage, 'female')
             if np.count_nonzero(imgMale == 0) > np.count_nonzero(imgFemale == 0):
                 sex = 'Nam'
             elif np.count_nonzero(imgMale == 0) < np.count_nonzero(imgFemale == 0):
