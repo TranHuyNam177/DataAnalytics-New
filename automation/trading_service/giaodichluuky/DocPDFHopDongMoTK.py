@@ -14,11 +14,10 @@ class PDFHopDongMoTK:
         self.__listPDF = self.__readPDF()
         self.__pdfContent = None
         self.__pdfPath = None
-        self.__pdfImage = None
 
     def __del__(self):
-        file = os.path.join(self.__PATH, 'savedFiles', f'{self.__date}.pkl')
-        pickle.dump(self.__checkFileRun, open(file, 'wb'))
+        pickleFile = os.path.join(self.__PATH, 'savedFiles', f'{self.__date}.pkl')
+        pickle.dump(self.__checkFileRun, open(pickleFile, 'wb'))
 
     def __getLength(self):
         return len(self.__listFilePDF)
@@ -37,19 +36,12 @@ class PDFHopDongMoTK:
         self.__pdfPath, self.__pdfContent = self.__listPDF[i]
         self.__checkFileRun.add(self.__listFilePDF[i])
 
-    def __convertPDFtoImage(self):
-        """
-        Hàm chuyển từng trang trong PDF sang image
-        """
-        images = convert_from_path(
+    def __findCoords(self, sex):
+        pdfImage = convert_from_path(
             pdf_path=self.__pdfPath,
             poppler_path=r'D:\applications\poppler-0.68.0_x86\poppler-0.68.0\bin'
-        )
-        return images[0]
-
-    def __findCoords(self, sex):
-        self.__pdfImage = self.__convertPDFtoImage()
-        pdfImage = cv2.cvtColor(np.array(self.__pdfImage), cv2.COLOR_BGR2GRAY)
+        )[0]
+        pdfImage = cv2.cvtColor(np.array(pdfImage), cv2.COLOR_BGR2GRAY)
         _, pdfImage = cv2.threshold(pdfImage, 200, 255, cv2.THRESH_BINARY)
         smallImagePath = os.path.join(os.path.dirname(__file__), 'img', 'sex.png')
         smallImage = cv2.imread(smallImagePath, 0)  # hình trắng đen (array 2 chiều)
