@@ -1033,7 +1033,7 @@ class ESUN(Base):
         errorMessage = self.driver.find_elements(By.XPATH,xpath)
         if errorMessage: # trường hợp có lỗi
             xpath = '//*[@class="submit_btn"]'
-            _, _, confirmButton = self.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+            confirmButton = self.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))[-1]
             confirmButton.click()
 
         return self
