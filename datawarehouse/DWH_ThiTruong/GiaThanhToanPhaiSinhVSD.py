@@ -1,8 +1,20 @@
+from os.path import dirname, join
 import time
-from os.path import join, dirname
+import datetime as dt
+import re
 import pandas as pd
-from request import *
-from datawarehouse import DELETE, BATCHINSERT, connect_DWH_ThiTruong
+from request import connect_DWH_ThiTruong
+from datawarehouse import DELETE, BATCHINSERT
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import ElementNotInteractableException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 
 def run(
     fromDate: dt.datetime,

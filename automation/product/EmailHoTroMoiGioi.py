@@ -1,7 +1,17 @@
-from automation.product import *
+import numpy as np
+import pandas as pd
+import os
+from os.path import dirname, join
+from win32com.client import Dispatch
+import time
+import datetime as dt
 from abc import ABC, abstractmethod
 from datawarehouse import BDATE
 from tqdm import tqdm
+from request import connect_DWH_CoSo
+from automation.product import get_info, dept_folder
+from function import fc_price
+from info import CompanyName, CompanyAddress, CompanyPhoneNumber
 
 class AbstractTable(ABC):
 

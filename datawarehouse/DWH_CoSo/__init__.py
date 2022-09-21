@@ -1,5 +1,5 @@
-from datawarehouse import connect_DWH_CoSo, SYNC, AFTERBATCH
-from request import *
+from request import connect_DWH_CoSo
+from datawarehouse import SYNC
 
 def SYNCTODAY():
 

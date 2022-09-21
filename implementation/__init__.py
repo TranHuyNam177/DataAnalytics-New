@@ -1,4 +1,5 @@
-from dependency import *
+from win32com.client import Dispatch
+import traceback
 
 
 def TaskMonitor(func):

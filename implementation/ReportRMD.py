@@ -1,5 +1,4 @@
 from implementation import TaskMonitor
-from request.stock import *
 
 @TaskMonitor
 def RMD_BaoCaoGiaHoaVonDanhMuc():

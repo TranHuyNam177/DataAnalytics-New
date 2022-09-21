@@ -1,6 +1,17 @@
-from automation import *
+from pdf2image import convert_from_path
+from PIL import Image
+from os.path import join,realpath,dirname
 import warnings
+import cv2
+import pytesseract
+import numpy as np
+import pandas as pd
+import datetime as dt
+import os
+import re
 
+
+pytesseract.pytesseract.tesseract_cmd = r'C:\Users\namtran\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 warnings.filterwarnings("ignore", 'This pattern has match groups')
 
 """

@@ -1,5 +1,11 @@
-from request import *
+import datetime as dt
+import pandas as pd
+from os import listdir
+from os.path import join
+from function import first
+from request import connect_DWH_CoSo
 from datawarehouse import BATCHINSERT, DELETE
+
 
 def run(
     run_time=dt.datetime.now()

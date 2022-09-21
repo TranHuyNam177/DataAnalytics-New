@@ -1,4 +1,7 @@
-from request import *
+import pandas as pd
+import time
+import datetime as dt
+from datawarehouse import connect_DWH_CoSo
 
 
 def listen_batch_job(

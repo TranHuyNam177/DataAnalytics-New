@@ -1,4 +1,11 @@
-from request import *
+import pandas as pd
+import datetime as dt
+import time
+import pyodbc
+import requests
+from win32com.client import Dispatch
+from request import connect_DWH_CoSo, TableNames_DWH_CoSo
+from request import connect_DWH_PhaiSinh, TableNames_DWH_PhaiSinh
 
 
 def BATCHINSERT(

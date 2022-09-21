@@ -1,5 +1,3 @@
-from request import *
-
 def __convertInteger__(x:int):
     x = str(x)
     if len(x)==1:

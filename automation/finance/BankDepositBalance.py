@@ -196,7 +196,7 @@ def runIVB(bankObject):
     # Click "Tài khoản tiền gửi có kỳ hạn"
     bankObject.driver.switch_to.frame('mainframe')
     while True:
-        xpath = '//*[contains(@class,"dongkhung-head")]'
+        xpath = '//*[@class="dongkhung-head"]'
         if bankObject.driver.find_elements(By.XPATH,xpath):  # vẫn còn trạng thái đăng nhập
             try: # Có dấu "+" thì click
                 xpath = '//*[@id="sa_layer_pan"]/span'
@@ -960,4 +960,3 @@ def runHUANAN(bankObject):
     balanceTable.insert(1,'Bank',bankObject.bank)
 
     return balanceTable
-

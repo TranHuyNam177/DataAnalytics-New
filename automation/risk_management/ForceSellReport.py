@@ -1,5 +1,12 @@
-from automation.risk_management import *
-from datawarehouse import BDATE
+import numpy as np
+import pandas as pd
+import os
+from os.path import join
+import time
+import datetime as dt
+from datawarehouse import BDATE, connect_DWH_CoSo
+from function import iterable_to_sqlstring
+from automation.risk_management import get_info, dept_folder
 
 
 def run(  # chạy hàng ngày

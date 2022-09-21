@@ -1,7 +1,9 @@
+from os.path import join, dirname
+import pandas as pd
+import datetime as dt
 import pickle
-from dependency import *
 from request import connect_DWH_ThiTruong
-from datawarehouse import SEQUENTIALINSERT, DROPDUPLICATES
+from datawarehouse import SEQUENTIALINSERT
 
 class HNXMessages:
 

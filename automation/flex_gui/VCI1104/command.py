@@ -15,7 +15,7 @@ import logging
 import traceback
 import pyodbc
 import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r'../../tesseract/tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'C:\Users\namtran\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 
 # DWH-Base Database Information
 driver_DWH_CoSo = '{SQL Server}'

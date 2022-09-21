@@ -1,5 +1,11 @@
-from automation.risk_management import *
-from datawarehouse import *
+import numpy as np
+import pandas as pd
+import os
+from os.path import dirname, join
+import time
+import datetime as dt
+from datawarehouse import SYNC, BDATE, connect_DWH_CoSo
+from automation.risk_management import dept_folder, get_info
 
 
 def generateTempData():

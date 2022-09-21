@@ -1,5 +1,14 @@
-from automation.trading_service.giaodichluuky import *
-
+import numpy as np
+import pandas as pd
+import os
+from os.path import join
+import time
+import datetime as dt
+import holidays
+from automation.trading_service.giaodichluuky import dept_folder
+from automation.trading_service import get_info
+from request import connect_DWH_CoSo
+from datawarehouse import BDATE
 
 def run(
     run_time=None
@@ -19,9 +28,9 @@ def run(
     def adjust_time(x):
         x_dt = dt.datetime.strptime(x,'%Y/%m/%d')
         if x_dt.weekday() in holidays.WEEKEND or x_dt in holidays.VN():
-            result = bdate(x,-3)
+            result = BDATE(x,-3)
         else:
-            result = bdate(x,-2)
+            result = BDATE(x,-2)
         return result
 
     """

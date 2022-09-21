@@ -1,6 +1,7 @@
 from automation.finance import *
 from automation.finance import BankTransferBalance
 
+
 # không CAPTCHA
 def runTCB(bankObject,fromDate,toDate):
     """

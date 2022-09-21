@@ -1,5 +1,10 @@
-from automation.trading_service.giaodichluuky import *
+import numpy as np
+import pandas as pd
+from os.path import dirname, join
+import time
 from news_collector import scrape_ticker_by_exchange
+from automation.trading_service import get_info
+from automation.trading_service.giaodichluuky import dept_folder
 
 
 def run():

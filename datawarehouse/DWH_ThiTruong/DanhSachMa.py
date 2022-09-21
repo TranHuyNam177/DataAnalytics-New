@@ -1,4 +1,5 @@
-from request import *
+import datetime as dt
+from request import connect_DWH_ThiTruong
 from datawarehouse import BATCHINSERT, DELETE
 from news_collector import scrape_ticker_by_exchange
 

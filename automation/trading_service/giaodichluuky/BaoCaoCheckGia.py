@@ -1,5 +1,13 @@
-from automation.trading_service.giaodichluuky import *
+import numpy as np
+import pandas as pd
+import os
+from os import listdir
+from os.path import join
+import time
+import shutil
 from news_collector import scrape_vietstock_trading_price
+from automation.trading_service import get_info
+from automation.trading_service.giaodichluuky import dept_folder
 
 
 def run(

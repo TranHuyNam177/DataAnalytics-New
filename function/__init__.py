@@ -1,4 +1,9 @@
-from dependency import *
+import numpy as np
+import pandas as pd
+import datetime as dt
+import holidays
+from typing import Union
+import unidecode
 
 
 ###############################################################################

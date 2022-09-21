@@ -1,6 +1,13 @@
-from automation.risk_management import *
-from request.stock import ta
+import numpy as np
+import pandas as pd
+import os
+from os.path import dirname, join, realpath
+import time
+import datetime as dt
 from datawarehouse import DELETE, BATCHINSERT, BDATE
+from request import connect_DWH_CoSo
+from automation.risk_management import dept_folder, get_info
+from info import CompanyName, CompanyAddress, CompanyPhoneNumber
 
 # DONE
 def run(  # chạy daily sau batch cuối ngày

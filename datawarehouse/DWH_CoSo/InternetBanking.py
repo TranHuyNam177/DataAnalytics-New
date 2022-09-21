@@ -1,5 +1,7 @@
-from datawarehouse import *
-from automation.finance import *
+from request import connect_DWH_CoSo
+from datawarehouse import DELETE, BATCHINSERT
+import traceback
+from win32com.client import Dispatch
 from automation.finance import BankCurrentBalance
 from automation.finance import BankDepositBalance
 from automation.finance import BankTransactionHistory

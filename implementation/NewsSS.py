@@ -1,5 +1,6 @@
+import datetime as dt
+import pandas as pd
 from implementation import TaskMonitor
-from request.stock import *
 from news_collector import newsts
 
 

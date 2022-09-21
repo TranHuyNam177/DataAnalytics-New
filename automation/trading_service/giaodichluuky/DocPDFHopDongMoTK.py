@@ -1,6 +1,10 @@
-from automation import *
+import os
+import re
+import cv2
 import PyPDF2
 import pickle
+import numpy as np
+from pdf2image import convert_from_path
 
 class PDFHopDongMoTK:
     def __init__(self, date: str):
@@ -14,6 +18,7 @@ class PDFHopDongMoTK:
         self.__listPDF = self.__readPDF()
         self.__pdfContent = None
         self.__pdfPath = None
+        self.__result = None
 
     def __del__(self):
         pickleFile = os.path.join(self.__PATH, 'savedFiles', f'{self.__date}.pkl')
@@ -59,75 +64,82 @@ class PDFHopDongMoTK:
         return pdfImage[left:right, top:bottom]
 
     def getSoTK(self):
-        soTK = re.search(r'(Số tài khoản :) (.*)\n', self.__pdfContent).group(2)
-        soTK = soTK.replace(' ', '')
-        if soTK == '022':
-            soTK = ''
-        return soTK
+        self.__result = re.search(r'(Số tài khoản :) (.*)\n', self.__pdfContent).group(2)
+        self.__result = self.__result.replace(' ', '')
+        if self.__result == '022':
+            self.__result = ''
+        return self.__checkResult(self.__result)
 
     def getKhachHang(self):
-        tenKH = re.search(r'(KHÁCH HÀNG:) (.*) (Nam Nữ)', self.__pdfContent).group(2)
-        return tenKH
+        self.__result = re.search(r'(KHÁCH HÀNG:) (.*) (Nam Nữ)', self.__pdfContent).group(2)
+        return self.__checkResult(self.__result)
 
     def getGioiTinh(self):
         imgMale = self.__findCoords('male')
         imgFemale = self.__findCoords('female')
         if np.count_nonzero(imgMale == 0) > np.count_nonzero(imgFemale == 0):
-            sex = 'Nam'
+            self.__result = 'Nam'
         elif np.count_nonzero(imgMale == 0) < np.count_nonzero(imgFemale == 0):
-            sex = 'Nữ'
+            self.__result = 'Nữ'
         else:
-            sex = ''
-        return sex
+            self.__result = ''
+        return self.__checkResult(self.__result)
 
     def getNgaySinh(self):
-        ngaySinh = re.search(r'(Ngày sinh\*:) (.*) (Nơi sinh)', self.__pdfContent).group(2)
-        return ngaySinh
+        self.__result = re.search(r'(Ngày sinh\*:) (.*) (Nơi sinh)', self.__pdfContent).group(2)
+        return self.__checkResult(self.__result)
 
     def getNoiSinh(self):
-        noiSinh = re.search(r'(Nơi sinh\*:) (.*) (Quốc tịch)', self.__pdfContent).group(2)
-        return noiSinh
+        self.__result = re.search(r'(Nơi sinh\*:) (.*) (Quốc tịch)', self.__pdfContent).group(2)
+        return self.__checkResult(self.__result)
 
     def getQuocTich(self):
-        quocTich = re.search(r'(Quốc tịch\*:) (.*)\n', self.__pdfContent).group(2)
-        return quocTich
+        self.__result = re.search(r'(Quốc tịch\*:) (.*)\n', self.__pdfContent).group(2)
+        return self.__checkResult(self.__result)
 
     def getCMNDCCCD(self):
-        soCMNDCCCD = re.search(r'(Số CMND/CCCD/Hộ chiếu\*:) (.*)\n', self.__pdfContent).group(2)
-        return soCMNDCCCD
+        self.__result = re.search(r'(Số CMND/CCCD/Hộ chiếu\*:) (.*)\n', self.__pdfContent).group(2)
+        return self.__checkResult(self.__result)
 
     def getNgayCap(self):
-        ngayCap = re.search(r'(Ngày cấp\*:) (.*) (Nơi)', self.__pdfContent).group(2)
-        return ngayCap
+        self.__result = re.search(r'(Ngày cấp\*:) (.*) (Nơi)', self.__pdfContent).group(2)
+        return self.__checkResult(self.__result)
 
     def getNoiCap(self):
-        noiCap = re.search(r'(Nơi cấp\*:) (.*)\n', self.__pdfContent).group(2)
-        return noiCap
+        self.__result = re.search(r'(Nơi cấp\*:) (.*)\n', self.__pdfContent).group(2)
+        return self.__checkResult(self.__result)
 
     def getDiaChiThuongTru(self):
-        diaChiThuongTru = re.search(r'(Địa chỉ thường trú\*:) (.*)\n', self.__pdfContent).group(2)
-        return diaChiThuongTru
+        self.__result = re.search(r'(Địa chỉ thường trú\*:) (.*)\n', self.__pdfContent).group(2)
+        return self.__checkResult(self.__result)
 
     def getDiaChiLienLac(self):
-        diaChiLienLac = re.search(r'(Địa chỉ liên lạc\*:) (.*)\n', self.__pdfContent).group(2)
-        return diaChiLienLac
+        self.__result = re.search(r'(Địa chỉ liên lạc\*:) (.*)\n', self.__pdfContent).group(2)
+        return self.__checkResult(self.__result)
 
     def getDienThoaiCoDinh(self):
-        dienThoai = re.search(r'(Điện thoại cố định:) (.*) (Di động)', self.__pdfContent).group(2)
-        return dienThoai
+        self.__result = re.search(r'(Điện thoại cố định:) (.*) (Di động)', self.__pdfContent).group(2)
+        return self.__checkResult(self.__result)
 
     def getDiDong(self):
-        diDong = re.search(r'(Di động\*:) (.*) (Email)', self.__pdfContent).group(2)
-        return diDong
+        self.__result = re.search(r'(Di động\*:) (.*) (Email)', self.__pdfContent).group(2)
+        return self.__checkResult(self.__result)
 
     def getEmail(self):
-        email = re.search(r'(Email\*:) (.*)\n', self.__pdfContent).group(2)
-        return email
+        self.__result = re.search(r'(Email\*:) (.*)\n', self.__pdfContent).group(2)
+        return self.__checkResult(self.__result)
 
     def getDaiDien(self):
-        daiDien = re.search(r'(Đại diện:) (.*) (Chức)', self.__pdfContent).group(2)
-        return daiDien
+        self.__result = re.search(r'(Đại diện:) (.*) (Chức)', self.__pdfContent).group(2)
+        return self.__checkResult(self.__result)
 
     def getChucVu(self):
-        chucVu = re.search(r'(Chức vụ:) (.*)\n', self.__pdfContent).group(2)
-        return chucVu
+        self.__result = re.search(r'(Chức vụ:) (.*)\n', self.__pdfContent).group(2)
+        return self.__checkResult(self.__result)
+
+    def __checkResult(self, result):
+        self.__result = result
+        if self.__result.count('.') > 5:
+            self.__result = ''
+        return self.__result
+    

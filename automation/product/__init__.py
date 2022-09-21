@@ -1,4 +1,5 @@
-from automation import *
+import datetime as dt
+from automation import convert_int
 
 dept_folder = r'C:\Users\namtran\Shared Folder\Product'
 

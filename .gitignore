@@ -1,16 +1,20 @@
-<<<<<<< HEAD
-.venv/
-.vscode/
-.idea/
-.git/
-=======
+/venv
+/.vscode
+/.idea
+/.git
 /dependency/tesseract/
-credit_rating/result/
-.venv
-.vscode
-.idea
-.git
->>>>>>> parent of 81510d4c (2022-04-04)
+/dependency/Tesseract-OCR/
+/credit_rating/result/
+/automation/flex_gui/VCI1104/build/
+/automation/flex_gui/VCI1104/dist/
+/automation/flex_gui/VCI1104/FLEX_PROD/
+/automation/flex_gui/VCI1104/tesseract/
+/automation/flex_gui/VCI1104/venv_vci1104/
+/automation/flex_gui/F220001/build/
+/automation/flex_gui/F220001/dist/
+/automation/flex_gui/F220001/FLEX_PROD/
+/automation/flex_gui/F220001/tesseract/
+/automation/flex_gui/F220001/venv_f220001/
 *.png
 *.jpg
 *.xlsx
@@ -18,3 +22,7 @@ credit_rating/result/
 *.csv
 *.pptx
 *.pdf
+*.rpt
+*.exe
+*.7z
+*.zip

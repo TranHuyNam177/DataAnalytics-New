@@ -1,4 +1,7 @@
-from automation.trading_service import *
+import pandas as pd
+import datetime as dt
+import re
+from request import connect_DWH_CoSo
 
 dept_folder = r'C:\Users\namtran\Share Folder\Trading Service\Report\ThanhToanBuTru'
 

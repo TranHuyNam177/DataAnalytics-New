@@ -1,9 +1,8 @@
-from function import *
+import pandas as pd
+import pyodbc
 
-with open(r'C:\Users\namtran\Desktop\Passwords\DataBase\DataBase.txt') as file:
-    user, password, _ = file.readlines()
-    user = user.replace('\n','')
-    password = password.replace('\n','')
+user = 'namtran'
+password = 'nam!tran@2021'
 
 # Risk Database Information
 driver_RMD = '{SQL Server}'

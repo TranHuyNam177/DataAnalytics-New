@@ -1,5 +1,5 @@
-from datawarehouse import connect_DWH_PhaiSinh, SYNC, AFTERBATCH
-from request import *
+from request import connect_DWH_PhaiSinh
+from datawarehouse import SYNC
 
 def SYNCTODAY():
 

@@ -1,5 +1,7 @@
+import pandas as pd
+import datetime as dt
+from datawarehouse import BDATE
 from implementation import TaskMonitor
-from request.stock import *
 from news_collector import newsrmd
 
 
@@ -16,7 +18,7 @@ def NewsRMD():
     now = dt.datetime.now()
     time_string = now.strftime('%Y%m%d_@%H%M')
     if dt.time(hour=0,minute=0,second=0)<=now.time()<=dt.time(hour=11,minute=59,second=59):
-        previous_bdate = bdate(now.strftime('%Y-%m-%d'),-1)
+        previous_bdate = BDATE(now.strftime('%Y-%m-%d'),-1)
         time_point = dt.datetime.strptime(previous_bdate,'%Y-%m-%d')
         time_point = time_point.replace(hour=18,minute=0,second=0,microsecond=0)
     if dt.time(hour=12,minute=0,second=0)<=now.time()<=dt.time(hour=23,minute=59,second=59):

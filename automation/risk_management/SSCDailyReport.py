@@ -1,5 +1,11 @@
-from automation.risk_management import *
-from datawarehouse import BDATE
+import numpy as np
+import pandas as pd
+import os
+from os.path import join
+import time
+import datetime as dt
+from datawarehouse import connect_DWH_CoSo
+from automation.risk_management import dept_folder, get_info
 
 def run(  # chạy hàng ngày sau batch giữa ngày
     run_time=dt.datetime.now()

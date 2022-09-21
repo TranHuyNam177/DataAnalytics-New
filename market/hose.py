@@ -1,4 +1,6 @@
-from dependency import *
+import pandas as pd
+import datetime as dt
+import struct
 from market import __convertInteger__
 
 def SECURITY(d):

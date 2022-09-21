@@ -1,16 +1,15 @@
 import re
-import itertools
 import datetime as dt
 import time
 import pandas as pd
-from datawarehouse import connect_DWH_Base, DELETE, SEQUENTIALINSERT
+from request import connect_DWH_Base
+from datawarehouse import DELETE, SEQUENTIALINSERT
 from os.path import join, dirname, realpath
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.common.exceptions import ElementNotInteractableException
-from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC

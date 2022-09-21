@@ -1,6 +1,7 @@
-from request import *
+import pandas as pd
 from datawarehouse import BATCHINSERT, DROPDUPLICATES
 from news_analysis import get_news
+from request import connect_DWH_ThiTruong
 
 def update(hours):
 

@@ -1,5 +1,9 @@
-from request import *
-from datawarehouse import BATCHINSERT,DELETE
+import pandas as pd
+import re
+import requests
+from bs4 import BeautifulSoup
+from datawarehouse import BATCHINSERT, DELETE
+from request import connect_DWH_ThiTruong
 
 
 def __cleanText__(x):

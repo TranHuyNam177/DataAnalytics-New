@@ -1,5 +1,10 @@
-from request import *
-from request.stock import ta
+import numpy as np
+import pandas as pd
+import datetime as dt
+import time
+import requests
+import json
+from request import connect_DWH_ThiTruong
 from datawarehouse import BATCHINSERT, DELETE
 
 def run(

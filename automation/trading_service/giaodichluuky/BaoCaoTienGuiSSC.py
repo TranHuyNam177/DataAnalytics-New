@@ -1,4 +1,12 @@
-from automation.trading_service.giaodichluuky import *
+import numpy as np
+import pandas as pd
+import os
+from os.path import dirname, join
+import time
+from automation.trading_service.giaodichluuky import dept_folder
+from automation.trading_service import get_info
+from request import connect_DWH_CoSo
+from info import CompanyPhoneNumber, CompanyName, CompanyAddress
 
 
 def run(

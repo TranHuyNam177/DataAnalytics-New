@@ -1,4 +1,13 @@
-from automation.trading_service.giaodichluuky import *
+import numpy as np
+import pandas as pd
+import os
+from os.path import join
+import time
+from automation.trading_service.giaodichluuky import dept_folder
+from automation.trading_service import get_info, convert_int
+from request import connect_DWH_CoSo
+from info import CompanyName, CompanyAddress, CompanyPhoneNumber
+from function import convertNaTtoSpaceString
 
 
 def run(

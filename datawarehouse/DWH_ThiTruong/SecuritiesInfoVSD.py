@@ -1,4 +1,7 @@
-from request import *
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+from request import connect_DWH_ThiTruong
 from datawarehouse import BATCHINSERT,DELETE
 
 

@@ -1,5 +1,9 @@
+from os.path import join, dirname, realpath
+from os import listdir
+import pandas as pd
+import shutil
+from PIL import Image
 from implementation import TaskMonitor
-from request.stock import *
 
 
 @TaskMonitor
@@ -8,8 +12,8 @@ def CreditRating(
     level:int=1
 ):
     destination_path = r'\\192.168.10.28\images\creditrating'
-    chart_path = os.path.join(destination_path,'charts')
-    table_path = os.path.join(destination_path,'tables')
+    chart_path = join(destination_path,'charts')
+    table_path = join(destination_path,'tables')
 
     # POST CREDIT RATING
     rating_path = join(realpath(dirname(dirname(__file__))),'credit_rating','result')

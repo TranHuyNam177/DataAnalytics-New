@@ -1,7 +1,17 @@
-from automation import *
-import cv2 as cv
+from pdf2image import convert_from_path
+from PIL import Image
+from os.path import join,realpath,dirname
 import warnings
+import cv2
+import pytesseract
+import numpy as np
+import pandas as pd
+import datetime as dt
+import os
+import re
 
+
+pytesseract.pytesseract.tesseract_cmd = r'C:\Users\namtran\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 warnings.filterwarnings("ignore", 'This pattern has match groups')
 
 """
@@ -123,14 +133,14 @@ def erosionAndDilation(img, f: str, array: int):
 def _findTopLeftPoint(pdfImage, smallImage):
     pdfImage = np.array(pdfImage)  # đảm bảo image được đưa về numpy array
     smallImage = np.array(smallImage)  # đảm bảo image được đưa về numpy array
-    matchResult = cv.matchTemplate(pdfImage, smallImage, cv.TM_CCOEFF)
-    _, _, _, topLeft = cv.minMaxLoc(matchResult)
+    matchResult = cv2.matchTemplate(pdfImage, smallImage, cv2.TM_CCOEFF)
+    _, _, _, topLeft = cv2.minMaxLoc(matchResult)
     return topLeft[0], topLeft[1]  # cho compatible với openCV
 
 def _findTopLeftPointCATHAY(pdfImage, smallImage):
     pdfImage = np.array(pdfImage)  # đảm bảo image để được đưa về numpy array
     smallImage = np.array(smallImage)  # đảm bảo image để được đưa về numpy array
-    matchResult = cv.matchTemplate(pdfImage, smallImage, cv.TM_SQDIFF)
+    matchResult = cv2.matchTemplate(pdfImage, smallImage, cv2.TM_SQDIFF)
     # get all the matches:
     matchResult2 = np.reshape(matchResult, matchResult.shape[0] * matchResult.shape[1])
     sort = np.argsort(matchResult2)
@@ -173,7 +183,7 @@ def _findCoords(pdfImage, name, bank):
             'or "expireDate" or "condition" or "values"'
         )
     smallImagePath = os.path.join(os.path.dirname(__file__), 'bank_img', f'{bank}', fileName)
-    smallImage = cv.imread(smallImagePath, 0)  # hình trắng đen (array 2 chiều)
+    smallImage = cv2.imread(smallImagePath, 0)  # hình trắng đen (array 2 chiều)
     w, h = smallImage.shape[::-1]
     top, left = _findTopLeftPoint(pdfImage, smallImage)
     if bank == 'MEGA':
@@ -481,7 +491,7 @@ def runMEGA(bank: str, month: int):
             termMonths = round(termDays/30)
             # contract number
             imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            imgContractNumber = cv.GaussianBlur(imgContractNumber, (3, 3), 0)
+            imgContractNumber = cv2.GaussianBlur(imgContractNumber, (3, 3), 0)
             Image.fromarray(imgContractNumber).show()
             dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 6)
             dfContractNumber = groupByDataFrame(dfContractNumber)
@@ -1447,7 +1457,7 @@ def runCATHAY(bank: str, month: int):
             contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
             # các trường thông tin khác
             containingPath = os.path.join(os.path.dirname(__file__), 'bank_img', f'{bank}', 'check.png')
-            containingImage = cv.imread(containingPath, 0)  # hình trắng đen (array 2 chiều)
+            containingImage = cv2.imread(containingPath, 0)  # hình trắng đen (array 2 chiều)
             w, h = containingImage.shape[::-1]
             topLeftList = _findTopLeftPointCATHAY(containingImage, fullImageScale)
             for topLeft in topLeftList:
@@ -1820,7 +1830,7 @@ def runUBOT(bank: str, month: int):
         img = img.rotate(-90, expand=1)
         # grayscale full image
         fullImageScale = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
-        # _, fullImageScale = cv.threshold(fullImageScale, 200, 255, cv.THRESH_BINARY)
+        # _, fullImageScale = cv2.threshold(fullImageScale, 200, 255, cv2.THRESH_BINARY)
         Image.fromarray(fullImageScale).show()
 
         # check image with condition
@@ -2074,8 +2084,8 @@ def runENTIE(bank: str, month: int):
             amount = float(amountText.replace(',', '').replace('.', ''))
             # interest rate
             imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
-            imgInterestRate = cv.morphologyEx(imgInterestRate, cv.MORPH_OPEN, (3, 3))
-            imgInterestRate = cv.GaussianBlur(imgInterestRate, (5, 5), 0)
+            imgInterestRate = cv2.morphologyEx(imgInterestRate, cv2.MORPH_OPEN, (3, 3))
+            imgInterestRate = cv2.GaussianBlur(imgInterestRate, (5, 5), 0)
             Image.fromarray(imgInterestRate).show()
             dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 6)
             dfInterestRate = groupByDataFrame(dfInterestRate)
@@ -2088,7 +2098,7 @@ def runENTIE(bank: str, month: int):
             interestRate = float(interestRateText.replace(',', '.')) / 100
             # ngày hiệu lực, ngày đáo hạn
             imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
-            imgDate = cv.GaussianBlur(imgDate, (3, 3), 0)
+            imgDate = cv2.GaussianBlur(imgDate, (3, 3), 0)
             Image.fromarray(imgDate).show()
             dfDate = readImgPytesseractToDataframe(imgDate, 6)
             dfDate = groupByDataFrame(dfDate)
@@ -2115,8 +2125,8 @@ def runENTIE(bank: str, month: int):
             termMonths = round(termDays/30)
             # contract number
             imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-            imgContractNumber = cv.morphologyEx(imgContractNumber, cv.MORPH_CLOSE, (5, 5))
-            imgContractNumber = cv.GaussianBlur(imgContractNumber, (3, 3), 0)
+            imgContractNumber = cv2.morphologyEx(imgContractNumber, cv2.MORPH_CLOSE, (5, 5))
+            imgContractNumber = cv2.GaussianBlur(imgContractNumber, (3, 3), 0)
             Image.fromarray(imgContractNumber).show()
             dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 11)
             if dfContractNumber['text'].dtype == 'float64':
@@ -2305,7 +2315,7 @@ def runFUBON(bank: str, month: int):
         try:
             # amount
             imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
-            imgAmount = cv.morphologyEx(imgAmount, cv.MORPH_OPEN, (151, 151))
+            imgAmount = cv2.morphologyEx(imgAmount, cv2.MORPH_OPEN, (151, 151))
             Image.fromarray(imgAmount).show()
             dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
             # dùng hàm groupByDataFrame
@@ -2319,7 +2329,7 @@ def runFUBON(bank: str, month: int):
             amount = float(amountText.replace(',', '').replace('.', ''))
             # interest rate
             imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
-            imgInterestRate = cv.morphologyEx(imgInterestRate, cv.MORPH_OPEN, (99, 99))
+            imgInterestRate = cv2.morphologyEx(imgInterestRate, cv2.MORPH_OPEN, (99, 99))
             Image.fromarray(imgInterestRate).show()
             dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 6)
             dfInterestRate['text'] = dfInterestRate['text'].astype(str)

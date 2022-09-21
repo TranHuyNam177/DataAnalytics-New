@@ -1,4 +1,20 @@
-from automation.finance import *
+import os
+import time
+import re
+import pandas as pd
+from os.path import join
+
+from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import ElementNotInteractableException
+from selenium.common.exceptions import ElementClickInterceptedException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support import expected_conditions as EC
+from bs4 import BeautifulSoup
+
+from function import first
 
 # có CAPTCHA
 def runBIDV(bankObject,fromDate,toDate):
@@ -17,7 +33,7 @@ def runBIDV(bankObject,fromDate,toDate):
 
     time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
     # Dọn dẹp folder trước khi download
-    for file in listdir(bankObject.downloadFolder):
+    for file in os.listdir(bankObject.downloadFolder):
         if 'EBK_BC_LICHSUGIAODICH' in file:
             os.remove(join(bankObject.downloadFolder, file))
     # Click Menu bar
@@ -82,7 +98,7 @@ def runBIDV(bankObject,fromDate,toDate):
             # Đọc file, record data
             while True:
                 checkFunc = lambda x: 'EBK_BC_LICHSUGIAODICH' in x and 'download' not in x
-                downloadFile = first(listdir(bankObject.downloadFolder),checkFunc)
+                downloadFile = first(os.listdir(bankObject.downloadFolder),checkFunc)
                 if downloadFile:  # download xong -> có file
                     break
                 time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
@@ -136,7 +152,7 @@ def runVTB(bankObject, fromDate, toDate):
         raise ValueError(f'{bankObject.bank} không cho phép query quá {dayLimit} ngày một lần')
 
     # Dọn dẹp folder trước khi download
-    for file in listdir(bankObject.downloadFolder):
+    for file in os.listdir(bankObject.downloadFolder):
         if 'lich-su-giao-dich' in file:
             os.remove(join(bankObject.downloadFolder,file))
 
@@ -203,7 +219,7 @@ def runVTB(bankObject, fromDate, toDate):
         # Đọc file, record data
         while True:
             checkFunc = lambda x: 'lich-su-giao-dich' in x and 'download' not in x
-            downloadFile = first(listdir(bankObject.downloadFolder),checkFunc)
+            downloadFile = first(os.listdir(bankObject.downloadFolder),checkFunc)
             if downloadFile:  # download xong -> có file
                 break
             time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
@@ -253,7 +269,7 @@ def runEIB(bankObject, fromDate, toDate):
         raise ValueError(f'{bankObject.bank} không cho phép query quá {dayLimit} ngày một lần')
 
     # Dọn dẹp folder trước khi download
-    for file in listdir(bankObject.downloadFolder):
+    for file in os.listdir(bankObject.downloadFolder):
         if 'LichSuTaiKhoan' in file:
             os.remove(join(bankObject.downloadFolder,file))
     time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
@@ -321,7 +337,7 @@ def runEIB(bankObject, fromDate, toDate):
         # Đọc file download
         while True:
             checkFunc = lambda x: 'LichSuTaiKhoan' in x and 'download' not in x
-            downloadFile = first(listdir(bankObject.downloadFolder), checkFunc)
+            downloadFile = first(os.listdir(bankObject.downloadFolder), checkFunc)
             if downloadFile:  # download xong -> có file
                 break
             time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
@@ -365,7 +381,7 @@ def runOCB(bankObject, fromDate, toDate):
     """
 
     # Dọn dẹp folder trước khi download
-    for file in listdir(bankObject.downloadFolder):
+    for file in os.listdir(bankObject.downloadFolder):
         if 'TransactionHistory' in file:
             os.remove(join(bankObject.downloadFolder,file))
 
@@ -440,7 +456,7 @@ def runOCB(bankObject, fromDate, toDate):
             # Đọc file download
             while True:
                 checkFunc = lambda x: 'TransactionHistory' in x and 'download' not in x
-                downloadFile = first(listdir(bankObject.downloadFolder),checkFunc)
+                downloadFile = first(os.listdir(bankObject.downloadFolder),checkFunc)
                 if downloadFile:  # download xong -> có file
                     break
                 time.sleep(0.5)  # chưa download xong -> đợi thêm 0.5s nữa
@@ -493,7 +509,7 @@ def runTCB(bankObject, fromDate, toDate):
     """
 
     # Dọn dẹp folder trước khi download
-    for file in listdir(bankObject.downloadFolder):
+    for file in os.listdir(bankObject.downloadFolder):
         if 'enquiry' in file:
             os.remove(join(bankObject.downloadFolder,file))
 
@@ -545,7 +561,7 @@ def runTCB(bankObject, fromDate, toDate):
         # Đọc file download
         while True:
             checkFunc = lambda x: 'enquiry' in x and 'download' not in x
-            downloadFile = first(listdir(bankObject.downloadFolder),checkFunc)
+            downloadFile = first(os.listdir(bankObject.downloadFolder),checkFunc)
             if downloadFile:  # download xong -> có file
                 break
             time.sleep(0.5)  # chưa download xong -> đợi thêm 0.5s nữa
@@ -605,7 +621,7 @@ def runVCB(bankObject, fromDate, toDate):
         raise ValueError(f'{bankObject.bank} không cho phép query quá {dayLimit} ngày một lần')
 
     # Dọn dẹp folder trước khi download
-    for file in listdir(bankObject.downloadFolder):
+    for file in os.listdir(bankObject.downloadFolder):
         if 'Vietcombank_Account_Statement' in file:
             os.remove(join(bankObject.downloadFolder,file))
 
@@ -662,7 +678,7 @@ def runVCB(bankObject, fromDate, toDate):
         # Đọc file download
         while True:
             checkFunc = lambda x: 'Vietcombank_Account_Statement' in x and 'download' not in x
-            downloadFile = first(listdir(bankObject.downloadFolder),checkFunc)
+            downloadFile = first(os.listdir(bankObject.downloadFolder),checkFunc)
             if downloadFile:  # download xong -> có file
                 renameFile = downloadFile.replace('xls', 'csv')
                 os.rename(join(bankObject.downloadFolder,downloadFile), join(bankObject.downloadFolder,renameFile))
@@ -713,7 +729,7 @@ def runIVB(bankObject, fromDate, toDate):
     """
 
     # Dọn dẹp folder trước khi download
-    for file in listdir(bankObject.downloadFolder):
+    for file in os.listdir(bankObject.downloadFolder):
         if 'AccountTransacionHistory' in file:
             os.remove(join(bankObject.downloadFolder,file))
 
@@ -761,7 +777,7 @@ def runIVB(bankObject, fromDate, toDate):
         # Đọc file download
         while True:
             checkFunc = lambda x: 'AccountTransacionHistory' in x and 'download' not in x
-            downloadFile = first(listdir(bankObject.downloadFolder),checkFunc)
+            downloadFile = first(os.listdir(bankObject.downloadFolder),checkFunc)
             if downloadFile:  # download xong -> có file
                 break
             time.sleep(1)  # chưa download xong -> đợi thêm 1s nữa
