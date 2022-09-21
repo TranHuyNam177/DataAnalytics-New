@@ -44,7 +44,7 @@ class PDFHopDongMoTK:
     def __findCoords(self, sex):
         pdfImage = convert_from_path(
             pdf_path=self.__pdfPath,
-            poppler_path=r'D:\applications\poppler-0.68.0_x86\poppler-0.68.0\bin'
+            poppler_path=r'C:\Users\namtran\poppler-0.68.0\bin'
         )[0]
         pdfImage = cv2.cvtColor(np.array(pdfImage), cv2.COLOR_BGR2GRAY)
         _, pdfImage = cv2.threshold(pdfImage, 200, 255, cv2.THRESH_BINARY)
