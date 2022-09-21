@@ -4,7 +4,17 @@ Duy trì 2 file:
     2. Xuất tổng tiền từ ngày làm việc cuối cùng của tháng trước tới ngày đang chạy (p2)
 """
 
-from automation.trading_service.thanhtoanbutru import *
+import numpy as np
+import pandas as pd
+import os
+from os.path import dirname, join
+import time
+import datetime as dt
+from automation.trading_service import get_info
+from automation.trading_service.thanhtoanbutru import dept_folder
+from info import CompanyName, CompanyPhoneNumber, CompanyAddress
+from datawarehouse import BDATE
+from datawarehouse.DWH_CoSo import connect_DWH_CoSo
 
 
 # DONE
@@ -17,7 +27,7 @@ def run(
     t0_date = info['end_date'].replace('/','-')
     year = t0_date[:4]
     month = t0_date[5:7]
-    start_date = bdate(f"{year}-{month}-{'01'}",-1)
+    start_date = BDATE(f"{year}-{month}-{'01'}",-1)
     folder_name = info['folder_name']
 
     # create folder

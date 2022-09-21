@@ -15,8 +15,17 @@ RCI0015, 2 ngày làm việc cuối cùng, chọn ngày bán là 2 ngày làm vi
 5. Không chạy lùi trước ngày 23/12/2021 được (vì chưa bắt đầu lưu VCF0051)
 """
 
-from automation.trading_service.thanhtoanbutru import *
-
+import numpy as np
+import pandas as pd
+import os
+from os.path import join
+import time
+import datetime as dt
+from automation.trading_service import get_info
+from automation.trading_service.thanhtoanbutru import dept_folder
+from datawarehouse import BDATE
+from datawarehouse.DWH_CoSo import connect_DWH_CoSo
+from info import CompanyName, CompanyAddress, CompanyPhoneNumber
 
 # DONE
 def run(
@@ -25,8 +34,8 @@ def run(
 
     start = time.time()
     info = get_info('quarterly',run_time)
-    t0_date = bdate(bdate(info['end_date'],1),-1)
-    t1_date = bdate(t0_date,-1)
+    t0_date = BDATE(BDATE(info['end_date'],1),-1)
+    t1_date = BDATE(t0_date,-1)
     period = info['period']
     folder_name = info['folder_name']
 

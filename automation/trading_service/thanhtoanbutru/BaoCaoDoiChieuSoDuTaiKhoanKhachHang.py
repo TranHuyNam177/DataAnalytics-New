@@ -1,5 +1,14 @@
-from automation.trading_service.thanhtoanbutru import *
+import numpy as np
+import pandas as pd
+import os
+from os.path import dirname, join
+import time
+import datetime as dt
+from automation.trading_service import get_info
+from automation.trading_service.thanhtoanbutru import dept_folder
 from datawarehouse import SYNC, BDATE
+from datawarehouse.DWH_CoSo import connect_DWH_CoSo
+from info import CompanyName, CompanyPhoneNumber, CompanyAddress
 
 # DONE
 def generateTempData(
@@ -282,7 +291,7 @@ def run(
     worksheet.merge_range(f'A{sum_start_row}:D{sum_start_row}','Tổng',headers_format)
     worksheet.merge_range(f'J{sum_start_row}:L{sum_start_row}','',text_center_format)
     footer_start_row = sum_start_row+2
-    footer_date = bdate(t0_date,1).split('-')
+    footer_date = BDATE(t0_date,1).split('-')
     worksheet.merge_range(
         f'J{footer_start_row}:L{footer_start_row}',
         f'Ngày {footer_date[2]} tháng {footer_date[1]} năm {footer_date[0]}',

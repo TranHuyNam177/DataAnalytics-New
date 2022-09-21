@@ -1,5 +1,14 @@
-from automation.trading_service.thanhtoanbutru import *
-
+import numpy as np
+import pandas as pd
+import os
+from os.path import dirname, join
+import time
+import datetime as dt
+from automation.trading_service import get_info
+from automation.trading_service.thanhtoanbutru import dept_folder
+from datawarehouse.DWH_CoSo import connect_DWH_CoSo
+from datawarehouse import BDATE
+from info import CompanyName, CompanyPhoneNumber, CompanyAddress
 
 # DONE
 def run(
@@ -66,7 +75,7 @@ def run(
     ###################################################
     ###################################################
 
-    footer_date = bdate(end_date,1).split('-')
+    footer_date = BDATE(end_date,1).split('-')
     start_date = dt.datetime.strptime(start_date,"%Y/%m/%d").strftime("%d-%m-%Y")
     end_date = dt.datetime.strptime(end_date,"%Y/%m/%d").strftime("%d-%m-%Y")
     file_name = 'Báo cáo phát sinh giao dịch tiền.xlsx'

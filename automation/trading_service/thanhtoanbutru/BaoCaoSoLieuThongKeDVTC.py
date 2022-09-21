@@ -3,7 +3,17 @@ BC tháng, chạy vào làm việc đầu tiên tháng sau
 Ko chạy lùi trước 23/12/2021 được (vì chưa bắt đầu lưu VCF0051)
 """
 
-from automation.trading_service.thanhtoanbutru import *
+import numpy as np
+import pandas as pd
+import os
+from os import listdir
+from os.path import dirname, isdir, join
+import time
+from automation.trading_service import get_info
+from automation.trading_service.thanhtoanbutru import dept_folder
+from datawarehouse.DWH_CoSo import connect_DWH_CoSo
+from datawarehouse import BDATE
+from function import month_mapper, iterable_to_sqlstring
 
 
 # DONE
@@ -15,7 +25,7 @@ def run(
     period = info['period']
     folder_name = info['folder_name']
     end_date = info['end_date']
-    start_date = bdate(info['start_date'],-1)
+    start_date = BDATE(info['start_date'],-1)
 
     # create folder
     if not os.path.isdir(join(dept_folder,folder_name,period)):

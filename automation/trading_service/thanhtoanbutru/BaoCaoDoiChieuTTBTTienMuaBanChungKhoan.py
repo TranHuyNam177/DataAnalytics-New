@@ -1,4 +1,14 @@
-from automation.trading_service.thanhtoanbutru import *
+import numpy as np
+import pandas as pd
+import os
+from os.path import dirname, join
+import time
+import datetime as dt
+from automation.trading_service import get_info
+from automation.trading_service.thanhtoanbutru import dept_folder
+from datawarehouse import BDATE
+from datawarehouse.DWH_CoSo import connect_DWH_CoSo
+from info import CompanyName, CompanyPhoneNumber, CompanyAddress
 
 
 # DONE
@@ -8,8 +18,8 @@ def run(
     start = time.time()
     info = get_info('daily',run_time)
     t0_date = info['end_date'].replace('/','-')
-    t1_date = bdate(t0_date,-1)
-    t2_date = bdate(t0_date,-2)
+    t1_date = BDATE(t0_date,-1)
+    t2_date = BDATE(t0_date,-2)
     period = info['period']
     folder_name = info['folder_name']
 

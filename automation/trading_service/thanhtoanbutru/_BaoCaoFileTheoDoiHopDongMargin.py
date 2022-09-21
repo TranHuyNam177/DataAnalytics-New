@@ -1,4 +1,11 @@
-from automation.trading_service.thanhtoanbutru import *
+import numpy as np
+import pandas as pd
+import os
+from os.path import join
+import time
+from automation.trading_service import get_info
+from automation.trading_service.thanhtoanbutru import dept_folder
+from request import connect_DWH_CoSo
 
 
 # con thieu doc data tu intranet, dang lech so, lay theo approve date khong phai open_date

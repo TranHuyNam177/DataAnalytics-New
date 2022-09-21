@@ -1,0 +1,5 @@
+CompanyName = 'Công Ty Cổ Phần Chứng Khoán Phú Hưng'
+CompanyAddress = 'Tầng 21, Phú Mỹ Hưng Tower, 08 Hoàng Văn Thái, phường Tân Phú, quận 7, Thành phố Hồ Chí Minh'
+CompanyPhoneNumber = 'Điện thoại : (+84 28)  5413 5479  |  Fax: (+84 28) 5413 5472'
+CompanyEmail = 'Email: info@phs.vn / support@phs.vn  - Web: www.phs.vn'
+CompanyCode = '022'

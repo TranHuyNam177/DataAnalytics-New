@@ -1,8 +1,7 @@
-import re
 import os
-import sys
-import time
+import re
 import pywintypes
+import pywinauto.timings
 from pywinauto.application import Application
 import cv2 as cv
 import numpy as np
@@ -10,14 +9,7 @@ import numpy as np
 
 class Flex:
 
-    def __init__(self,flexEnv):
-
-        if flexEnv.lower() == 'pro':
-            self.flexExe = os.path.join(os.path.dirname(__file__),'Flex','FlexPro','@DIRECT.exe')
-        elif flexEnv.lower() == 'uat7':
-            self.flexExe = os.path.join(os.path.dirname(__file__),'Flex','FlexUAT7','@DIRECT.exe')
-        else:
-            raise ValueError('Invalid Flex Environtment')
+    def __init__(self):
 
         self.app = Application()
         self.mainWindow = None
@@ -27,10 +19,18 @@ class Flex:
         self.username = None
         self.password = None
 
-    def start(self):
-        self.app = self.app.start(self.flexExe)
+    def start(self,existing:bool,**kwargs):
+        os.chdir(r'../../FLEX_PROD') # cd vào FLEX_PROD
+        if existing:
+            self.app = self.app.connect(title_re='^\.::.*Flex.*',**kwargs)
+        else:
+            self.app = self.app.start(cmd_line='@DIRECT.exe')
         self.mainWindow = self.app.window(title_re='.*Flex.*')
         self.loginWindow = self.app.window(title='Login')
+        if os.path.isdir(r'../dist/VCI1104'):
+            os.chdir(r'../dist/VCI1104')
+        else:
+            os.chdir(r'../AutomationApp/VCI1104')
 
     def login( # tested
         self,
@@ -57,8 +57,13 @@ class Flex:
             print('Update new version...')
             updateBox.type_keys('{ENTER}')
             self.mainWindow.wait_not('visible',timeout=30,retry_interval=0.5) # đợi trình cập nhật tự tắt Flex
-            time.sleep(30) # đợi cập nhật xong (30s là thời gian chờ chạy cập nhật)
-            self.start() # khởi động lại Flex
+            # connect vào Flex (đã được tự mở lên sẵn)
+            try:
+                self.start(existing=True,timeout=30) # đợi tối đa 30s cho Flex cập nhật xong
+                print('Connecting to existing Flex...')
+            except (pywinauto.timings.TimeoutError,): # đợi 30s mà ko tự mở lên được (do lỗi Flex)
+                self.start(existing=False) # start Flex mới
+                print('Failed to connect to existing Flex, starting new Flex instance...')
             self.login(username,password) # Đăng nhập lại
         self.loginWindow.wait_not('exists',timeout=5,retry_interval=0.5)
 
@@ -73,6 +78,7 @@ class Flex:
         funcBox = self.mainWindow.children()[-3]
         funcColorImg = np.array(funcBox.capture_as_image())
         funcGrayImg = cv.cvtColor(funcColorImg,cv.COLOR_RGB2GRAY)
+        funcGrayImg[:,:50] = 0 # đè màu đen để che logo Flex đi, tránh bắt nhầm màu trắng trong logo
         _, funcBinaryImg = cv.threshold(funcGrayImg,254,255,cv.THRESH_BINARY)
         locTuple = np.nonzero(funcBinaryImg==255)
         yLoc = np.median(locTuple[0]).astype(np.uint8)

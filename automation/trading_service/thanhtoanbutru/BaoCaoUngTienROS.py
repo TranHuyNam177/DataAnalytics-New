@@ -1,4 +1,14 @@
-from automation.trading_service.thanhtoanbutru import *
+import numpy as np
+import pandas as pd
+import os
+from os.path import join
+import time
+import datetime as dt
+from automation.trading_service import get_info
+from automation.trading_service.thanhtoanbutru import dept_folder
+from datawarehouse.DWH_CoSo import connect_DWH_CoSo
+from datawarehouse import BDATE
+from function import iterable_to_sqlstring
 
 
 # DONE
@@ -8,7 +18,7 @@ def run(
     start = time.time()
     info = get_info('monthly',run_time)
     # lay ngay 26 thang nay den 25 thang sau
-    start_date = (bdate(info['start_date'],-1)[:-2]+'26').replace('/','-')
+    start_date = (BDATE(info['start_date'],-1)[:-2]+'26').replace('/','-')
     end_date = (info['end_date'][:-2]+'25').replace('/','-')
     period = info['period']
     folder_name = info['folder_name']

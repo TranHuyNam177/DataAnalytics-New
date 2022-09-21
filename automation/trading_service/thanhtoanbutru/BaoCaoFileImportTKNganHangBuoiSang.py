@@ -1,6 +1,15 @@
-from automation.trading_service.thanhtoanbutru import *
+import numpy as np
+import pandas as pd
+import os
+from os import listdir
+from os.path import join
+import time
+import unidecode
 from datawarehouse import SYNC
-
+from automation.trading_service import get_info
+from automation.trading_service.thanhtoanbutru import dept_folder
+from datawarehouse.DWH_CoSo import connect_DWH_CoSo
+from datawarehouse import BDATE
 
 # DONE
 def run(
@@ -9,8 +18,8 @@ def run(
     start = time.time()
     info = get_info('daily',run_time)
     t0_date = info['end_date'].replace('/','-')
-    t1_date = bdate(t0_date,-1)
-    next_bdate = bdate(t1_date,1)
+    t1_date = BDATE(t0_date,-1)
+    next_bdate = BDATE(t1_date,1)
     period = info['period']
     folder_name = info['folder_name']
 

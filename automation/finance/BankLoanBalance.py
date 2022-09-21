@@ -6,12 +6,12 @@ from os.path import join
 import time
 import datetime as dt
 import re
-from selenium.common.exceptions import ElementNotInteractableException
+from selenium.common.exceptions import ElementNotInteractableException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions as EC
 from function import first
-from automation.finance import *
+
 
 def runOCB(bankObject):
 
@@ -106,14 +106,14 @@ def runESUN(bankObject):
     bankObject.driver.switch_to.default_content()
     bankObject.driver.switch_to.frame('mainFrame')
     time.sleep(1)
-    # Check xem có Bank Announcements trước khi vào trang chủ không
-    xpath = "//*[contains(text(), 'Welcome to E.SUN eBanking')]"
-    checkElement = bankObject.driver.find_elements(By.XPATH, xpath)
-    if not checkElement:
-        time.sleep(1)
-        xpath = '//*[contains(text(),"Confirm")]'
-        btnElement = bankObject.driver.find_element(By.XPATH, xpath)
-        btnElement.click()
+    # Check xem có thông báo bảo trì không, có thông báo bảo trì thì sẽ có displayed nút confirm
+    xpath = '//*[contains(text(),"Confirm")]'
+    confirmElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
+    for element in confirmElements:
+        if element.is_displayed():
+            element.click()
+            break
+    time.sleep(1)
     # Click Loan
     bankObject.wait.until(EC.presence_of_element_located((By.ID,'menuIndex_2'))).click()
     # Click Loan Overview
@@ -192,14 +192,16 @@ def runIVB(bankObject):
     bankObject.wait.until(EC.visibility_of_element_located((By.ID,'1_1'))).click()
     # Click "Thông tin vay"
     bankObject.driver.switch_to.frame('mainframe')
-    time.sleep(1)
     while True:
-        xpath = '//*[@id="fd_layer_pan"]/span'
-        clickElement = bankObject.driver.find_elements(By.XPATH,xpath)
-        if not clickElement:
-            return pd.DataFrame()
-        else:
-            clickElement[0].click()
+        xpath = '//*[contains(text(),"Liên kết nhanh")]'
+        if bankObject.driver.find_elements(By.XPATH,xpath):  # vẫn còn trạng thái đăng nhập
+            try: # Có dấu "+" thì click
+                xpath = '//*[@id="fd_layer_pan"]/span'
+                bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,xpath))).click()
+            except (TimeoutException,): # ko có dấu "+" do ko có phát sinh
+                return pd.DataFrame()
+        else: # bị logout do đăng nhập giữa chừng
+            raise RuntimeError(f'Bị logout {bankObject.bank} do đăng nhập giữa chừng')
         xpath = '//*[contains(@data-th,"Số Hợp đồng")]/a'
         contractElements = bankObject.driver.find_elements(By.XPATH,xpath)
         URLs = [e.get_attribute('href') for e in contractElements]

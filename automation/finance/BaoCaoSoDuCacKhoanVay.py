@@ -1,5 +1,12 @@
-from automation.finance import *
-
+import numpy as np
+import pandas as pd
+import os
+from os.path import dirname, join
+import time
+import datetime as dt
+from request import connect_DWH_CoSo
+from automation.finance import get_info, dept_folder
+from info import CompanyName, CompanyAddress, CompanyPhoneNumber
 
 def run(  # chạy hàng ngày
     run_time=None,

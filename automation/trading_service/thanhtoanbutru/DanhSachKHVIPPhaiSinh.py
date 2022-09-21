@@ -3,7 +3,15 @@ BC này không thể chạy lùi ngày
 (tuy nhiên có thể viết lại để chạy lùi ngày do đã bắt đầu lưu VCF0051)
 """
 
-from automation.trading_service.thanhtoanbutru import *
+import numpy as np
+import pandas as pd
+import os
+from os.path import join
+import time
+import datetime as dt
+from automation.trading_service import get_info
+from automation.trading_service.thanhtoanbutru import dept_folder
+from request import connect_DWH_PhaiSinh
 
 
 # DONE

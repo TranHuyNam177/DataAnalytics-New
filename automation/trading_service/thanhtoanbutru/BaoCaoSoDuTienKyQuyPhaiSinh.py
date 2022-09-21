@@ -1,5 +1,12 @@
-from automation.trading_service.thanhtoanbutru import *
-
+import numpy as np
+import pandas as pd
+import os
+from os.path import join
+import time
+from automation.trading_service import get_info
+from automation.trading_service.thanhtoanbutru import dept_folder
+from datawarehouse.DWH_CoSo import connect_DWH_PhaiSinh
+from datawarehouse import BDATE
 
 # DONE
 def run(
@@ -7,7 +14,7 @@ def run(
 ):
     start = time.time()
     info = get_info('monthly',run_time)
-    start_date = bdate(info['start_date'],-1)
+    start_date = BDATE(info['start_date'],-1)
     end_date = info['end_date'].replace('/','-')
     period = info['period']
     folder_name = info['folder_name']
@@ -28,7 +35,7 @@ def run(
                     [rdt0121].[date],
                     SUM([rdt0121].[cash_balance_at_vsd]) [balance]
                 FROM [rdt0121]
-                WHERE [rdt0121].[date] BETWEEN '{bdate(t,-1)}' AND '{t}'
+                WHERE [rdt0121].[date] BETWEEN '{BDATE(t,-1)}' AND '{t}'
                 GROUP BY [rdt0121].[date]
                 )
                 SELECT [t].[balance] FROM [t]

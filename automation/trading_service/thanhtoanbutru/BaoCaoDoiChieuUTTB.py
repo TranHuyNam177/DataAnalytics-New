@@ -1,4 +1,14 @@
-from automation.trading_service.thanhtoanbutru import *
+import numpy as np
+import pandas as pd
+import os
+from os.path import dirname, join
+import time
+import datetime as dt
+from automation.trading_service import get_info
+from automation.trading_service.thanhtoanbutru import dept_folder
+from datawarehouse import BDATE
+from datawarehouse.DWH_CoSo import connect_DWH_CoSo
+from info import CompanyName, CompanyPhoneNumber, CompanyAddress
 
 
 # DONE
@@ -9,8 +19,8 @@ def run(
     info = get_info('daily',run_time)
     period = info['period']
     t0_date = info['end_date'].replace('/','-')
-    t1_date = bdate(t0_date,-1)
-    t2_date = bdate(t0_date,-2)
+    t1_date = BDATE(t0_date,-1)
+    t2_date = BDATE(t0_date,-2)
     folder_name = info['folder_name']
 
     # create folder
@@ -51,7 +61,7 @@ def run(
                 [trading_record].[sub_account],
                 [trading_record].[value] [value],
                 [trading_record].[fee] [fee],
-                ROUND([trading_record].[tax_of_selling],0) [sell_tax],
+                [trading_record].[tax_of_selling] [sell_tax],
                 [trading_record].[tax_of_share_dividend] [dividend_tax]
             FROM 
                 [trading_record]
@@ -451,7 +461,7 @@ def run(
     worksheet.merge_range(f'A{sum_start_row}:D{sum_start_row}','Tổng',headers_format)
     footer_start_row = sum_start_row+2
 
-    footer_date = bdate(t0_date,1).split('-')
+    footer_date = BDATE(t0_date,1).split('-')
     worksheet.merge_range(
         f'U{footer_start_row}:Z{footer_start_row}',
         f'Ngày {footer_date[2]} tháng {footer_date[1]} năm {footer_date[0]}',

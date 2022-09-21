@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import os
 import re
-from automation.finance import *
+
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.common.exceptions import ElementNotInteractableException
 from selenium.common.exceptions import ElementClickInterceptedException
