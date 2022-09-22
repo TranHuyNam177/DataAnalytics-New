@@ -592,6 +592,8 @@ def runTCB(bankObject):
         else:
             d = (now-dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
         elementString = element.text
+        if elementString == '':
+            return pd.DataFrame()
         # Số tài khoản
         account = re.search(r'\b[A-Z]{2}\d{10}\b',elementString).group()
         # Ngày hiệu lực, Ngày đáo hạn

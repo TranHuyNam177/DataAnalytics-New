@@ -37,7 +37,7 @@ def _findCoords(pdfImage, sex):
 
 def docFilePDF(customerName: str):
     customerName = unidecode(customerName).replace(' ', '').upper()
-    directory = r"D:\Learn Python\Data Analysis\Contract\HopDongMoTKGDCKCoSo"
+    directory = os.path.join(os.path.dirname(__file__), 'HopDongMoTKGDCKCoSo')
     records = []
     for fileName in os.listdir(directory):
         fileName = fileName.upper()

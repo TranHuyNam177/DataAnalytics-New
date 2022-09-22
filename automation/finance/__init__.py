@@ -139,7 +139,7 @@ def get_bank_authentication(
     """
 
     resultDict = dict()
-    with open(fr'C:\Users\hiepdang\Desktop\Passwords\Bank\{bank}.txt') as file:
+    with open(fr'C:\Users\namtran\Desktop\Passwords\Bank\{bank}.txt') as file:
         if bank in ['BIDV','IVB','VCB','VTB','EIB','OCB','TCB']:
             resultDict['id'] = ''
             resultDict['user'], resultDict['password'], resultDict['URL'] = file.readlines()
@@ -179,7 +179,7 @@ class Base:
         self.user = infoDict['user']
         self.password = infoDict['password']
         self.URL = infoDict['URL']
-        self.downloadFolder = r'C:\Users\hiepdang\Downloads'
+        self.downloadFolder = r'C:\Users\namtran\Downloads'
 
         self.cBankAccounts = {
             'EIB': ['140114851002285','160314851020212'],
@@ -236,9 +236,9 @@ class Base:
         # Gửi CAPTCHA qua bank
         mail = outlook.CreateItem(0)
         if self.debug: # Development Run
-            mail.To = 'hiepdang@phs.vn'
+            mail.To = 'namtran@phs.vn'
         else: # Production Run
-            mail.To = 'hiepdang@phs.vn; namtran@phs.vn; duynguyen@phs.vn; thaonguyenthanh@phs.vn; vanho@phs.vn'
+            mail.To = 'namtran@phs.vn'
         mail.Subject = f"CAPTCHA Required: {self.bank}"
         mail.attachments.Add(imgPATH)
         html = f"""
