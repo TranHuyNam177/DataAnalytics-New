@@ -1,0 +1,46 @@
+22/09/2022 2:01:15 PM -- UPDATE TIME:22/09/2022 2:01:15 PM
+22/09/2022 2:01:15 PM -- Starting Online-Update  version 1.0.0.1
+22/09/2022 2:01:15 PM -- OS:      Microsoft Windows NT 6.2.9200.0
+22/09/2022 2:01:15 PM -- Machine: RM-DT-THNAM.PHS
+22/09/2022 2:01:15 PM -- User:    namtran
+22/09/2022 2:01:15 PM -- Waiting for Parent-Application to exit ( 1sec )...
+22/09/2022 2:01:16 PM -- Killing Process after waiting
+22/09/2022 2:01:16 PM -- Begin clearAttributes
+22/09/2022 2:01:16 PM -- Begin clearAttributes with path: C:\Users\namtran\Downloads\FLEX_UAT 7_4.107\FLEX_UAT 7_4.107
+22/09/2022 2:01:16 PM -- Begin remove FileAttributes.ReadOnly
+22/09/2022 2:01:16 PM -- ...
+22/09/2022 2:01:16 PM -- End remove FileAttributes.ReadOnly
+22/09/2022 2:01:16 PM -- Begin Add Full Permission
+22/09/2022 2:01:36 PM -- End Add Full Permission
+22/09/2022 2:01:36 PM -- Downloading... 
+22/09/2022 2:01:36 PM -- Update Path: http://192.168.4.107/Deployment/Report/rpt.6705090.0032.zip
+22/09/2022 2:01:36 PM -- done in 0.407 seconds
+
+22/09/2022 2:01:36 PM -- unpacking ...
+22/09/2022 2:01:36 PM -- unpacking ... x.Name:REPORTS/
+22/09/2022 2:01:36 PM -- Create temp directory: C:\Users\namtran\AppData\Local\Temp\dir671493796\REPORTS
+22/09/2022 2:01:36 PM -- unpacking ... Copy file:1
+22/09/2022 2:01:36 PM -- unpacking ... Copy file:
+22/09/2022 2:01:36 PM -- unpacking ... x.Name:REPORTS/SE0027.rpt
+22/09/2022 2:01:36 PM -- unpacking ... Copy file:1
+22/09/2022 2:01:36 PM -- unpacking ... Copy file:SE0027.rpt
+22/09/2022 2:01:36 PM -- Stream: SE0027.rpt
+22/09/2022 2:01:36 PM -- unpacking ... x.Name:REPORTS/TRANFC.rpt
+22/09/2022 2:01:36 PM -- unpacking ... Copy file:1
+22/09/2022 2:01:36 PM -- unpacking ... Copy file:TRANFC.rpt
+22/09/2022 2:01:36 PM -- Stream: TRANFC.rpt
+22/09/2022 2:01:36 PM -- unpacking ... x.Name:REPORTS/TRANFC2BANK.rpt
+22/09/2022 2:01:36 PM -- unpacking ... Copy file:1
+22/09/2022 2:01:36 PM -- unpacking ... Copy file:TRANFC2BANK.rpt
+22/09/2022 2:01:36 PM -- Stream: TRANFC2BANK.rpt
+Unpacked.22/09/2022 2:01:36 PM -- unpacked to C:\Users\namtran\AppData\Local\Temp\dir671493796
+22/09/2022 2:01:36 PM -- copying files ...
+22/09/2022 2:01:36 PM -- Update report:
+22/09/2022 2:01:36 PM -- Update Report Directory
+22/09/2022 2:01:36 PM -- List File in folder C:\Users\namtran\Downloads\FLEX_UAT 7_4.107\FLEX_UAT 7_4.107\REPORTS Update: SE0027.rpt
+22/09/2022 2:01:36 PM -- List File in folder C:\Users\namtran\Downloads\FLEX_UAT 7_4.107\FLEX_UAT 7_4.107\REPORTS Update: TRANFC.rpt
+22/09/2022 2:01:36 PM -- List File in folder C:\Users\namtran\Downloads\FLEX_UAT 7_4.107\FLEX_UAT 7_4.107\REPORTS Update: TRANFC2BANK.rpt
+22/09/2022 2:01:36 PM -- copied!
+22/09/2022 2:01:36 PM -- temp-files deleted
+Starting programme... started
+22/09/2022 2:01:36 PM -- Update successful and finished. Exiting Update-Process now.

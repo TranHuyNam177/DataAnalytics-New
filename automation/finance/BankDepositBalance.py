@@ -10,6 +10,7 @@ from selenium.common.exceptions import ElementNotInteractableException, TimeoutE
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 from function import first
 
 ###############################################################################
@@ -512,11 +513,20 @@ def runFIRST(bankObject):
     xpath = '//*[contains(text(),"Deposit certificate number")]/following-sibling::td/*//select'
     selectObject = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
     select = Select(selectObject)
+    listOptions = [option.text for option in select.options[1:]]
     frames = []
-    for option in select.options:
-        select.select_by_visible_text(option.text)
+    for option in listOptions:
+        # bấm vào chỗ chọn tài khoản
+        xpath = '//*[contains(text(),"Deposit certificate number")]/following-sibling::td/*/div/span'
+        selectAccount = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+        selectAccount.click()
+        xpath = '//*[@id="form:tdNoCombo_panel"]/div/input'
+        inputBoxAccount = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+        inputBoxAccount.send_keys(option)
+        inputBoxAccount.send_keys(Keys.RETURN)
         xpath = '//*[text()="Inquiry"]'
         bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        time.sleep(5) # chờ load dữ liệu
         # Download file (.csv)
         xpath = '//*[@class="dl_icons download_csv"]'
         bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
@@ -555,7 +565,8 @@ def runFIRST(bankObject):
         downloadTable['InterestAmount'] = downloadTable['TermDays'] * downloadTable['InterestRate'] * downloadTable['Balance'] / 365
         # Append
         frames.append(downloadTable)
-
+        # Xóa file download
+        os.remove(join(bankObject.downloadFolder, downloadFile))
     # Catch trường hợp không có data
     if not frames:
         return pd.DataFrame()
@@ -592,7 +603,7 @@ def runTCB(bankObject):
         else:
             d = (now-dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
         elementString = element.text
-        if elementString == '':
+        if not elementString: # ko có dữ liệu
             return pd.DataFrame()
         # Số tài khoản
         account = re.search(r'\b[A-Z]{2}\d{10}\b',elementString).group()

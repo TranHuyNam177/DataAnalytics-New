@@ -404,18 +404,18 @@ class VCI1104(Flex):
         self.app.kill(soft=False) # chạy xong tự động đóng đóng app
 
 
-if __name__ == '__main__':
-    try:
-        flexObject = VCI1104('1950','ER45BY27')
-        flexObject.pushCashOutOrders()
-    except (Exception,): # để debug
-        print(traceback.format_exc())
-        input('Press any key to quit: ')
-        try: # Khi cửa sổ Flex còn mở
-            app = Application().connect(title_re='^\.::.*Flex.*',timeout=10)
-            app.kill()
-        except (Exception,): # Khi cửa sổ Flex đã đóng sẵn
-            pass
+# if __name__ == '__main__':
+#     try:
+#         flexObject = VCI1104('admin','123456')
+#         flexObject.pushCashOutOrders()
+#     except (Exception,): # để debug
+#         print(traceback.format_exc())
+#         input('Press any key to quit: ')
+#         try: # Khi cửa sổ Flex còn mở
+#             app = Application().connect(title_re='^\.::.*Flex.*',timeout=10)
+#             app.kill()
+#         except (Exception,): # Khi cửa sổ Flex đã đóng sẵn
+#             pass
 
 r"""
 command to bundle files:

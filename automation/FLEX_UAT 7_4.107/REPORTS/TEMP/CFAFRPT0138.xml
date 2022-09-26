@@ -1,0 +1,58 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <RptData>
+    <CUSTID>0101000001</CUSTID>
+    <FULLNAME>TRƯƠNG THỊ LIÊN</FULLNAME>
+    <DATEOFBIRTH>18/06/1985</DATEOFBIRTH>
+    <IDCODE>172112724</IDCODE>
+    <IDDATE>03/01/2002</IDDATE>
+    <IDPLACE>THANH HÓA</IDPLACE>
+    <ADDRESS>40 HAI BÀ TRƯNG - HOÀN KIẾM - HÀ NỘI</ADDRESS>
+    <MOBILE>................................</MOBILE>
+    <MOBILESMS>0934478086</MOBILESMS>
+    <FAX>................................</FAX>
+    <EMAIL>hoaithu30904@gmail.com</EMAIL>
+    <CUSTODYCD>022C100058</CUSTODYCD>
+    <TAXCODE>................................</TAXCODE>
+    <PIN>111222</PIN>
+    <USERNAME>022C100058</USERNAME>
+    <TRADINGCODE>................................</TRADINGCODE>
+    <TRADINGCODEDT>13/05/2016</TRADINGCODEDT>
+    <OPNDATE>13/05/2016</OPNDATE>
+    <TRADEFLOOR>X</TRADEFLOOR>
+    <TRADETELEPHONE>X</TRADETELEPHONE>
+    <AFBANKACCTNO>................................</AFBANKACCTNO>
+    <CFAFULLNAME>................................</CFAFULLNAME>
+    <CFAADDRESS>................................</CFAADDRESS>
+    <CFAMOBILESMS>................................</CFAMOBILESMS>
+    <CFAIDCODE>................................</CFAIDCODE>
+    <VALDATE>................................</VALDATE>
+    <EXPDATE>................................</EXPDATE>
+    <CFAIDPLACE>................................</CFAIDPLACE>
+    <CFAIDDATE>................................</CFAIDDATE>
+    <CFAMOBILE>................................</CFAMOBILE>
+    <CFAEMAIL>................................</CFAEMAIL>
+    <CFRMFULLNAME>................................</CFRMFULLNAME>
+    <CFRMADDRESS>................................</CFRMADDRESS>
+    <CFRMIDCODE>................................</CFRMIDCODE>
+    <CFRMIDDATE>................................</CFRMIDDATE>
+    <CFRMIDPLACE>................................</CFRMIDPLACE>
+    <CFRMMOBILE>................................</CFRMMOBILE>
+    <CFRMMOBILESMS>................................</CFRMMOBILESMS>
+    <CFRMEMAIL>................................</CFRMEMAIL>
+    <CFRMDESCRIPTION>................................</CFRMDESCRIPTION>
+    <CFRAFULLNAME>................................</CFRAFULLNAME>
+    <CFRAADDRESS>................................</CFRAADDRESS>
+    <CFRAIDCODE>................................</CFRAIDCODE>
+    <CFRAIDDATE>................................</CFRAIDDATE>
+    <CFRAIDPLACE>................................</CFRAIDPLACE>
+    <CFRAMOBILE>................................</CFRAMOBILE>
+    <CFRAMOBILESMS>................................</CFRAMOBILESMS>
+    <CFRAEMAIL>................................</CFRAEMAIL>
+    <CFRADESCRIPTION>................................</CFRADESCRIPTION>
+    <SERIALTOKENBYTOKEN>................................</SERIALTOKENBYTOKEN>
+    <SERIALTOKENBYMATRIX>................................</SERIALTOKENBYMATRIX>
+    <TRANSFERONLINE>X</TRANSFERONLINE>
+    <CFOTHERACC>................................|................................|................................|................................$................................|................................|................................|................................$................................|................................|................................|................................$................................|................................|................................|................................$................................|................................|................................|................................$</CFOTHERACC>
+  </RptData>
+</NewDataSet>

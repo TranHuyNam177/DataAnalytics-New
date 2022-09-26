@@ -20,17 +20,13 @@ class Flex:
         self.password = None
 
     def start(self,existing:bool,**kwargs):
-        os.chdir(r'../../FLEX_PROD') # cd vào FLEX_PROD
+        os.chdir(r'../../FLEX_UAT 7_4.107') # cd vào FLEX_UAT
         if existing:
             self.app = self.app.connect(title_re='^\.::.*Flex.*',**kwargs)
         else:
             self.app = self.app.start(cmd_line='@DIRECT.exe')
         self.mainWindow = self.app.window(title_re='.*Flex.*')
         self.loginWindow = self.app.window(title='Login')
-        if os.path.isdir(r'../dist/VCI1104'):
-            os.chdir(r'../dist/VCI1104')
-        else:
-            os.chdir(r'../AutomationApp/VCI1104')
 
     def login( # tested
         self,
@@ -85,8 +81,11 @@ class Flex:
         xLoc = np.median(locTuple[1]).astype(np.uint8)
         funcBox.click_input(coords=(xLoc,yLoc))
         funcBox.type_keys('^a{DELETE}')
-        funcBox.type_keys(funcCode+'{ENTER}')
-        self.funcWindow = self.app.window(title_re=f".*{re.sub('[A-Z]*','',funcCode)}.*")
+        funcBox.type_keys(funcCode.replace('func', '')+'{ENTER}')
+        if not re.search(r'\d+', funcCode):
+            self.funcWindow = self.app.window(title_re=f".*{re.sub('[A-Z]*', '', funcCode)}.*")
+        else:
+            self.funcWindow = self.app.window(title_re=f".*Thông tin khách hàng.*")
         self.funcWindow.maximize()
         self.setFuncCode(funcCode)
 

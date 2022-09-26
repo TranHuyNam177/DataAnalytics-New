@@ -1,0 +1,2987 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <RptData>
+    <TLNAME>1027</TLNAME>
+    <TLFULLNAME>CHEN CHIA KEN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0001</GRPID>
+    <GRPNAME>Admin</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0095</TLNAME>
+    <TLFULLNAME>LÊ MINH TUẤN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0001</GRPID>
+    <GRPNAME>Admin</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0008</TLNAME>
+    <TLFULLNAME>PHẠM THỊ THU NHÀN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0002</GRPID>
+    <GRPNAME>Risk Management</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0341</TLNAME>
+    <TLFULLNAME>ĐỖ THỊ NGỌC VÂN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0002</GRPID>
+    <GRPNAME>Risk Management</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0008</TLNAME>
+    <TLFULLNAME>PHẠM THỊ THU NHÀN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0003</GRPID>
+    <GRPNAME>Trading Manager</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0832</TLNAME>
+    <TLFULLNAME>TRẦN THU TRANG</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0003</GRPID>
+    <GRPNAME>Trading Manager</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1735_1</TLNAME>
+    <TLFULLNAME>DƯƠNG TRUNG HOA</TLFULLNAME>
+    <BRID>0113</BRID>
+    <BRNAME>Internet Broker - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1735</TLNAME>
+    <TLFULLNAME>DƯƠNG TRUNG HOA</TLFULLNAME>
+    <BRID>0119</BRID>
+    <BRNAME>Institutional Business 02 - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1904_1</TLNAME>
+    <TLFULLNAME>DƯỜNG CÚN LỀNH</TLFULLNAME>
+    <BRID>0113</BRID>
+    <BRNAME>Internet Broker - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0067</TLNAME>
+    <TLFULLNAME>HOÀNG THỊ PHƯƠNG</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0113</TLNAME>
+    <TLFULLNAME>LÊ THỊ HƯỜNG</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1495</TLNAME>
+    <TLFULLNAME>NGUYỄN PHƯƠNG THẢO</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1363</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ MỸ PHỤNG</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1179</TLNAME>
+    <TLFULLNAME>NGUYỄN TIẾN DŨNG</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1165_2</TLNAME>
+    <TLFULLNAME>NGUYỄN VŨ THANH TRÚC</TLFULLNAME>
+    <BRID>0119</BRID>
+    <BRNAME>Institutional Business 02 - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1753_1</TLNAME>
+    <TLFULLNAME>PHẠM LÊ NGÂN</TLFULLNAME>
+    <BRID>0113</BRID>
+    <BRNAME>Internet Broker - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1753_2</TLNAME>
+    <TLFULLNAME>PHẠM LÊ NGÂN</TLFULLNAME>
+    <BRID>0119</BRID>
+    <BRNAME>Institutional Business 02 - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1753</TLNAME>
+    <TLFULLNAME>PHẠM LÊ NGÂN</TLFULLNAME>
+    <BRID>0119</BRID>
+    <BRNAME>Institutional Business 02 - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1940_1</TLNAME>
+    <TLFULLNAME>PHẠM TRẦN TRÀ MI</TLFULLNAME>
+    <BRID>0111</BRID>
+    <BRNAME>Institutional Business 01 - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1867</TLNAME>
+    <TLFULLNAME>THÁI THU TRANG</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1713</TLNAME>
+    <TLFULLNAME>TRẦN PHAN PHƯƠNG THANH</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1496_1</TLNAME>
+    <TLFULLNAME>TRẦN THỊ NGUYÊN THẢO</TLFULLNAME>
+    <BRID>0113</BRID>
+    <BRNAME>Internet Broker - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1822</TLNAME>
+    <TLFULLNAME>TRẦN THỊ THANH THÚY</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1749</TLNAME>
+    <TLFULLNAME>TRẦN ĐÌNH PHƯỢNG LOAN</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1595</TLNAME>
+    <TLFULLNAME>TRỊNH KIM OANH</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1371</TLNAME>
+    <TLFULLNAME>VĂN THỊ THU THỦY</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1203</TLNAME>
+    <TLFULLNAME>ĐÀO THỊ QUYÊN</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0005</GRPID>
+    <GRPNAME>Trading Teller Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1975</TLNAME>
+    <TLFULLNAME>BÙI NGUYỄN HỒNG LAM</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0006</GRPID>
+    <GRPNAME>Trading</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1970</TLNAME>
+    <TLFULLNAME>DƯ THỊ KHÁNH TRANG</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0006</GRPID>
+    <GRPNAME>Trading</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1654</TLNAME>
+    <TLFULLNAME>LÊ THỊ THU HÀ</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0006</GRPID>
+    <GRPNAME>Trading</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1834</TLNAME>
+    <TLFULLNAME>LỮ NGỌC TIÊN HUYỀN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0006</GRPID>
+    <GRPNAME>Trading</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1973</TLNAME>
+    <TLFULLNAME>NGUYỄN HOÀNG PHƯƠNG</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0006</GRPID>
+    <GRPNAME>Trading</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1977</TLNAME>
+    <TLFULLNAME>NGUYỄN NGỌC HUYỀN TRANG</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0006</GRPID>
+    <GRPNAME>Trading</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1911</TLNAME>
+    <TLFULLNAME>NGUYỄN NGỌC HUYỀN TRÂM</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0006</GRPID>
+    <GRPNAME>Trading</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1159</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ CẨM NHUNG</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0006</GRPID>
+    <GRPNAME>Trading</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1330</TLNAME>
+    <TLFULLNAME>PHÙNG THỊ VÂN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0006</GRPID>
+    <GRPNAME>Trading</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1940</TLNAME>
+    <TLFULLNAME>PHẠM TRẦN TRÀ MI</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0006</GRPID>
+    <GRPNAME>Trading</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1960</TLNAME>
+    <TLFULLNAME>BÙI THỊ NGỌC MỸ</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0007</GRPID>
+    <GRPNAME>Settlement Executive</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1931</TLNAME>
+    <TLFULLNAME>TRẦN THỊ NHÀN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0007</GRPID>
+    <GRPNAME>Settlement Executive</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1858</TLNAME>
+    <TLFULLNAME>NGUYỄN PHƯƠNG TRINH</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0008</GRPID>
+    <GRPNAME>Accounting</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1652</TLNAME>
+    <TLFULLNAME>TRỊNH NGUYỄN PHƯƠNG UYÊN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0008</GRPID>
+    <GRPNAME>Accounting</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1376</TLNAME>
+    <TLFULLNAME>Trà Thanh Thiên Lộc</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0008</GRPID>
+    <GRPNAME>Accounting</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1044</TLNAME>
+    <TLFULLNAME>LƯU NGUYÊN DUẨN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0010</GRPID>
+    <GRPNAME>Brokerage Supervisor</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1165</TLNAME>
+    <TLFULLNAME>NGUYỄN VŨ THANH TRÚC</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0010</GRPID>
+    <GRPNAME>Brokerage Supervisor</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1044</TLNAME>
+    <TLFULLNAME>LƯU NGUYÊN DUẨN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0011</GRPID>
+    <GRPNAME>Brokerage Internet Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1165</TLNAME>
+    <TLFULLNAME>NGUYỄN VŨ THANH TRÚC</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0011</GRPID>
+    <GRPNAME>Brokerage Internet Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1496</TLNAME>
+    <TLFULLNAME>TRẦN THỊ NGUYÊN THẢO</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0011</GRPID>
+    <GRPNAME>Brokerage Internet Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0200</TLNAME>
+    <TLFULLNAME>BÙI HỒNG NHẬT</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0012</GRPID>
+    <GRPNAME>IT Management</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1158</TLNAME>
+    <TLFULLNAME>DƯƠNG CHÍ HÙNG</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0012</GRPID>
+    <GRPNAME>IT Management</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1747</TLNAME>
+    <TLFULLNAME>LÂM TRẦN HÀ HUY</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0012</GRPID>
+    <GRPNAME>IT Management</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0554</TLNAME>
+    <TLFULLNAME>LÊ MINH TRÍ</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0013</GRPID>
+    <GRPNAME>IT Operation</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1126</TLNAME>
+    <TLFULLNAME>LÊ VÂN VĨNH ĐẠT</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0013</GRPID>
+    <GRPNAME>IT Operation</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1424</TLNAME>
+    <TLFULLNAME>LƯU TUẤN PHÁT</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0013</GRPID>
+    <GRPNAME>IT Operation</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1541</TLNAME>
+    <TLFULLNAME>NGUYỄN PHẠM MINH TRÍ</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0013</GRPID>
+    <GRPNAME>IT Operation</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1477</TLNAME>
+    <TLFULLNAME>PHAN QUANG TRÍ</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0013</GRPID>
+    <GRPNAME>IT Operation</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1019</TLNAME>
+    <TLFULLNAME>LÊ ANH TRÍ</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0014</GRPID>
+    <GRPNAME>Brokerage Location Manager</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1423</TLNAME>
+    <TLFULLNAME>LÊ THU HUYỀN</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0014</GRPID>
+    <GRPNAME>Brokerage Location Manager</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0244</TLNAME>
+    <TLFULLNAME>LÊ THỊ HOÀI PHƯƠNG</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0014</GRPID>
+    <GRPNAME>Brokerage Location Manager</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0218</TLNAME>
+    <TLFULLNAME>LÊ VŨ KIM TINH</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0014</GRPID>
+    <GRPNAME>Brokerage Location Manager</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1321</TLNAME>
+    <TLFULLNAME>NGUYỄN DUY ANH</TLFULLNAME>
+    <BRID>0111</BRID>
+    <BRNAME>Institutional Business 01 - UAT7-0612-F</BRNAME>
+    <GRPID>0014</GRPID>
+    <GRPNAME>Brokerage Location Manager</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0234</TLNAME>
+    <TLFULLNAME>NGUYỄN QUỐC ĐẠI</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0014</GRPID>
+    <GRPNAME>Brokerage Location Manager</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0074</TLNAME>
+    <TLFULLNAME>NGUYỄN TIẾN CƯỜNG</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0014</GRPID>
+    <GRPNAME>Brokerage Location Manager</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0924</TLNAME>
+    <TLFULLNAME>TRẦN QUÝ DƯƠNG</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0014</GRPID>
+    <GRPNAME>Brokerage Location Manager</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0107</TLNAME>
+    <TLFULLNAME>VŨ THỊ THANH</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>0014</GRPID>
+    <GRPNAME>Brokerage Location Manager</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1030</TLNAME>
+    <TLFULLNAME>HUANG WAN HUI</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0015</GRPID>
+    <GRPNAME>Finance</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1950</TLNAME>
+    <TLFULLNAME>HỒ ÁNH VÂN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0015</GRPID>
+    <GRPNAME>Finance</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1734</TLNAME>
+    <TLFULLNAME>NGUYỄN LÊ ĐỨC HẠNH</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0015</GRPID>
+    <GRPNAME>Finance</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1838</TLNAME>
+    <TLFULLNAME>NGUYỄN ĐỨC DUY</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0015</GRPID>
+    <GRPNAME>Finance</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0105</TLNAME>
+    <TLFULLNAME>NGÔ THỤY QUỲNH NHƯ</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0015</GRPID>
+    <GRPNAME>Finance</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1916</TLNAME>
+    <TLFULLNAME>TRẦN BÍCH NGỌC</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0015</GRPID>
+    <GRPNAME>Finance</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1874</TLNAME>
+    <TLFULLNAME>TRẪN BỬU PHƯƠNG</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0015</GRPID>
+    <GRPNAME>Finance</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0266</TLNAME>
+    <TLFULLNAME>HOÀNG CÔNG BÌNH</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0067</TLNAME>
+    <TLFULLNAME>HOÀNG THỊ PHƯƠNG</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0925</TLNAME>
+    <TLFULLNAME>HUỲNH THỊ BÉ CẦN</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1019</TLNAME>
+    <TLFULLNAME>LÊ ANH TRÍ</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0010</TLNAME>
+    <TLFULLNAME>LÊ MẠNH DÂN</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0269</TLNAME>
+    <TLFULLNAME>LÊ THANH XUÂN</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1423</TLNAME>
+    <TLFULLNAME>LÊ THU HUYỀN</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0244</TLNAME>
+    <TLFULLNAME>LÊ THỊ HOÀI PHƯƠNG</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0113</TLNAME>
+    <TLFULLNAME>LÊ THỊ HƯỜNG</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0762</TLNAME>
+    <TLFULLNAME>LÊ VĂN CẬP</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0218</TLNAME>
+    <TLFULLNAME>LÊ VŨ KIM TINH</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0034</TLNAME>
+    <TLFULLNAME>LƯU ANH TUẤN</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1044</TLNAME>
+    <TLFULLNAME>LƯU NGUYÊN DUẨN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0247</TLNAME>
+    <TLFULLNAME>LƯỜNG NGỌC NGHĨA</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1165</TLNAME>
+    <TLFULLNAME>NGUYỄN VŨ THANH TRÚC</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0133</TLNAME>
+    <TLFULLNAME>NGUYỄN MẠNH AN</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0484</TLNAME>
+    <TLFULLNAME>NGUYỄN NGỌC PHỤNG HOÀNG</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0285</TLNAME>
+    <TLFULLNAME>NGUYỄN QUANG HUY</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1532</TLNAME>
+    <TLFULLNAME>NGUYỄN QUANG SẮC</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0234</TLNAME>
+    <TLFULLNAME>NGUYỄN QUỐC ĐẠI</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1363</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ MỸ PHỤNG</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0232</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ NGỌC PHI</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1535</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ NHƯ QUỲNH</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0280</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ THANH THẢO</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0742</TLNAME>
+    <TLFULLNAME>NGUYỄN THỤY NGỌC HÀ</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0074</TLNAME>
+    <TLFULLNAME>NGUYỄN TIẾN CƯỜNG</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0037</TLNAME>
+    <TLFULLNAME>NGUYỄN VĂN TUÂN</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1524</TLNAME>
+    <TLFULLNAME>PHAN THỊ CẨM TÚ</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0256</TLNAME>
+    <TLFULLNAME>THÁI THỊ HÀ</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0587</TLNAME>
+    <TLFULLNAME>TRƯƠNG THỊ LIÊN</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0559</TLNAME>
+    <TLFULLNAME>TRẦN LÊ CƯỜNG</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0019</TLNAME>
+    <TLFULLNAME>TRẦN NGUYỄN TRƯỜNG SƠN</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0924</TLNAME>
+    <TLFULLNAME>TRẦN QUÝ DƯƠNG</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0832</TLNAME>
+    <TLFULLNAME>TRẦN THU TRANG</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0665</TLNAME>
+    <TLFULLNAME>TRẦN THỊ NGA</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1371</TLNAME>
+    <TLFULLNAME>VĂN THỊ THU THỦY</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0107</TLNAME>
+    <TLFULLNAME>VŨ THỊ THANH</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1259</TLNAME>
+    <TLFULLNAME>ĐOÀN QUANG MINH THẮNG</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0246</TLNAME>
+    <TLFULLNAME>ĐOÀN THỊ MINH PHƯƠNG</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1197</TLNAME>
+    <TLFULLNAME>ĐỖ THỊ HẠNH</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0017</GRPID>
+    <GRPNAME>Brokerage Controller</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1894</TLNAME>
+    <TLFULLNAME>DƯƠNG HUỲNH KHÁNH LINH</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0019</GRPID>
+    <GRPNAME>Internal Control</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1643</TLNAME>
+    <TLFULLNAME>LÊ KIM DUYÊN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0019</GRPID>
+    <GRPNAME>Internal Control</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0036</TLNAME>
+    <TLFULLNAME>NGUYỄN GIẮC LY</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0019</GRPID>
+    <GRPNAME>Internal Control</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0005</TLNAME>
+    <TLFULLNAME>NGUYỄN HOÀNG THANH SANG</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0019</GRPID>
+    <GRPNAME>Internal Control</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1179</TLNAME>
+    <TLFULLNAME>NGUYỄN TIẾN DŨNG</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>0019</GRPID>
+    <GRPNAME>Internal Control</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0022</TLNAME>
+    <TLFULLNAME>PHAN VŨ THÚY NHÂN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0019</GRPID>
+    <GRPNAME>Internal Control</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1890</TLNAME>
+    <TLFULLNAME>TRƯƠNG MỸ DUYÊN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0019</GRPID>
+    <GRPNAME>Internal Control</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1919</TLNAME>
+    <TLFULLNAME>HUỲNH NGỌC THANH HUY</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0024</GRPID>
+    <GRPNAME>Risk Management Senior</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1464</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ THU ANH</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0024</GRPID>
+    <GRPNAME>Risk Management Senior</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1824</TLNAME>
+    <TLFULLNAME>TRẦN TUYẾT NGÂN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0024</GRPID>
+    <GRPNAME>Risk Management Senior</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1727</TLNAME>
+    <TLFULLNAME>ĐẶNG VÕ HIỆP</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0024</GRPID>
+    <GRPNAME>Risk Management Senior</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0124</TLNAME>
+    <TLFULLNAME>BÙI THỤY HOÀNG VY</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0027</GRPID>
+    <GRPNAME>Head Office - Dealing Dept</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0994</TLNAME>
+    <TLFULLNAME>LU HUI HUNG</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0027</GRPID>
+    <GRPNAME>Head Office - Dealing Dept</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1904</TLNAME>
+    <TLFULLNAME>DƯỜNG CÚN LỀNH</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0032</GRPID>
+    <GRPNAME>Brokerage Officer</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1496</TLNAME>
+    <TLFULLNAME>TRẦN THỊ NGUYÊN THẢO</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0032</GRPID>
+    <GRPNAME>Brokerage Officer</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1044</TLNAME>
+    <TLFULLNAME>LƯU NGUYÊN DUẨN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0082</GRPID>
+    <GRPNAME>Brokerage Bao Lanh</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1688</TLNAME>
+    <TLFULLNAME>LÊ THỊ NỞ</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0151</GRPID>
+    <GRPNAME>Accounting Supervisor</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1067</TLNAME>
+    <TLFULLNAME>ĐỖ THỊ ÁI VY</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0151</GRPID>
+    <GRPNAME>Accounting Supervisor</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0674</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ TUYẾT</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0189</GRPID>
+    <GRPNAME>Settlement Supervisor</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0878</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ THANH BÌNH</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0235</GRPID>
+    <GRPNAME>Trading Supervisor</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1568</TLNAME>
+    <TLFULLNAME>TRẦN THỊ NGỌC THỦY</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0235</GRPID>
+    <GRPNAME>Trading Supervisor</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1464</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ THU ANH</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0363</GRPID>
+    <GRPNAME>Risk Internship</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1654</TLNAME>
+    <TLFULLNAME>LÊ THỊ THU HÀ</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0575</GRPID>
+    <GRPNAME>Trading Officer</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0878</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ THANH BÌNH</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0575</GRPID>
+    <GRPNAME>Trading Officer</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1330</TLNAME>
+    <TLFULLNAME>PHÙNG THỊ VÂN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0575</GRPID>
+    <GRPNAME>Trading Officer</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0878</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ THANH BÌNH</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0852</GRPID>
+    <GRPNAME>Trading Officer 2</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1330</TLNAME>
+    <TLFULLNAME>PHÙNG THỊ VÂN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0852</GRPID>
+    <GRPNAME>Trading Officer 2</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1764</TLNAME>
+    <TLFULLNAME>BIỆN THỊ TRÀ THANH</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1778</TLNAME>
+    <TLFULLNAME>BÙI DUY QUANG</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1990</TLNAME>
+    <TLFULLNAME>BÙI MINH QUANG</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1648</TLNAME>
+    <TLFULLNAME>BÙI THỊ THU PHƯƠNG</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1726</TLNAME>
+    <TLFULLNAME>CHU VĂN HUỆ</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1355</TLNAME>
+    <TLFULLNAME>CHÂU MINH SANG</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1554</TLNAME>
+    <TLFULLNAME>CUNG SƯƠNG HUY PHƯỚC</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1260</TLNAME>
+    <TLFULLNAME>DIỆP VIỄN CHÍ</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1665</TLNAME>
+    <TLFULLNAME>DƯƠNG HUY TRƯỜNG</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1176</TLNAME>
+    <TLFULLNAME>DƯƠNG THỊ THANH LÝ</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1605</TLNAME>
+    <TLFULLNAME>DƯƠNG THỊ KIM THANH</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0266</TLNAME>
+    <TLFULLNAME>HOÀNG CÔNG BÌNH</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1344</TLNAME>
+    <TLFULLNAME>HOÀNG THẾ THIỆU</TLFULLNAME>
+    <BRID>0111</BRID>
+    <BRNAME>Institutional Business 01 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1565</TLNAME>
+    <TLFULLNAME>HOÀNG THỊ THÙY TRANG</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1128</TLNAME>
+    <TLFULLNAME>HOÀNG ĐÌNH ĐỨC</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1686</TLNAME>
+    <TLFULLNAME>HUỲNH HUỆ PHƯƠNG</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1676</TLNAME>
+    <TLFULLNAME>HUỲNH NHƯ QUỲNH</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1948</TLNAME>
+    <TLFULLNAME>HUỲNH QUÁCH NGỌC ANH</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1453</TLNAME>
+    <TLFULLNAME>HUỲNH QUỐC TUẤN</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0925</TLNAME>
+    <TLFULLNAME>HUỲNH THỊ BÉ CẦN</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1932</TLNAME>
+    <TLFULLNAME>HỒ BÍCH PHƯỢNG</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1316</TLNAME>
+    <TLFULLNAME>HỒ NHƯ TIÊN</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1793</TLNAME>
+    <TLFULLNAME>LÂM QUỐC HUY</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1566</TLNAME>
+    <TLFULLNAME>LÂM THƠ VĂN</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1019</TLNAME>
+    <TLFULLNAME>LÊ ANH TRÍ</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1978</TLNAME>
+    <TLFULLNAME>LÊ HỒNG CHIẾN</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1755</TLNAME>
+    <TLFULLNAME>LÊ KHANH</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0010</TLNAME>
+    <TLFULLNAME>LÊ MẠNH DÂN</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1786</TLNAME>
+    <TLFULLNAME>LÊ NGUYỄN ÁNH MINH</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1423</TLNAME>
+    <TLFULLNAME>LÊ THU HUYỀN</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0244</TLNAME>
+    <TLFULLNAME>LÊ THỊ HOÀI PHƯƠNG</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1709</TLNAME>
+    <TLFULLNAME>LÊ THỊ HOÀI THƯƠNG</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1269</TLNAME>
+    <TLFULLNAME>LÊ THỊ HỒNG LOAN</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1936</TLNAME>
+    <TLFULLNAME>LÊ THỊ NHƯ THUYỀN</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1504</TLNAME>
+    <TLFULLNAME>LÊ THỊ PHƯƠNG UYÊN</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1433</TLNAME>
+    <TLFULLNAME>LÊ THỊ THU THỦY</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1699</TLNAME>
+    <TLFULLNAME>LÊ THỊ YẾN NHI</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1969</TLNAME>
+    <TLFULLNAME>LÊ TÙNG SINH</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1883</TLNAME>
+    <TLFULLNAME>LÊ TẤN SANG</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0762</TLNAME>
+    <TLFULLNAME>LÊ VĂN CẬP</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0218</TLNAME>
+    <TLFULLNAME>LÊ VŨ KIM TINH</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1706</TLNAME>
+    <TLFULLNAME>LÊ ĐÌNH TÂN</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1781</TLNAME>
+    <TLFULLNAME>LÝ QUỐC KHÁNH</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0034</TLNAME>
+    <TLFULLNAME>LƯU ANH TUẤN</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1044_1</TLNAME>
+    <TLFULLNAME>LƯU NGUYÊN DUẨN</TLFULLNAME>
+    <BRID>0119</BRID>
+    <BRNAME>Institutional Business 02 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1044_3</TLNAME>
+    <TLFULLNAME>LƯU NGUYÊN DUẨN</TLFULLNAME>
+    <BRID>0119</BRID>
+    <BRNAME>Institutional Business 02 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1044_2</TLNAME>
+    <TLFULLNAME>LƯU NGUYÊN DUẨN-INB2</TLFULLNAME>
+    <BRID>0119</BRID>
+    <BRNAME>Institutional Business 02 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0247</TLNAME>
+    <TLFULLNAME>LƯỜNG NGỌC NGHĨA</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1651</TLNAME>
+    <TLFULLNAME>LẠI PHƯỚC THUẬN</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1869</TLNAME>
+    <TLFULLNAME>LỮ THỊ MỸ NGỌC</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1714</TLNAME>
+    <TLFULLNAME>MAI THỊ TUYẾT</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1549</TLNAME>
+    <TLFULLNAME>MAI THỤY ANH THY</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1670</TLNAME>
+    <TLFULLNAME>MAI VĂN SƠN</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1972</TLNAME>
+    <TLFULLNAME>NGUYỄN CHÍ THANH</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1321</TLNAME>
+    <TLFULLNAME>NGUYỄN DUY ANH</TLFULLNAME>
+    <BRID>0111</BRID>
+    <BRNAME>Institutional Business 01 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1918</TLNAME>
+    <TLFULLNAME>NGUYỄN HOÀNG HIỆP</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1711</TLNAME>
+    <TLFULLNAME>NGUYỄN HOÀNG KHÁNH VY</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1909</TLNAME>
+    <TLFULLNAME>NGUYỄN HOÀNG MINH</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1586</TLNAME>
+    <TLFULLNAME>NGUYỄN HOÀNG SÀO</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1974</TLNAME>
+    <TLFULLNAME>NGUYỄN HOÀNG TÂM</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1724</TLNAME>
+    <TLFULLNAME>NGUYỄN HỒNG BÍCH VÂN</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1841</TLNAME>
+    <TLFULLNAME>NGUYỄN HỮU TẤT</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1897</TLNAME>
+    <TLFULLNAME>NGUYỄN KHẮC TRƯỜNG</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1831</TLNAME>
+    <TLFULLNAME>NGUYỄN KIM THIỆN</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1831</TLNAME>
+    <TLFULLNAME>NGUYỄN KIM THIỆN</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1715</TLNAME>
+    <TLFULLNAME>NGUYỄN LẬP PHƯƠNG</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1347</TLNAME>
+    <TLFULLNAME>NGUYỄN MINH TRÍ</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1903</TLNAME>
+    <TLFULLNAME>NGUYỄN MINH ĐỨC</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0133</TLNAME>
+    <TLFULLNAME>NGUYỄN MẠNH AN</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1962</TLNAME>
+    <TLFULLNAME>NGUYỄN NGỌC HOÀNG QUÂN</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1401</TLNAME>
+    <TLFULLNAME>NGUYỄN NGỌC LAN ANH</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0484</TLNAME>
+    <TLFULLNAME>NGUYỄN NGỌC PHỤNG HOÀNG</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1754</TLNAME>
+    <TLFULLNAME>NGUYỄN NGỌC THANH THƯ</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1958</TLNAME>
+    <TLFULLNAME>NGUYỄN NGỌC THÙY DƯƠNG</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1774</TLNAME>
+    <TLFULLNAME>NGUYỄN NGỌC THẢO</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1673</TLNAME>
+    <TLFULLNAME>NGUYỄN NGỌC TIÊN</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1365</TLNAME>
+    <TLFULLNAME>NGUYỄN NGỌC TOÀN</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1980</TLNAME>
+    <TLFULLNAME>NGUYỄN PHẠM QUỐC ANH</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1818</TLNAME>
+    <TLFULLNAME>NGUYỄN QUAN HUY</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0285</TLNAME>
+    <TLFULLNAME>NGUYỄN QUANG HUY</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1532</TLNAME>
+    <TLFULLNAME>NGUYỄN QUANG SẮC</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1336</TLNAME>
+    <TLFULLNAME>NGUYỄN QUỐC THÁI</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0234</TLNAME>
+    <TLFULLNAME>NGUYỄN QUỐC ĐẠI</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1805</TLNAME>
+    <TLFULLNAME>NGUYỄN THUỴ PHƯƠNG HẢO</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1814</TLNAME>
+    <TLFULLNAME>NGUYỄN THÀNH KIÊN</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1737</TLNAME>
+    <TLFULLNAME>NGUYỄN THÀNH NAM</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1213</TLNAME>
+    <TLFULLNAME>NGUYỄN THÀNH ĐẠT</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1956</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ BÍCH HUYỀN</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1939</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ CẨM VÂN</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1667</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ DIỄM MY</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1873</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ HÀ THU</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1954</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ HẠNH</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1577</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ HỒNG THANH</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1926</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ KIỀU NGA</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1952</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ LỆ HẰNG</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1912</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ MAI</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1845</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ MINH HÀ</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0232</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ NGỌC PHI</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1535</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ NHƯ QUỲNH</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0280</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ THANH THẢO</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1414</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ TRUNG HIẾU</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1899</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ TRÍ HẢI</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1544</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ TUYẾT NGÂN</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0742</TLNAME>
+    <TLFULLNAME>NGUYỄN THỤY NGỌC HÀ</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0074</TLNAME>
+    <TLFULLNAME>NGUYỄN TIẾN CƯỜNG</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1191</TLNAME>
+    <TLFULLNAME>NGUYỄN TRUNG HIẾU</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1658</TLNAME>
+    <TLFULLNAME>NGUYỄN TRÀ MY</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1573</TLNAME>
+    <TLFULLNAME>NGUYỄN TRẦN PHƯƠNG UYÊN</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1777</TLNAME>
+    <TLFULLNAME>NGUYỄN TẤN KHOA</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1664</TLNAME>
+    <TLFULLNAME>NGUYỄN VIẾT VINH</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1742</TLNAME>
+    <TLFULLNAME>NGUYỄN VĂN THÀNH</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0037</TLNAME>
+    <TLFULLNAME>NGUYỄN VĂN TUÂN</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1639</TLNAME>
+    <TLFULLNAME>NGUYỄN XUÂN TRƯỜNG</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1941</TLNAME>
+    <TLFULLNAME>NGUYỄN ĐÌNH QUỐC</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1687</TLNAME>
+    <TLFULLNAME>NGUYỄN ĐÌNH ĐẠT</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1485</TLNAME>
+    <TLFULLNAME>NGÔ PHƯƠNG NAM</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1801</TLNAME>
+    <TLFULLNAME>NGÔ THANH TRỌNG</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1942</TLNAME>
+    <TLFULLNAME>NGÔ TRÍ MẠNH</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1835</TLNAME>
+    <TLFULLNAME>NGÔ VĂN TƯ</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1672</TLNAME>
+    <TLFULLNAME>PHAN HOÀNG PHƯƠNG LINH</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1988</TLNAME>
+    <TLFULLNAME>PHAN HUY CÔNG</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1773</TLNAME>
+    <TLFULLNAME>PHAN KIẾT TƯỜNG</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1983</TLNAME>
+    <TLFULLNAME>PHAN NGỌC TÙNG</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1992</TLNAME>
+    <TLFULLNAME>PHAN THÀNH ĐỒNG</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1524</TLNAME>
+    <TLFULLNAME>PHAN THỊ CẨM TÚ</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1588</TLNAME>
+    <TLFULLNAME>PHAN THỊ HUẾ</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1844</TLNAME>
+    <TLFULLNAME>PHAN XUÂN HIẾU</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1187</TLNAME>
+    <TLFULLNAME>PHẠM CHÍ TÂM</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1763</TLNAME>
+    <TLFULLNAME>PHẠM CÔNG BÁCH</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1733</TLNAME>
+    <TLFULLNAME>PHẠM HUY TRÍ</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1995</TLNAME>
+    <TLFULLNAME>PHẠM NGỌC HẢI</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1830</TLNAME>
+    <TLFULLNAME>PHẠM THIÊN TRANG</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1117</TLNAME>
+    <TLFULLNAME>PHẠM THỊ PHƯƠNG THẢO</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1721</TLNAME>
+    <TLFULLNAME>PHẠM TRẦN ANH GIANG</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1634</TLNAME>
+    <TLFULLNAME>PHẠM VĂN ANH</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1503</TLNAME>
+    <TLFULLNAME>TRƯƠNG THỊ YẾN</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1710</TLNAME>
+    <TLFULLNAME>TRƯƠNG TRỌNG NHÂN</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1810</TLNAME>
+    <TLFULLNAME>TRẦN CÔNG TIẾN</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1803</TLNAME>
+    <TLFULLNAME>TRẦN HOÀNG TRUNG</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1389</TLNAME>
+    <TLFULLNAME>TRẦN HOÀNG VŨ</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1787</TLNAME>
+    <TLFULLNAME>TRẦN HOÀNG VŨ</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1653</TLNAME>
+    <TLFULLNAME>TRẦN HÀ PHƯƠNG</TLFULLNAME>
+    <BRID>0113</BRID>
+    <BRNAME>Internet Broker - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0559</TLNAME>
+    <TLFULLNAME>TRẦN LÊ CƯỜNG</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0019</TLNAME>
+    <TLFULLNAME>TRẦN NGUYỄN TRƯỜNG SƠN</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1991</TLNAME>
+    <TLFULLNAME>TRẦN NGỌC HƯNG</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1536</TLNAME>
+    <TLFULLNAME>TRẦN NGỌC LÃM</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1989</TLNAME>
+    <TLFULLNAME>TRẦN PHÚ NGUYÊN</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1404</TLNAME>
+    <TLFULLNAME>TRẦN PHƯƠNG DUNG</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0924</TLNAME>
+    <TLFULLNAME>TRẦN QUÝ DƯƠNG</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1860</TLNAME>
+    <TLFULLNAME>TRẦN QUỐC TOẢN</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1459</TLNAME>
+    <TLFULLNAME>TRẦN THANH TOÀN</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1420</TLNAME>
+    <TLFULLNAME>TRẦN THỊ CẨM VÂN</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1722</TLNAME>
+    <TLFULLNAME>TRẦN THỊ HẢI YẾN</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1796</TLNAME>
+    <TLFULLNAME>TRẦN THỊ HỒNG ĐÀO</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0665</TLNAME>
+    <TLFULLNAME>TRẦN THỊ NGA</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1924</TLNAME>
+    <TLFULLNAME>TRẦN THỊ PHƯỢNG</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1725</TLNAME>
+    <TLFULLNAME>TRẦN THỊ TUYẾT NHI</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1679</TLNAME>
+    <TLFULLNAME>TRẦN TRUNG HIẾU</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0655</TLNAME>
+    <TLFULLNAME>TRẦN VĂN NAM</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1695</TLNAME>
+    <TLFULLNAME>TRẦN VĂN TUẤN HÙNG</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1812</TLNAME>
+    <TLFULLNAME>TRẦN XUÂN TRĂM</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1857</TLNAME>
+    <TLFULLNAME>TRẪN VĂN MƯỜI BA</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1966</TLNAME>
+    <TLFULLNAME>TRỊNH QUỐC KHÁNH</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1949</TLNAME>
+    <TLFULLNAME>TRỊNH THỊ HỒNG</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1552</TLNAME>
+    <TLFULLNAME>TRỊNH THỊ KIM PHỤNG</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1853</TLNAME>
+    <TLFULLNAME>TÔ NGỌC QUỲNH NHƯ</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1979</TLNAME>
+    <TLFULLNAME>TẠ HOÀNG ĐIỆP</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1819</TLNAME>
+    <TLFULLNAME>VÕ TRẦN QUANG THÁI</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1705</TLNAME>
+    <TLFULLNAME>VŨ HOÀI NAM</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1865</TLNAME>
+    <TLFULLNAME>VŨ MẠNH CƯỜNG</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0107</TLNAME>
+    <TLFULLNAME>VŨ THỊ THANH</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1627</TLNAME>
+    <TLFULLNAME>VŨ TRỌNG HÙNG</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1563</TLNAME>
+    <TLFULLNAME>VŨ ĐÌNH PHƯƠNG</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1968</TLNAME>
+    <TLFULLNAME>VỎ THỊ HỒNG ÁI</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1851</TLNAME>
+    <TLFULLNAME>ĐAN HỒNG DƯƠNG</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1756</TLNAME>
+    <TLFULLNAME>ĐINH DUY VŨ</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0759</TLNAME>
+    <TLFULLNAME>ĐINH KHẮC VIỆT</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1745</TLNAME>
+    <TLFULLNAME>ĐINH QUỐC TOÀN</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1876</TLNAME>
+    <TLFULLNAME>ĐINH THỊ HOÀI</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1349</TLNAME>
+    <TLFULLNAME>ĐINH THỊ PHƯƠNG THÚY</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1259</TLNAME>
+    <TLFULLNAME>ĐOÀN QUANG MINH THẮNG</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0246</TLNAME>
+    <TLFULLNAME>ĐOÀN THỊ MINH PHƯƠNG</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1548</TLNAME>
+    <TLFULLNAME>ĐOÀN VĂN DŨNG</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1953</TLNAME>
+    <TLFULLNAME>ĐÀM QUÃNG CHÂU</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1172</TLNAME>
+    <TLFULLNAME>ĐÀO NGỌC ANH</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1985</TLNAME>
+    <TLFULLNAME>ĐÀO QUANG THUẬN</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1540</TLNAME>
+    <TLFULLNAME>ĐÀO VĨNH PHÚ</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1813</TLNAME>
+    <TLFULLNAME>ĐẶNG HẢI ĐĂNG</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1872</TLNAME>
+    <TLFULLNAME>ĐẶNG THỊ HƯƠNG</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0496</TLNAME>
+    <TLFULLNAME>ĐẶNG THỊ LƯỢC</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1746</TLNAME>
+    <TLFULLNAME>ĐẶNG THỊ NGỌC TUYỀN</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1412</TLNAME>
+    <TLFULLNAME>ĐẶNG ĐÀO ĐIỆP</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1770</TLNAME>
+    <TLFULLNAME>ĐỒNG MINH TUẤN</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1788</TLNAME>
+    <TLFULLNAME>ĐỖ HOÀNG VIỆT</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1197</TLNAME>
+    <TLFULLNAME>ĐỖ THỊ HẠNH</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1776</TLNAME>
+    <TLFULLNAME>ĐỖ THỊ NGỌC DIỆP</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1828</TLNAME>
+    <TLFULLNAME>ĐỖ THỊ THANH NGÂN</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1264</TLNAME>
+    <TLFULLNAME>ĐỖ TRẦN THỊ MỸ LINH</TLFULLNAME>
+    <BRID>0113</BRID>
+    <BRNAME>Internet Broker - UAT7-0612-F</BRNAME>
+    <GRPID>0854</GRPID>
+    <GRPNAME>Broker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1975</TLNAME>
+    <TLFULLNAME>BÙI NGUYỄN HỒNG LAM</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0895</GRPID>
+    <GRPNAME>Trading Officer 3</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1970</TLNAME>
+    <TLFULLNAME>DƯ THỊ KHÁNH TRANG</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0895</GRPID>
+    <GRPNAME>Trading Officer 3</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1654</TLNAME>
+    <TLFULLNAME>LÊ THỊ THU HÀ</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0895</GRPID>
+    <GRPNAME>Trading Officer 3</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1834</TLNAME>
+    <TLFULLNAME>LỮ NGỌC TIÊN HUYỀN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0895</GRPID>
+    <GRPNAME>Trading Officer 3</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1973</TLNAME>
+    <TLFULLNAME>NGUYỄN HOÀNG PHƯƠNG</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0895</GRPID>
+    <GRPNAME>Trading Officer 3</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1977</TLNAME>
+    <TLFULLNAME>NGUYỄN NGỌC HUYỀN TRANG</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0895</GRPID>
+    <GRPNAME>Trading Officer 3</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1911</TLNAME>
+    <TLFULLNAME>NGUYỄN NGỌC HUYỀN TRÂM</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0895</GRPID>
+    <GRPNAME>Trading Officer 3</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1940</TLNAME>
+    <TLFULLNAME>PHẠM TRẦN TRÀ MI</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>0895</GRPID>
+    <GRPNAME>Trading Officer 3</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1044_1</TLNAME>
+    <TLFULLNAME>LƯU NGUYÊN DUẨN</TLFULLNAME>
+    <BRID>0119</BRID>
+    <BRNAME>Institutional Business 02 - UAT7-0612-F</BRNAME>
+    <GRPID>0898</GRPID>
+    <GRPNAME>Broker F2</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1044_3</TLNAME>
+    <TLFULLNAME>LƯU NGUYÊN DUẨN</TLFULLNAME>
+    <BRID>0119</BRID>
+    <BRNAME>Institutional Business 02 - UAT7-0612-F</BRNAME>
+    <GRPID>0898</GRPID>
+    <GRPNAME>Broker F2</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1044_2</TLNAME>
+    <TLFULLNAME>LƯU NGUYÊN DUẨN-INB2</TLFULLNAME>
+    <BRID>0119</BRID>
+    <BRNAME>Institutional Business 02 - UAT7-0612-F</BRNAME>
+    <GRPID>0898</GRPID>
+    <GRPNAME>Broker F2</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1735</TLNAME>
+    <TLFULLNAME>DƯƠNG TRUNG HOA</TLFULLNAME>
+    <BRID>0119</BRID>
+    <BRNAME>Institutional Business 02 - UAT7-0612-F</BRNAME>
+    <GRPID>1004</GRPID>
+    <GRPNAME>INB Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1044_1</TLNAME>
+    <TLFULLNAME>LƯU NGUYÊN DUẨN</TLFULLNAME>
+    <BRID>0119</BRID>
+    <BRNAME>Institutional Business 02 - UAT7-0612-F</BRNAME>
+    <GRPID>1004</GRPID>
+    <GRPNAME>INB Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1330</TLNAME>
+    <TLFULLNAME>PHÙNG THỊ VÂN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>1004</GRPID>
+    <GRPNAME>INB Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1753</TLNAME>
+    <TLFULLNAME>PHẠM LÊ NGÂN</TLFULLNAME>
+    <BRID>0119</BRID>
+    <BRNAME>Institutional Business 02 - UAT7-0612-F</BRNAME>
+    <GRPID>1004</GRPID>
+    <GRPNAME>INB Maker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1044</TLNAME>
+    <TLFULLNAME>LƯU NGUYÊN DUẨN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>1006</GRPID>
+    <GRPNAME>INB Checker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1044_1</TLNAME>
+    <TLFULLNAME>LƯU NGUYÊN DUẨN</TLFULLNAME>
+    <BRID>0119</BRID>
+    <BRNAME>Institutional Business 02 - UAT7-0612-F</BRNAME>
+    <GRPID>1006</GRPID>
+    <GRPNAME>INB Checker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1653</TLNAME>
+    <TLFULLNAME>TRẦN HÀ PHƯƠNG</TLFULLNAME>
+    <BRID>0113</BRID>
+    <BRNAME>Internet Broker - UAT7-0612-F</BRNAME>
+    <GRPID>1006</GRPID>
+    <GRPNAME>INB Checker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1799</TLNAME>
+    <TLFULLNAME>LÊ LONG HỒ</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>1007</GRPID>
+    <GRPNAME>HR</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1367</TLNAME>
+    <TLFULLNAME>LÊ YẾN NHI</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>1007</GRPID>
+    <GRPNAME>HR</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1708</TLNAME>
+    <TLFULLNAME>NGUYỄN MAI HỒNG HẠNH</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>1007</GRPID>
+    <GRPNAME>HR</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1619</TLNAME>
+    <TLFULLNAME>ĐẶNG NGUYỄN YẾN NHI</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>1007</GRPID>
+    <GRPNAME>HR</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1887</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ BẠCH YẾN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>1103</GRPID>
+    <GRPNAME>CS</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1896</TLNAME>
+    <TLFULLNAME>PHẠM TRẦN MINH THÔNG</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>1103</GRPID>
+    <GRPNAME>CS</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1961</TLNAME>
+    <TLFULLNAME>PHẠM ĐỨC TOÀN</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>1103</GRPID>
+    <GRPNAME>CS</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1957</TLNAME>
+    <TLFULLNAME>ĐỖ DIỆU SANG</TLFULLNAME>
+    <BRID>0001</BRID>
+    <BRNAME>Hội sở - UAT7-0612-F</BRNAME>
+    <GRPID>1103</GRPID>
+    <GRPNAME>CS</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0269</TLNAME>
+    <TLFULLNAME>LÊ THANH XUÂN</TLFULLNAME>
+    <BRID>0201</BRID>
+    <BRNAME>Hà Nội - UAT7-0612-F</BRNAME>
+    <GRPID>1117</GRPID>
+    <GRPNAME>Trading Teller Checker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0113</TLNAME>
+    <TLFULLNAME>LÊ THỊ HƯỜNG</TLFULLNAME>
+    <BRID>0301</BRID>
+    <BRNAME>Hải Phòng - UAT7-0612-F</BRNAME>
+    <GRPID>1117</GRPID>
+    <GRPNAME>Trading Teller Checker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1717</TLNAME>
+    <TLFULLNAME>LƯƠNG NGỌC YẾN</TLFULLNAME>
+    <BRID>0105</BRID>
+    <BRNAME>Tân Bình - UAT7-0612-F</BRNAME>
+    <GRPID>1117</GRPID>
+    <GRPNAME>Trading Teller Checker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1456</TLNAME>
+    <TLFULLNAME>MAI HỒNG PHÚ</TLFULLNAME>
+    <BRID>0102</BRID>
+    <BRNAME>Phòng Giao dịch Phú Mỹ Hưng - UAT7-0612-F</BRNAME>
+    <GRPID>1117</GRPID>
+    <GRPNAME>Trading Teller Checker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1534</TLNAME>
+    <TLFULLNAME>MÃ BÍCH PHƯỢNG</TLFULLNAME>
+    <BRID>0104</BRID>
+    <BRNAME>Chi nhánh Q7 - UAT7-0612-F</BRNAME>
+    <GRPID>1117</GRPID>
+    <GRPNAME>Trading Teller Checker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1630</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ HUYỀN DIỆU</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>1117</GRPID>
+    <GRPNAME>Trading Teller Checker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1363</TLNAME>
+    <TLFULLNAME>NGUYỄN THỊ MỸ PHỤNG</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>1117</GRPID>
+    <GRPNAME>Trading Teller Checker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1165_1</TLNAME>
+    <TLFULLNAME>NGUYỄN VŨ THANH TRÚC</TLFULLNAME>
+    <BRID>0113</BRID>
+    <BRNAME>Internet Broker - UAT7-0612-F</BRNAME>
+    <GRPID>1117</GRPID>
+    <GRPNAME>Trading Teller Checker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0256</TLNAME>
+    <TLFULLNAME>THÁI THỊ HÀ</TLFULLNAME>
+    <BRID>0101</BRID>
+    <BRNAME>Quận 3 - UAT7-0612-F</BRNAME>
+    <GRPID>1117</GRPID>
+    <GRPNAME>Trading Teller Checker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>0587</TLNAME>
+    <TLFULLNAME>TRƯƠNG THỊ LIÊN</TLFULLNAME>
+    <BRID>0202</BRID>
+    <BRNAME>Thanh Xuân - UAT7-0612-F</BRNAME>
+    <GRPID>1117</GRPID>
+    <GRPNAME>Trading Teller Checker</GRPNAME>
+  </RptData>
+  <RptData>
+    <TLNAME>1595</TLNAME>
+    <TLFULLNAME>TRỊNH KIM OANH</TLFULLNAME>
+    <BRID>0117</BRID>
+    <BRNAME>Chi nhánh Quận 1 - UAT7-0612-F</BRNAME>
+    <GRPID>1117</GRPID>
+    <GRPNAME>Trading Teller Checker</GRPNAME>
+  </RptData>
+</NewDataSet>

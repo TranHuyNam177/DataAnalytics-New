@@ -1,0 +1,74 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+CommonLibrary
+</name>
+</assembly>
+<members>
+<member name="F:CommonLibrary.modCommond.ERR_SE_MORTAGE">
+</member><member name="M:CommonLibrary.modCommond.NumberToText(System.String)">
+	<summary>
+ Chuyển số thành chữ
+ </summary>
+	<param name="p_strNumber">Số cần chuyển</param>
+	<returns></returns>
+	<remarks>ThongPM chuyển code từ CR sang VB 02/11/2011</remarks>
+</member><member name="M:CommonLibrary.CommonLib.XmlToTable(System.Xml.XmlNodeList)">
+	<summary>
+ 20120216: Loctx:  convert string to coressponded data type 
+ </summary>
+	<param name="pv_NodeList"></param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="P:CommonLibrary.ObjectMessageObjDataEntry.fldname">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessageObjDataEntry.fldtype">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessageObjDataEntry.oldval">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessageObjDataEntry.Value">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.ObjData">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.TXDATE">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.TXNUM">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.TXTIME">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.TLID">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.BRID">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.LOCAL">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.MSGTYPE">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.OBJNAME">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.ACTIONFLAG">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.CMDINQUIRY">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.CLAUSE">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.FUNCTIONNAME">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.AUTOID">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.REFERENCE">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.RESERVER">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.IPADDRESS">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.CMDTYPE">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.PARENTOBJNAME">
+	<remarks/>
+</member><member name="P:CommonLibrary.ObjectMessage.PARENTCLAUSE">
+	<remarks/>
+</member>
+</members>
+</doc>
