@@ -10,21 +10,27 @@ import datetime as dt
 
 class PDFHopDongMoTK:
     def __init__(self, date: str):
-        self.__checkFileRun = set()
         self.__PATH = os.path.dirname(__file__)
+        self.__historyPickle = os.path.join(self.__PATH, f'savedData.pkl')
         self.__date = date
+        self.__dataSaved = self.readPickleFile()
         self.__listFilePDF = [
             fileName for fileName in os.listdir(os.path.join(self.__PATH, 'HopDongMoTKGDCKCoSo'))
-            if re.search(r'(\d+)*\.(\d{2}-\d{2}-\d{4})', fileName).group(2) == self.__date
+            if fileName not in self.__dataSaved and (re.search(r'(\d+)*\.(\d{2}-\d{2}-\d{4})', fileName).group(2) == self.__date)
         ]
         self.__listPDFPathContent = self.__readPDF()
         self.__pdfContent = None
         self.__pdfPath = None
-        self.__pdfCheckSMS = None
+        self.__pdfCheckTradingPwdSMS = None
 
-    def __del__(self):
-        pickleFile = os.path.join(self.__PATH, 'savedFiles', f'{self.__date}.pkl')
-        pickle.dump(self.__checkFileRun, open(pickleFile, 'wb'))
+    def readPickleFile(self):
+        with open(self.__historyPickle, 'rb') as file:
+            return pickle.load(file)
+
+    def writePickleFile(self, i):
+        self.__dataSaved.add(self.__listFilePDF[i])
+        with open(self.__historyPickle, 'wb') as file:
+            pickle.dump(self.__dataSaved, file)
 
     def getLength(self):
         return len(self.__listFilePDF)
@@ -32,7 +38,7 @@ class PDFHopDongMoTK:
     def __readPDF(self):
         listPDFPathContent = []
         for i in range(self.getLength()):
-            if self.__listFilePDF[i] in self.__checkFileRun:
+            if self.__listFilePDF[i] in self.__dataSaved:
                 continue
             filePDFPath = os.path.join(self.__PATH, 'HopDongMoTKGDCKCoSo', self.__listFilePDF[i])
             pdfInfo = PyPDF2.PdfReader(filePDFPath).pages[0].extract_text()
@@ -42,8 +48,7 @@ class PDFHopDongMoTK:
         return listPDFPathContent
 
     def selectPDF(self, i):
-        self.__pdfPath, self.__pdfContent, self.__pdfCheckSMS = self.__listPDFPathContent[i]
-        self.__checkFileRun.add(self.__listFilePDF[i])
+        self.__pdfPath, self.__pdfContent, self.__pdfCheckTradingPwdSMS = self.__listPDFPathContent[i]
 
     def __findCoords(self, sex):
         pdfImage = convert_from_path(
@@ -89,6 +94,7 @@ class PDFHopDongMoTK:
         ngayCap = self.getNgayCap()
         ngaySinh = self.getNgaySinh()
         soCMNDCCCD = self.getCMNDCCCD()
+        # soCMNDCCCD = '032514871254'
         age = math.floor((ngayCap - ngaySinh).days / 365)
         if len(soCMNDCCCD) == 12:
             if 14 <= age < 23:
@@ -114,7 +120,7 @@ class PDFHopDongMoTK:
         return tinhThanh
 
     def __findTradingPwdSMS(self):
-        tradingPwdSMS = re.search(r'(Mật khẩu giao dịch qua điện \nthoại\s*)(.*)(\s*\n3\.\s+Dịch vụ)', self.__pdfCheckSMS).group(2)
+        tradingPwdSMS = re.search(r'(Mật khẩu giao dịch qua điện \nthoại\s*)(.*)(\s*\n3\.\s+Dịch vụ)', self.__pdfCheckTradingPwdSMS).group(2)
         if not re.match('[A-Za-z0-9]+', tradingPwdSMS):
             tradingPwdSMS = ''
         return tradingPwdSMS

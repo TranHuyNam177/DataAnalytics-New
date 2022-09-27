@@ -2,12 +2,14 @@ import warnings
 warnings.filterwarnings('ignore')
 import numpy as np
 import time
-from automation.flex_gui.base import Flex, setFocus
-from pywinauto.application import Application
 import traceback
 import pytesseract
 import cv2
+import logging
+import datetime as dt
 from DocPDFHopDongMoTK import PDFHopDongMoTK
+from automation.flex_gui.base import Flex, setFocus
+from pywinauto.application import Application
 pytesseract.pytesseract.tesseract_cmd = r'C:\Users\namtran\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 
 class func111001(Flex):
@@ -17,7 +19,6 @@ class func111001(Flex):
         self.login(username,password)
         self.insertFuncCode(self.__class__.__name__)
         self.dataWindow = None
-        self.windowNotification = None
 
     def openContract(self, date: str):
         pdfHopDong = PDFHopDongMoTK(date)
@@ -87,7 +88,7 @@ class func111001(Flex):
         def __inputNgaySinh(ngaySinh):
             ngaySinhBox = self.dataWindow.child_window(auto_id='dtpDATEOFBIRTH')
             __clickDate(ngaySinhBox)
-            ngaySinhBox.type_keys(f'{ngaySinh.day}/{ngaySinh.month}/{ngaySinh.year}')
+            ngaySinhBox.type_keys(f'/{ngaySinh.month}/{ngaySinh.year}/{ngaySinh.day}')
 
         def __inputNoiSinh(noiSinh):
             noiSinhBox = self.dataWindow.child_window(auto_id='txtPLACEOFBIRTH')
@@ -108,11 +109,12 @@ class func111001(Flex):
             maGiayToBox = self.dataWindow.child_window(auto_id='txtIDCODE')
             maGiayToBox.click_input()
             maGiayToBox.type_keys(soCMNDCCCD)
+            maGiayToBox.type_keys('{ENTER}')
 
         def __inputNgayCap(ngayCap):
             ngayCapBox = self.dataWindow.child_window(auto_id='dtpIDDATE')
             __clickDate(ngayCapBox)
-            ngayCapBox.type_keys(f'{ngayCap.day}/{ngayCap.month}/{ngayCap.year}')
+            ngayCapBox.type_keys(f'/{ngayCap.month}/{ngayCap.year}/{ngayCap.day}')
 
         def __inputNoiCap(noiCap):
             noiCapBox = self.dataWindow.child_window(auto_id='txtIDPLACE')
@@ -142,7 +144,7 @@ class func111001(Flex):
         def __inputNgayHetHan(ngayHetHan):
             ngayHetHanBox = self.dataWindow.child_window(auto_id='dtpIDEXPIRED')
             __clickDate(ngayHetHanBox)
-            ngayHetHanBox.type_keys(f'{ngayHetHan.day}/{ngayHetHan.month}/{ngayHetHan.year}')
+            ngayHetHanBox.type_keys(f'/{ngayHetHan.month}/{ngayHetHan.year}/{ngayHetHan.day}')
 
         def __inputGDDienThoai(gdDienThoai):
             gdDienThoaiBox = self.dataWindow.child_window(auto_id='cboTRADETELEPHONE')
@@ -163,53 +165,105 @@ class func111001(Flex):
         def __clickChapNhanButton():
             chapNhanButton = self.dataWindow.child_window(auto_id='btnOK')
             chapNhanButton.click()
+            # chỗ này hiện bảng thông báo "Ngày hết hạn giấy tờ phải lớn hơn ngày hệ thống"
+            dialogWindow = self.app.Dialog.child_window(title='Ngày hết hạn giấy tờ phải lớn hơn ngày hệ thống!')
+            if dialogWindow.exists():
+                btnOK = self.app.Dialog.child_window(title='OK')
+                btnOK.click()
 
-        def __clickOKSuccess():
-            self.windowNotification = self.app.window(title='FlexCustodian')
-            windowSuccess = self.windowNotification.child_window(title='Thêm mới dữ liệu thành công!')
+        def __clickWindowAfterClickChapNhanButton():
+            dialogWindow = self.app.Dialog
+            dialogWindow.wait('exists', timeout=30)
             while True:
-                if windowSuccess.exists():
-                    btnOK = self.windowNotification.child_window(title='OK')
+                if dialogWindow.exists():
+                    btnOK = dialogWindow.child_window(class_name='Button')
                     btnOK.click()
                     break
 
-        def insertInfo():
-            __inputQuocTich(pdfHopDong.getQuocTich())
-            __inputTinhThanh(pdfHopDong.getTinhThanh())
-            __clickAutoGetMaKHButton()
-            __inputSoTK(pdfHopDong.getSoTK())
-            __inputHoTen(pdfHopDong.getKhachHang())
-            __inputLoaiGiayTo('CMND')
-            __inputTradingCode()
-            __inputMaGiayTo(pdfHopDong.getCMNDCCCD())
-            __inputNgayCap(pdfHopDong.getNgayCap())
-            __inputNgayHetHan(pdfHopDong.getNgayHetHan())
-            __inputNoiCap(pdfHopDong.getNoiCap())
-            __inputDiaChi(pdfHopDong.getDiaChiLienLac())
-            __inputMobile1(pdfHopDong.getDiDong())
-            __inputNgaySinh(pdfHopDong.getNgaySinh())
-            __inputGioiTinh(pdfHopDong.getGioiTinh())
-            __inputGDDienThoai(pdfHopDong.getGDDienThoai())
-            __inputEmail(pdfHopDong.getEmail())
-            __inputMaPin('wasfwasd')
-            __inputMobile2(pdfHopDong.getDienThoaiCoDinh())
-            __inputNoiSinh(pdfHopDong.getNoiSinh())
-            __clickChapNhanButton()
+        def __checkRun(runTime:dt.datetime):
+            if runTime.weekday() in (5,6): # thứ 7, CN
+                self.app.kill(soft=False) # đóng app
+                return False
+            if dt.time(8,0,0) <= runTime.time() <= dt.time(16,1,0):
+                return True
+            # Note: thêm 1 phút để tránh bug (do cài sleep)
+            return False
 
         ######### RUN #########
-        __clickThemMoiButton()
-        self.dataWindow = self.app.window(auto_id='frmCFMAST')
-        self.dataWindow.wait('exists',timeout=30)
-        setFocus(self.dataWindow)
+        print('::: WELCOME :::')
+        print('Flex GUI Automation - Author: Hiep Dang')
+        print('===========================================\n')
+
+        # đọc file Pickle cũ
+        pdfHopDong.readPickleFile()
         for i in range(0, pdfHopDong.getLength()):
-            pdfHopDong.selectPDF(i)
-            insertInfo()
-            __clickOKSuccess()
+            try:
+                # Nhấn nút thêm mới
+                __clickThemMoiButton()
+                # nhập dữ liệu vào khung dữ liệu
+                self.dataWindow = self.app.window(auto_id='frmCFMAST')
+                self.dataWindow.wait('exists', timeout=30)
+                setFocus(self.dataWindow)
+                # chọn hợp đồng để extract ra thông tin
+                pdfHopDong.selectPDF(i)
+                # nhập thông tin của PDF vừa extract
+                __inputQuocTich(pdfHopDong.getQuocTich())
+                __inputTinhThanh(pdfHopDong.getTinhThanh())
+                __clickAutoGetMaKHButton()
+                __inputSoTK(pdfHopDong.getSoTK())
+                __inputHoTen(pdfHopDong.getKhachHang())
+                __inputLoaiGiayTo('CMND')
+                __inputTradingCode()
+                __inputMaGiayTo(pdfHopDong.getCMNDCCCD())
+                # __inputMaGiayTo('032514871254')
+                notificationWindow = self.app.window(title='FlexCustodian')
+                errorWindow = notificationWindow.child_window(title='Mã giấy tờ đã tồn tại!')
+                btnOK = notificationWindow.child_window(title='OK')
+                if errorWindow.exists():
+                    message = errorWindow.window_text()
+                    btnOK.click()
+                    self.dataWindow.close()
+                    logging.critical(message)
+                    continue
+                __inputNgayCap(pdfHopDong.getNgayCap())
+                __inputNgayHetHan(pdfHopDong.getNgayHetHan())
+                __inputNoiCap(pdfHopDong.getNoiCap())
+                __inputDiaChi(pdfHopDong.getDiaChiLienLac())
+                __inputMobile1(pdfHopDong.getDiDong())
+                __inputNgaySinh(pdfHopDong.getNgaySinh())
+                __inputGioiTinh(pdfHopDong.getGioiTinh())
+                __inputGDDienThoai(pdfHopDong.getGDDienThoai())
+                __inputEmail(pdfHopDong.getEmail())
+                __inputMaPin('wasfwasd')
+                __inputMobile2(pdfHopDong.getDienThoaiCoDinh())
+                __inputNoiSinh(pdfHopDong.getNoiSinh())
+                # nhấn nút chấp nhận sau khi đã insert xong hết dữ liệu
+                __clickChapNhanButton()
+                # nhấn nút ok trong window hiện lên sau khi nhấn nút chấp nhận
+                __clickWindowAfterClickChapNhanButton()
+
+                # lưu đè lên file pickle cũ
+                pdfHopDong.writePickleFile(i)
+            except (Exception,):
+                # Đóng toàn bộ cửa sổ đang mở ngoài self.mainWindow và self.funcWindow
+                windowToCloseTitles = [
+                    'Thông tin khách hàng'
+                ]
+                for window in self.app.windows():
+                    if window.window_text() in windowToCloseTitles:
+                        try:
+                            window.close()
+                        except (Exception,):
+                            pass
+                # Ghi log
+                message = traceback.format_exc()
+                logging.critical(message)
+        self.app.kill(soft=False)  # chạy xong tự động đóng đóng app
 
 if __name__ == '__main__':
     try:
         flexObject = func111001('admin','123456')
-        flexObject.openContract('03-06-2022')
+        flexObject.openContract('06-09-2022')
     except (Exception,):  # để debug
         print(traceback.format_exc())
         input('Press any key to quit: ')
