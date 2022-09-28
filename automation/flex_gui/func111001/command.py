@@ -197,6 +197,8 @@ class func111001(Flex):
         # đọc file Pickle cũ
         pdfHopDong.readPickleFile()
         for i in range(0, pdfHopDong.getLength()):
+            # chọn hợp đồng để extract ra thông tin
+            pdfHopDong.selectPDF(i)
             try:
                 # Nhấn nút thêm mới
                 __clickThemMoiButton()
@@ -204,18 +206,23 @@ class func111001(Flex):
                 self.dataWindow = self.app.window(auto_id='frmCFMAST')
                 self.dataWindow.wait('exists', timeout=30)
                 setFocus(self.dataWindow)
-                # chọn hợp đồng để extract ra thông tin
-                pdfHopDong.selectPDF(i)
                 # nhập thông tin của PDF vừa extract
-                __inputQuocTich(pdfHopDong.getQuocTich())
-                __inputTinhThanh(pdfHopDong.getTinhThanh())
-                __clickAutoGetMaKHButton()
-                __inputSoTK(pdfHopDong.getSoTK())
-                __inputHoTen(pdfHopDong.getKhachHang())
-                __inputLoaiGiayTo('CMND')
-                __inputTradingCode()
-                __inputMaGiayTo(pdfHopDong.getCMNDCCCD())
-                # __inputMaGiayTo('032514871254')
+                checkDataDict = {
+                    __inputTinhThanh: pdfHopDong.getTinhThanh(),
+                    __inputHoTen: pdfHopDong.getKhachHang(),
+                    __inputNoiCap: pdfHopDong.getNoiCap(),
+                    __inputDiaChi: pdfHopDong.getDiaChiLienLac(),
+                    __inputNgayCap: pdfHopDong.getNgayCap(),
+                    __inputNgayHetHan: pdfHopDong.getNgayHetHan(),
+                    __inputNgaySinh: pdfHopDong.getNgaySinh(),
+                    __inputMaGiayTo: '022222221235',
+                }
+                for func, value in checkDataDict.items():
+                    if value == '':
+                        self.dataWindow.close()
+                        break
+                    else:
+                        func(value)
                 notificationWindow = self.app.window(title='FlexCustodian')
                 errorWindow = notificationWindow.child_window(title='Mã giấy tờ đã tồn tại!')
                 btnOK = notificationWindow.child_window(title='OK')
@@ -225,32 +232,33 @@ class func111001(Flex):
                     self.dataWindow.close()
                     logging.critical(message)
                     continue
-                __inputNgayCap(pdfHopDong.getNgayCap())
-                __inputNgayHetHan(pdfHopDong.getNgayHetHan())
-                __inputNoiCap(pdfHopDong.getNoiCap())
-                __inputDiaChi(pdfHopDong.getDiaChiLienLac())
-                __inputMobile1(pdfHopDong.getDiDong())
-                __inputNgaySinh(pdfHopDong.getNgaySinh())
-                __inputGioiTinh(pdfHopDong.getGioiTinh())
+                if pdfHopDong.getGDDienThoai() == 'Có' and pdfHopDong.getDiDong() == '':
+                    self.dataWindow.close()
+                    continue
+                __inputQuocTich(pdfHopDong.getQuocTich())
+                __clickAutoGetMaKHButton()
+                __inputSoTK(pdfHopDong.getSoTK())
+                __inputLoaiGiayTo('CMND')
+                __inputTradingCode()
                 __inputGDDienThoai(pdfHopDong.getGDDienThoai())
+                __inputMobile1(pdfHopDong.getDiDong())
+                __inputGioiTinh(pdfHopDong.getGioiTinh())
                 __inputEmail(pdfHopDong.getEmail())
                 __inputMaPin('wasfwasd')
                 __inputMobile2(pdfHopDong.getDienThoaiCoDinh())
+                __inputNgayHetHan(pdfHopDong.getNgayHetHan())
                 __inputNoiSinh(pdfHopDong.getNoiSinh())
                 # nhấn nút chấp nhận sau khi đã insert xong hết dữ liệu
                 __clickChapNhanButton()
                 # nhấn nút ok trong window hiện lên sau khi nhấn nút chấp nhận
                 __clickWindowAfterClickChapNhanButton()
-
                 # lưu đè lên file pickle cũ
                 pdfHopDong.writePickleFile(i)
             except (Exception,):
                 # Đóng toàn bộ cửa sổ đang mở ngoài self.mainWindow và self.funcWindow
-                windowToCloseTitles = [
-                    'Thông tin khách hàng'
-                ]
+                windowToCloseTitles = 'Thông tin khách hàng'
                 for window in self.app.windows():
-                    if window.window_text() in windowToCloseTitles:
+                    if window.window_text() == windowToCloseTitles:
                         try:
                             window.close()
                         except (Exception,):
@@ -263,7 +271,7 @@ class func111001(Flex):
 if __name__ == '__main__':
     try:
         flexObject = func111001('admin','123456')
-        flexObject.openContract('06-09-2022')
+        flexObject.openContract('05-07-2022')
     except (Exception,):  # để debug
         print(traceback.format_exc())
         input('Press any key to quit: ')

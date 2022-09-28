@@ -93,8 +93,8 @@ class PDFHopDongMoTK:
     def __findNgayHetHan(self):
         ngayCap = self.getNgayCap()
         ngaySinh = self.getNgaySinh()
-        soCMNDCCCD = self.getCMNDCCCD()
-        # soCMNDCCCD = '032514871254'
+        # soCMNDCCCD = self.getCMNDCCCD()
+        soCMNDCCCD = '022222221235'
         age = math.floor((ngayCap - ngaySinh).days / 365)
         if len(soCMNDCCCD) == 12:
             if 14 <= age < 23:
