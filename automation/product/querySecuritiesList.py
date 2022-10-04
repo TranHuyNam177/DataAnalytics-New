@@ -72,7 +72,7 @@ def createJSON(inputDate, outputPath):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("-i", "--inputDate", required=True, help="input date with format: YYYYmmdd")
-    ap.add_argument("-o", "--outputPath", required=True, help="path to output json file")
+    ap.add_argument("-d", "--inputDate", required=True, help="input date with format: YYYYmmdd")
+    ap.add_argument("-p", "--outputPath", required=True, help="path to output json file")
     args = vars(ap.parse_args())
     createJSON(args["inputDate"], args["outputPath"])
