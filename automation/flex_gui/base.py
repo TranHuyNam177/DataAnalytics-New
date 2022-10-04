@@ -20,7 +20,7 @@ class Flex:
         self.password = None
 
     def start(self,existing:bool,**kwargs):
-        os.chdir(r'../../FLEX_UAT 7_4.107') # cd vào FLEX_UAT
+        os.chdir(r'../../FLEX_UAT_7_4.107') # cd vào FLEX_UAT
         if existing:
             self.app = self.app.connect(title_re='^\.::.*Flex.*',**kwargs)
         else:

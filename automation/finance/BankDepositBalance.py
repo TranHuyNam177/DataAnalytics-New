@@ -319,7 +319,7 @@ def runOCB(bankObject):
         if 'DSHDTG' in file:
             os.remove(join(bankObject.downloadFolder,file))
     # Click main menu
-    bankObject.wait.until(EC.presence_of_element_located((By.ID,'main-menu-icon'))).click()
+    bankObject.wait.until(EC.visibility_of_element_located((By.ID,'main-menu-icon'))).click()
     # Click Hợp đồng tiền gửi -> Danh sách hợp đồng tiền gửi
     xpath = '//*[@class="ahref"]/*[@class="deposits-icon"]'
     _, accountButton = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
@@ -606,7 +606,7 @@ def runTCB(bankObject):
         if not elementString: # ko có dữ liệu
             return pd.DataFrame()
         # Số tài khoản
-        account = re.search(r'\b[A-Z]{2}\d{10}\b',elementString).group()
+        account = re.search(r'\b[A-Z]{2}\d{10}|\d{14}\b',elementString).group()
         # Ngày hiệu lực, Ngày đáo hạn
         issueDateText, expireDateText = re.findall(r'\b\d{2}/\d{2}/\d{4}\b',elementString)
         issueDate = dt.datetime.strptime(issueDateText,'%d/%m/%Y')
