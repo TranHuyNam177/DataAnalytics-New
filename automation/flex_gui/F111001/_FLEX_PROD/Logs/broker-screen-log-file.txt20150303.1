@@ -1,0 +1,361 @@
+﻿2015-03-03 10:29:32,909 INFO  [7284] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:32,961 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:33,485 DEBUG [7284] ::GetAllSymbolShortList:: Get all symbol list at 03/03/2015 10:29:33 AM BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:35,790 DEBUG [7284] ::GetAllDefErrorAsync:: Get all error define at 03/03/2015 10:29:35 AM BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:36,436 ERROR [7284] ::GetLookUpEditSymbol:: BrokerScreen.BrokerScreen [(null)] - 
+System.IndexOutOfRangeException: Cannot find table 0.
+   at System.Data.DataTableCollection.get_Item(Int32 index)
+   at BrokerScreen.BrokerScreen.GetLookUpEditSymbol()
+2015-03-03 10:29:36,510 ERROR [7284] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2015-03-03 10:29:36,582 DEBUG [7284] ::GetSignatureAsynchronous::  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:36,624 DEBUG [7284] ::InitializeTimer:: 10:29 AM BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:36,650 DEBUG [7284] ::GetTradePolicy:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,TELLERID,LEADERID,ADMINID,][BOData,BD_TRADER_POLICY_GETALL,0141,0141,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:36,651 DEBUG [7284] ::GetTradePolicy:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:36,773 DEBUG [7284] ::GetTradePolicy:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,383 DEBUG [7284] ::GetDataByCustodyCode:: PreviousCustodyCode , CurrentCustodyCode 022C500004  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,385 DEBUG [7284] ::GetCustomerInformationAsynchronous:: Module BOData - Function BD_CUSTOMER_INFO_BY_CUSTODY_CODE - Parameter count [MODULE,FUNCTION,CUSTODYCD,][BOData,BD_CUSTOMER_INFO_BY_CUSTODY_CODE,022C500004,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,390 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,390 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,435 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,491 DEBUG [7284] ::lueSubAccount_EditValueChanged:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,493 DEBUG [7284] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000007,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,495 INFO  [7284] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500004,0077000007,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,499 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,500 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,546 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,549 ERROR [7284] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.ArchorQueryAccount(Object sender)
+   at BrokerScreen.BrokerScreen.lueQueryOrderAccount_EditValueChanged(Object sender, EventArgs e)
+   at DevExpress.XtraEditors.Repository.RepositoryItem.RaiseEditValueChangedCore(EventArgs e)
+   at DevExpress.XtraEditors.Repository.RepositoryItem.RaiseEditValueChanged(EventArgs e)
+   at DevExpress.XtraEditors.BaseEdit.RaiseEditValueChanged()
+   at DevExpress.XtraEditors.BaseEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.TextEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.LookUpEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.BaseEdit.OnEditValueChanging(ChangingEventArgs e)
+   at DevExpress.XtraEditors.LookUpEdit.OnEditValueChanging(ChangingEventArgs e)
+   at DevExpress.XtraEditors.BaseEdit.set_EditValue(Object value)
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2015-03-03 10:29:44,573 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,574 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,591 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,606 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,606 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,623 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,625 ERROR [7284] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.ArchorQueryAccount(Object sender)
+   at BrokerScreen.BrokerScreen.lueCashTabAccount_EditValueChanged(Object sender, EventArgs e)
+   at DevExpress.XtraEditors.Repository.RepositoryItem.RaiseEditValueChangedCore(EventArgs e)
+   at DevExpress.XtraEditors.Repository.RepositoryItem.RaiseEditValueChanged(EventArgs e)
+   at DevExpress.XtraEditors.BaseEdit.RaiseEditValueChanged()
+   at DevExpress.XtraEditors.BaseEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.TextEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.LookUpEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.BaseEdit.OnEditValueChanging(ChangingEventArgs e)
+   at DevExpress.XtraEditors.LookUpEdit.OnEditValueChanging(ChangingEventArgs e)
+   at DevExpress.XtraEditors.BaseEdit.set_EditValue(Object value)
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2015-03-03 10:29:44,627 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,628 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,648 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,651 ERROR [7284] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.ArchorQueryAccount(Object sender)
+   at BrokerScreen.BrokerScreen.lueLoanTabAccount_EditValueChanged(Object sender, EventArgs e)
+   at DevExpress.XtraEditors.Repository.RepositoryItem.RaiseEditValueChangedCore(EventArgs e)
+   at DevExpress.XtraEditors.Repository.RepositoryItem.RaiseEditValueChanged(EventArgs e)
+   at DevExpress.XtraEditors.BaseEdit.RaiseEditValueChanged()
+   at DevExpress.XtraEditors.BaseEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.TextEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.LookUpEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.BaseEdit.OnEditValueChanging(ChangingEventArgs e)
+   at DevExpress.XtraEditors.LookUpEdit.OnEditValueChanging(ChangingEventArgs e)
+   at DevExpress.XtraEditors.BaseEdit.set_EditValue(Object value)
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2015-03-03 10:29:44,654 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,656 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,674 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,677 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,678 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,695 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,698 DEBUG [7284] ::GetSignatureAsynchronous:: 022C500004 BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,757 DEBUG [7284] ::GetDataByCustodyCode:: PreviousCustodyCode 022C500004, CurrentCustodyCode 022C500004  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,757 DEBUG [7284] ::GetCustomerInformationAsynchronous:: Module BOData - Function BD_CUSTOMER_INFO_BY_CUSTODY_CODE - Parameter count [MODULE,FUNCTION,CUSTODYCD,][BOData,BD_CUSTOMER_INFO_BY_CUSTODY_CODE,022C500004,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,758 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,759 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,845 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,870 DEBUG [7284] ::lueSubAccount_EditValueChanged:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,870 DEBUG [7284] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000007,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,871 INFO  [7284] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500004,0077000007,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,872 DEBUG [7284] ::GetDataByCustodyCode:: ActionFlag , CurrentAccount 0077000007  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,873 DEBUG [7284] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000007,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,874 INFO  [7284] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500004,0077000007,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,875 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:44,875 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:45,202 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:45,204 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:45,204 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:45,225 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:45,239 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:45,240 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:45,258 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:45,260 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:45,260 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:45,279 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:45,281 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:45,281 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:45,298 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:45,300 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:45,301 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:45,319 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:45,320 DEBUG [7284] ::GetSignatureAsynchronous:: 022C500004 BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:45,369 ERROR [7284] ::ShowAccountInfomation:: BrokerScreen.BrokerScreen [(null)] - 
+System.IndexOutOfRangeException: Cannot find table 0.
+   at System.Data.DataTableCollection.get_Item(Int32 index)
+   at BrokerScreen.BrokerScreen.ShowAccountInfomation()
+2015-03-03 10:29:45,384 ERROR [7284] ::ShowCustomerAuthorized:: BrokerScreen.BrokerScreen [(null)] - 
+System.IndexOutOfRangeException: Cannot find table 0.
+   at System.Data.DataTableCollection.get_Item(Int32 index)
+   at BrokerScreen.BrokerScreen.ShowCustomerAuthorized()
+2015-03-03 10:29:48,183 DEBUG [7284] ::lueSubAccount_EditValueChanged:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:48,184 DEBUG [7284] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000005,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:48,186 INFO  [7284] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500004,0077000005,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:51,708 DEBUG [5908] ::GetOrdersByUser:: Module BOData - Function BD_SP_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,p_tlname,p_rowPerPage,p_page,][BOData,BD_SP_GET_ORDERS_BY_USER,1149,1000,0,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:51,734 DEBUG [5908] ::GetAllOrders:: page 0 BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:51,753 DEBUG [7284] ::GetOrdersByUserFromCache:: SET DATASOURCE FOR GRID CONTROL ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:51,808 DEBUG [7284] ::GetOrdersByUserFromCache:: Update grid orders by 1149 BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:51,809 DEBUG [7284] ::UpdateSequence:: PREV SEQUENCE 01/01/2012 BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:51,810 DEBUG [7284] ::UpdateSequence:: LAST SEQUENCE 2015/03/03 09:18:59.015019000 BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:51,811 DEBUG [5908] ::UpdateSequence:: PREV SEQUENCE 2015/03/03 09:18:59.015019000 BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:51,812 DEBUG [5908] ::UpdateSequence:: LAST SEQUENCE 2015/03/03 09:18:59.015019000 BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:51,814 DEBUG [5908] ::GetAllOrders:: End of order list BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:51,816 DEBUG [5908] ::OrderTimerElappsed:: GET ALL ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:53,128 DEBUG [6304] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:53,154 DEBUG [6304] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:54,627 DEBUG [6304] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:54,650 DEBUG [6304] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:56,935 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:56,936 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:56,957 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:57,632 DEBUG [6304] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:57,667 DEBUG [6304] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:59,132 DEBUG [5908] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:59,154 DEBUG [5908] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:59,901 DEBUG [7284] ::lueSubAccount_EditValueChanged:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:59,902 DEBUG [7284] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000007,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:29:59,902 INFO  [7284] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500004,0077000007,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:00,632 DEBUG [5908] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:00,655 DEBUG [5908] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:02,132 DEBUG [5908] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:02,154 DEBUG [5908] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:03,632 DEBUG [6304] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:03,653 DEBUG [6304] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:05,132 DEBUG [5908] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:05,154 DEBUG [5908] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:06,628 DEBUG [5908] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:06,649 DEBUG [5908] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:08,132 DEBUG [6304] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:08,154 DEBUG [6304] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:09,632 DEBUG [5908] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:09,653 DEBUG [5908] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:11,132 DEBUG [6304] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:11,154 DEBUG [6304] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:12,632 DEBUG [5908] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:12,653 DEBUG [5908] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:14,132 DEBUG [5908] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:14,153 DEBUG [5908] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:15,632 DEBUG [6304] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:15,655 DEBUG [6304] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:16,067 DEBUG [7284] ::lueSubAccount_EditValueChanged:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:16,067 DEBUG [7284] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000006,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:16,068 INFO  [7284] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500004,0077000006,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:17,132 DEBUG [5908] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:17,159 DEBUG [5908] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:18,633 DEBUG [6304] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:18,655 DEBUG [6304] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:20,133 DEBUG [5908] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:20,153 DEBUG [5908] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:20,533 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:20,534 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:20,553 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:21,466 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:21,467 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:21,485 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:21,633 DEBUG [6304] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:21,653 DEBUG [6304] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:22,000 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:22,000 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:22,018 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:22,432 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:22,433 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:22,450 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:23,172 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:23,173 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:23,192 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:23,238 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:23,238 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:23,256 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:23,376 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:23,377 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:23,394 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:24,179 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:24,179 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:24,199 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:24,319 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:24,319 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:24,336 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:25,606 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:25,607 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:25,626 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:26,128 DEBUG [5908] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:26,148 DEBUG [5908] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:27,259 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:27,260 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:27,284 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:29,706 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:29,707 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:29,727 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:29,847 DEBUG [7284] ::GetOrdersByUserCareBy:: Module BOData - Function BD_GET_ORDERS_BY_CAREBY - Parameter count [MODULE,FUNCTION,TXDATE,TLID,CUSTODYCD,AFACCTNO,EXECTYPE,SYMBOL,][BOData,BD_GET_ORDERS_BY_CAREBY,1,0141,022C500004,0077000007,%%,%%,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:32,438 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:32,438 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:32,457 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:33,444 DEBUG [7284] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500004,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:33,445 DEBUG [7284] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:33,464 DEBUG [7284] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:33,606 DEBUG [7284] ::GetPortfolios:: Module BOData - Function BD_GET_PORTFOLIO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_PORTFOLIO,022C500004,0077000007,%%,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:36,628 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:30:36,631 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:31:36,628 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:31:36,628 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:32:36,628 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:32:36,629 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:33:36,630 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:33:36,630 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:34:36,633 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:34:36,633 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:35:36,634 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:35:36,634 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:36:36,634 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:36:36,634 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:37:36,634 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:37:36,634 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:38:36,636 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:38:36,636 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:39:36,639 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:39:36,639 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:40:36,625 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:40:36,625 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:41:36,626 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:41:36,626 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:42:36,627 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:42:36,628 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:43:36,629 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:43:36,629 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:44:36,631 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:44:36,632 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:45:36,638 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:45:36,638 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:46:36,639 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:46:36,639 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:47:36,640 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:47:36,641 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:48:36,641 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:48:36,643 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:49:36,642 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:49:36,643 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:50:36,643 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:50:36,643 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:51:36,643 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:51:36,643 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:52:36,643 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:52:36,643 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:53:36,644 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:53:36,645 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:54:36,648 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:54:36,649 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:55:36,649 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:55:36,649 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:56:36,650 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:56:36,651 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:57:36,652 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:57:36,652 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:58:36,653 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:58:36,654 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:59:36,655 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 10:59:36,660 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:00:36,640 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:00:36,641 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:01:36,641 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:01:36,643 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:02:36,641 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:02:36,642 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:03:36,642 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:03:36,643 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:05:36,644 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:05:36,645 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:06:36,644 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:06:36,645 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:07:36,644 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:07:36,645 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:08:36,645 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:08:36,645 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:09:36,647 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:09:36,647 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:10:36,648 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:10:36,648 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:11:36,648 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:11:36,648 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:12:36,648 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:12:36,648 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:13:36,649 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:13:36,650 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:14:36,650 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:14:36,650 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:15:36,653 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:15:36,654 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:16:36,653 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:16:36,653 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:17:36,654 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:17:36,654 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:18:36,655 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:18:36,655 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:19:36,642 INFO  [5908] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:19:36,643 DEBUG [5908] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:23,160 DEBUG [6304] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:23,243 DEBUG [6304] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:24,441 DEBUG [7284] ::GetSummaryMatchingInfoBySymbol:: Module BOData - Function BD_GET_MATCHED_ORDER_SUMMARY_BY_SYMBOL - Parameter count [MODULE,FUNCTION,AFACCTNO,SYMBOL,DAY,][BOData,BD_GET_MATCHED_ORDER_SUMMARY_BY_SYMBOL,0077000009,ACB,1,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:24,659 DEBUG [5908] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:24,681 DEBUG [5908] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:26,159 DEBUG [6304] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:26,179 DEBUG [6304] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:27,659 DEBUG [5908] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:27,683 DEBUG [5908] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:29,159 DEBUG [5908] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:29,180 DEBUG [5908] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:30,659 DEBUG [6304] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:30,679 DEBUG [6304] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:32,159 DEBUG [5908] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:32,182 DEBUG [5908] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:33,659 DEBUG [6304] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:33,688 DEBUG [6304] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:34,290 DEBUG [7284] ::lueSubAccount_EditValueChanged:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:34,291 DEBUG [7284] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000007,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:34,291 INFO  [7284] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500004,0077000007,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:35,159 DEBUG [6304] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:35,179 DEBUG [6304] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:36,643 INFO  [6304] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:36,645 DEBUG [6304] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:36,660 DEBUG [5908] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:36,683 DEBUG [5908] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:38,160 DEBUG [6304] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:38,183 DEBUG [6304] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:39,660 DEBUG [6304] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:39,687 DEBUG [6304] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:41,160 DEBUG [5908] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:41,183 DEBUG [5908] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:42,660 DEBUG [5908] ::GetUpdateOrders:: Module BOData - Function BD_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,TLNAME,SCN,][BOData,BD_GET_ORDERS_BY_USER,1149,2015/03/03 09:18:59.015019000,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-03 11:20:42,711 DEBUG [5908] ::OrderTimerElappsed:: GET UPDATE ORDERS BrokerScreen.BrokerScreen [(null)] - 

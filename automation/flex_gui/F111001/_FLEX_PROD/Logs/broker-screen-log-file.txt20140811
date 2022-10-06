@@ -1,0 +1,135 @@
+﻿2014-06-12 13:14:15,368 INFO  [5112] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:14:15,400 DEBUG [4104] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:14:15,571 DEBUG [5112] ::GetAllSymbolShortList:: Get all symbol list at 12/06/2014 1:14:15 CH BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:14:15,665 DEBUG [5112] ::GetAllDefErrorAsync:: Get all error define at 12/06/2014 1:14:15 CH BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:14:15,915 ERROR [5112] ::GetLookUpEditSymbol:: BrokerScreen.BrokerScreen [(null)] - 
+System.IndexOutOfRangeException: Cannot find table 0.
+   at System.Data.DataTableCollection.get_Item(Int32 index)
+   at BrokerScreen.BrokerScreen.GetLookUpEditSymbol()
+2014-06-12 13:14:15,925 ERROR [5112] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2014-06-12 13:14:15,979 DEBUG [5112] ::GetSignatureAsynchronous::  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:14:15,985 DEBUG [5112] ::InitializeTimer:: 1:14 CH BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:14:16,021 DEBUG [5112] ::GetTradePolicy:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,TELLERID,LEADERID,ADMINID,][BOData,BD_TRADER_POLICY_GETALL,0001,0001,0001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:14:16,021 DEBUG [5112] ::GetTradePolicy:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:14:19,104 DEBUG [5112] ::GetTradePolicy:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:15:15,995 INFO  [4604] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:15:15,996 DEBUG [4104] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:15:59,009 INFO  [5112] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:15:59,010 DEBUG [4604] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:15:59,017 DEBUG [5112] ::GetAllSymbolShortList:: Get all symbol list at 12/06/2014 1:15:59 CH BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:15:59,019 DEBUG [5112] ::GetAllDefErrorAsync:: Get all error define at 12/06/2014 1:15:59 CH BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:15:59,045 ERROR [5112] ::GetLookUpEditSymbol:: BrokerScreen.BrokerScreen [(null)] - 
+System.IndexOutOfRangeException: Cannot find table 0.
+   at System.Data.DataTableCollection.get_Item(Int32 index)
+   at BrokerScreen.BrokerScreen.GetLookUpEditSymbol()
+2014-06-12 13:15:59,048 ERROR [5112] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2014-06-12 13:15:59,049 DEBUG [5112] ::GetSignatureAsynchronous::  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:15:59,050 DEBUG [5112] ::InitializeTimer:: 1:15 CH BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:15:59,059 DEBUG [5112] ::GetTradePolicy:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,TELLERID,LEADERID,ADMINID,][BOData,BD_TRADER_POLICY_GETALL,0001,0001,0001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:15:59,059 DEBUG [5112] ::GetTradePolicy:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:02,173 DEBUG [5112] ::GetTradePolicy:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,072 DEBUG [5112] ::GetDataByCustodyCode:: PreviousCustodyCode , CurrentCustodyCode 002C136012  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,074 DEBUG [5112] ::GetCustomerInformationAsynchronous:: Module BOData - Function BD_CUSTOMER_INFO_BY_CUSTODY_CODE - Parameter count [MODULE,FUNCTION,CUSTODYCD,][BOData,BD_CUSTOMER_INFO_BY_CUSTODY_CODE,002C136012,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,079 DEBUG [5112] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,002C136012,0001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,079 DEBUG [5112] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,149 DEBUG [5112] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,161 DEBUG [5112] ::lueSubAccount_EditValueChanged:: BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,163 DEBUG [5112] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0001000028,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,165 INFO  [5112] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,002C136012,0001000028,0001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,182 DEBUG [5112] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,002C136012,0001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,182 DEBUG [5112] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,216 DEBUG [5112] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,223 ERROR [5112] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.ArchorQueryAccount(Object sender)
+   at BrokerScreen.BrokerScreen.lueQueryOrderAccount_EditValueChanged(Object sender, EventArgs e)
+   at DevExpress.XtraEditors.Repository.RepositoryItem.RaiseEditValueChangedCore(EventArgs e)
+   at DevExpress.XtraEditors.TextEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.PopupBaseAutoSearchEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.LookUpEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.BaseEdit.OnEditValueChanging(ChangingEventArgs e)
+   at DevExpress.XtraEditors.LookUpEdit.OnEditValueChanging(ChangingEventArgs e)
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2014-06-12 13:16:07,226 DEBUG [5112] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,002C136012,0001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,226 DEBUG [5112] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,245 DEBUG [5112] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,250 DEBUG [5112] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,002C136012,0001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,250 DEBUG [5112] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,276 DEBUG [5112] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,282 ERROR [5112] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.ArchorQueryAccount(Object sender)
+   at BrokerScreen.BrokerScreen.lueCashTabAccount_EditValueChanged(Object sender, EventArgs e)
+   at DevExpress.XtraEditors.Repository.RepositoryItem.RaiseEditValueChangedCore(EventArgs e)
+   at DevExpress.XtraEditors.TextEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.PopupBaseAutoSearchEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.LookUpEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.BaseEdit.OnEditValueChanging(ChangingEventArgs e)
+   at DevExpress.XtraEditors.LookUpEdit.OnEditValueChanging(ChangingEventArgs e)
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2014-06-12 13:16:07,283 DEBUG [5112] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,002C136012,0001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,283 DEBUG [5112] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,299 DEBUG [5112] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,306 ERROR [5112] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.ArchorQueryAccount(Object sender)
+   at BrokerScreen.BrokerScreen.lueLoanTabAccount_EditValueChanged(Object sender, EventArgs e)
+   at DevExpress.XtraEditors.Repository.RepositoryItem.RaiseEditValueChangedCore(EventArgs e)
+   at DevExpress.XtraEditors.TextEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.PopupBaseAutoSearchEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.LookUpEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.BaseEdit.OnEditValueChanging(ChangingEventArgs e)
+   at DevExpress.XtraEditors.LookUpEdit.OnEditValueChanging(ChangingEventArgs e)
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2014-06-12 13:16:07,307 DEBUG [5112] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,002C136012,0001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,307 DEBUG [5112] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,325 DEBUG [5112] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,327 DEBUG [5112] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,002C136012,0001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,327 DEBUG [5112] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,354 DEBUG [5112] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:07,366 DEBUG [5112] ::GetSignatureAsynchronous:: 002C136012 BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:12,979 DEBUG [5112] ::GetStockInfoAsynchronous:: Symbol VNM - Parameter count [SYMBOL,][VNM,] BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:12,980 DEBUG [4104] ::ThreadGetStockInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:12,997 INFO  [5112] ::GetPpSeAsynchronous:: Parameter count [MODULE,FUNCTION,p_afacctno,p_symbol,p_quoteprice,p_via,][BOData,BD_SP_GET_PPSE,0001000028,VNM,115000,F,] BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:13,129 DEBUG [2564] ::GetPpSeCallback:: BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:13,134 DEBUG [5112] ::ShowPPSe:: BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:15,530 INFO  [5112] ::GetPpSeAsynchronous:: Parameter count [MODULE,FUNCTION,p_afacctno,p_symbol,p_quoteprice,p_via,][BOData,BD_SP_GET_PPSE,0001000028,VNM,1000000,F,] BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:15,559 DEBUG [2564] ::GetPpSeCallback:: BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:15,560 DEBUG [5112] ::ShowPPSe:: BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:20,618 INFO  [5112] ::GetPpSeAsynchronous:: Parameter count [MODULE,FUNCTION,p_afacctno,p_symbol,p_quoteprice,p_via,][BOData,BD_SP_GET_PPSE,0001000028,VNM,133000,F,] BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:20,659 DEBUG [2564] ::GetPpSeCallback:: BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:20,659 DEBUG [5112] ::ShowPPSe:: BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:23,268 DEBUG [5112] VNM trần 131000 - sàn 115000 BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:23,273 INFO  [5112] ::GetAllSymbolTickSize:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,][BOData,GET_ALL_SYMBOL_TICKSIZE,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:23,568 INFO  [5112] ::GetPpSe:: Parameter count [MODULE,FUNCTION,p_afacctno,p_symbol,p_quoteprice,p_via,][BOData,BD_SP_GET_PPSE,0001000028,VNM,123000,F,] BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:23,591 INFO  [5112] ::GetPpSeAsynchronous:: Parameter count [MODULE,FUNCTION,p_afacctno,p_symbol,p_quoteprice,p_via,][BOData,BD_SP_GET_PPSE,0001000028,VNM,123000,F,] BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:23,612 DEBUG [2564] ::GetPpSeCallback:: BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:23,612 DEBUG [5112] ::ShowPPSe:: BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:30,247 DEBUG [5112] VNM trần 131000 - sàn 115000 BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:30,256 DEBUG [5112] ::GetSecureRatio:: Module BOData - Function BD_GET_DEFICIT_AMOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,SYMBOL,EXECTYPE,PRICETYPE,TIMETYPE,QUOTEPRICE,ORDERQTTY,VIA,][BOData,BD_GET_DEFICIT_AMOUNT,0001000028,VNM,NB,LO,T,123000,4000,F,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:30,311 DEBUG [5112] ::CheckCustomerIsMemberOfIssuer:: Module BOData - Function BD_GET_ISSUER_RETRICT_CUSTOMER - Parameter count [MODULE,FUNCTION,CUSTODYCD,SYMBOL,][BOData,BD_GET_ISSUER_RETRICT_CUSTOMER,002C136012,VNM,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:30,353 DEBUG [5112] ::GetAllParameter:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,][BOData,BD_GET_ALL_PARAMETER,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:32,057 INFO  [5112] ::PlaceOrder:: Action PLACEORDER - Message [MODULE,FUNCTION,p_functionname,p_username,p_acctno,p_afacctno,p_exectype,p_symbol,p_quantity,p_quoteprice,p_pricetype,p_timetype,p_book,p_via,p_dealid,p_direct,p_effdate,p_expdate,p_tlid,p_quoteqtty,p_limitprice,p_err_code,p_err_message,][Orders,PLACEORDER,PLACEORDER,,,0001000028,NB,VNM,4000,123,LO,T,A,F,,Y,,,0001,0,0,,,] BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:36,568 DEBUG [4604] ::GetOrdersByUser:: Module BOData - Function BD_SP_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,p_tlname,p_rowPerPage,p_page,][BOData,BD_SP_GET_ORDERS_BY_USER,ADMIN,1000,0,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:36,625 DEBUG [4604] ::GetAllOrders:: page 0 BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:36,625 DEBUG [4604] ::OrderTimerElappsed:: GET ALL ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:37,744 DEBUG [5112] ::GetOrdersByUserFromCache:: Update grid orders by ADMIN BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:37,745 DEBUG [5112] ::UpdateSequence:: PREV SEQUENCE 01/01/2012 BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:37,745 DEBUG [5112] ::UpdateSequence:: LAST SEQUENCE 01/01/2012 BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:38,061 DEBUG [4104] ::GetOrdersByUser:: Module BOData - Function BD_SP_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,p_tlname,p_rowPerPage,p_page,][BOData,BD_SP_GET_ORDERS_BY_USER,ADMIN,1000,0,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:38,093 DEBUG [4104] ::GetAllOrders:: page 0 BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:38,093 DEBUG [4104] ::OrderTimerElappsed:: GET ALL ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:39,561 DEBUG [4104] ::GetOrdersByUser:: Module BOData - Function BD_SP_GET_ORDERS_BY_USER - Parameter count [MODULE,FUNCTION,p_tlname,p_rowPerPage,p_page,][BOData,BD_SP_GET_ORDERS_BY_USER,ADMIN,1000,0,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:39,600 DEBUG [4104] ::GetAllOrders:: page 0 BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:39,601 DEBUG [5112] ::GetOrdersByUserFromCache:: SET DATASOURCE FOR GRID CONTROL ORDERS BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:39,658 DEBUG [5112] ::GetOrdersByUserFromCache:: Update grid orders by ADMIN BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:39,658 DEBUG [5112] ::UpdateSequence:: PREV SEQUENCE 01/01/2012 BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:39,658 DEBUG [5112] ::UpdateSequence:: LAST SEQUENCE 2014/06/12 13:16:42.457437000 BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:39,658 DEBUG [4104] ::UpdateSequence:: PREV SEQUENCE 2014/06/12 13:16:42.457437000 BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:39,658 DEBUG [4104] ::UpdateSequence:: LAST SEQUENCE 2014/06/12 13:16:42.457437000 BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:39,658 DEBUG [4104] ::GetAllOrders:: End of order list BrokerScreen.BrokerScreen [(null)] - 
+2014-06-12 13:16:39,659 DEBUG [4104] ::OrderTimerElappsed:: GET ALL ORDERS BrokerScreen.BrokerScreen [(null)] - 

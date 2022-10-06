@@ -8,14 +8,19 @@ import datetime as dt
 import unidecode
 from automation.flex_gui.base import Flex, setFocus
 from pywinauto.application import Application
-from datawarehouse.DWH_CoSo import SYNC
-from datawarehouse import BDATE
 import cv2 as cv
 import logging
 import traceback
 import pyodbc
 import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r'C:\Users\namtran\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'../../tesseract/tesseract.exe'
+
+from datawarehouse.DWH_CoSo import SYNC
+from datawarehouse import BDATE
+
+# # when run on dev mode
+# import os
+# os.chdir(r"C:\Users\hiepdang\PycharmProjects\DataAnalytics\automation\flex_gui\VCI1104\dist\VCI1104")
 
 # DWH-Base Database Information
 driver_DWH_CoSo = '{SQL Server}'
@@ -35,7 +40,10 @@ class VCI1104(Flex):
         super().__init__()
         self.start(existing=False) # Tạo Flex instance mới
         self.login(username,password)
-        self.insertFuncCode(self.__class__.__name__)
+        self.insertFuncCode('VCI1104')
+        self.funcWindow = self.app.window(title_re=r'\b.*1104.*\b')
+        self.funcWindow.wait('exists',timeout=10)
+        self.funcWindow.maximize()
         self.dataWindow = None
 
     def pushCashOutOrders(self):
@@ -289,10 +297,12 @@ class VCI1104(Flex):
             fileNameBox = saveFileWindow.child_window(class_name='ComboBox',found_index=0)
             fileNameBox.click_input()
             fileNameBox.type_keys('^a{DELETE}')
-            fileNameBox.type_keys(fr'\\192.168.8.63\Finance\UyNhiemChi\{fileName}.xls',with_spaces=True)
-            while fileNameBox.exists(timeout=1,retry_interval=0.5):
-                fileNameBox.type_keys('{ENTER}')
-            # Enter to save
+            savedFolder = r'C:\Users\Roger\Data\UyNhiemChi'
+            fileNameBox.type_keys(fr'{savedFolder}\{fileName}.xls',with_spaces=True) # lưu ổ tài chính
+            saveButton = saveFileWindow.child_window(title='&Save')
+            # Click "Save"
+            while saveButton.exists(timeout=1,retry_interval=0.5):
+                saveButton.click_input()
             # Click "Ok" (Export Complete)
             confirmWindow = self.app.window(title='Export Report')
             confirmWindow.wait('exists',timeout=30)
@@ -404,21 +414,24 @@ class VCI1104(Flex):
         self.app.kill(soft=False) # chạy xong tự động đóng đóng app
 
 
-# if __name__ == '__main__':
-#     try:
-#         flexObject = VCI1104('admin','123456')
-#         flexObject.pushCashOutOrders()
-#     except (Exception,): # để debug
-#         print(traceback.format_exc())
-#         input('Press any key to quit: ')
-#         try: # Khi cửa sổ Flex còn mở
-#             app = Application().connect(title_re='^\.::.*Flex.*',timeout=10)
-#             app.kill()
-#         except (Exception,): # Khi cửa sổ Flex đã đóng sẵn
-#             pass
+if __name__ == '__main__':
+    try:
+        flexObject = VCI1104('1950','ER45BY27')
+        flexObject.pushCashOutOrders()
+    except (Exception,): # để debug
+        print(traceback.format_exc())
+        input('Press any key to quit: ')
+        try: # Khi cửa sổ Flex còn mở
+            app = Application().connect(title_re='^\.::.*Flex.*',timeout=10)
+            app.kill()
+        except (Exception,): # Khi cửa sổ Flex đã đóng sẵn
+            pass
 
 r"""
 command to bundle files:
+cd C:\Users\hiepdang\PycharmProjects\DataAnalytics\automation\flex_gui\VCI1104\venv_vci1101\Scripts
+activate
+cd ../..
 pyinstaller command.py -D -p C:\Users\hiepdang\PycharmProjects\DataAnalytics -n VCI1104 --add-data Select.PNG;. --add-data SoTaiKhoanLuuKy.PNG;.
 """
 

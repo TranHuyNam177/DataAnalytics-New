@@ -6,9 +6,6 @@ from typing import Union
 import unidecode
 
 
-###############################################################################
-
-
 def trytoint(obj):
     """
     This function tries to convert an arbitrary object to integer

@@ -1,0 +1,16 @@
+﻿2015-03-07 10:32:55,126 INFO  [4768] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-07 10:32:55,234 DEBUG [4356] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-07 10:32:56,300 DEBUG [4768] ::GetAllSymbolShortList:: Get all symbol list at 07/03/2015 10:32:56 SA BrokerScreen.BrokerScreen [(null)] - 
+2015-03-07 10:32:57,123 DEBUG [4768] ::GetAllDefErrorAsync:: Get all error define at 07/03/2015 10:32:57 SA BrokerScreen.BrokerScreen [(null)] - 
+2015-03-07 10:32:57,990 ERROR [4768] ::GetLookUpEditSymbol:: BrokerScreen.BrokerScreen [(null)] - 
+System.IndexOutOfRangeException: Cannot find table 0.
+   at System.Data.DataTableCollection.get_Item(Int32 index)
+   at BrokerScreen.BrokerScreen.GetLookUpEditSymbol()
+2015-03-07 10:32:58,055 ERROR [4768] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2015-03-07 10:32:58,227 DEBUG [4768] ::GetSignatureAsynchronous::  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-07 10:32:58,341 DEBUG [4768] ::InitializeTimer:: 10:32 SA BrokerScreen.BrokerScreen [(null)] - 
+2015-03-07 10:32:58,500 DEBUG [4768] ::GetTradePolicy:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,TELLERID,LEADERID,ADMINID,][BOData,BD_TRADER_POLICY_GETALL,0001,0001,0001,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-07 10:32:58,500 DEBUG [4768] ::GetTradePolicy:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-07 10:32:58,532 DEBUG [4768] ::GetTradePolicy:: Received data BrokerScreen.BrokerScreen [(null)] - 

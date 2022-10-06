@@ -1,11 +1,22 @@
+from os.path import join, dirname, realpath
+import pandas as pd
 import time
 
-from request.stock import *
+from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import ElementNotInteractableException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
+
 
 def run(
     hide_window=True
 ) -> pd.DataFrame:
-
 
     PATH = join(dirname(dirname(realpath(__file__))),'dependency','chromedriver')
     ignored_exceptions = (

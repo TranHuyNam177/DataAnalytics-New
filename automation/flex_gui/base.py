@@ -1,5 +1,6 @@
 import os
-import re
+import time
+
 import pywintypes
 import pywinauto.timings
 from pywinauto.application import Application
@@ -20,13 +21,15 @@ class Flex:
         self.password = None
 
     def start(self,existing:bool,**kwargs):
-        os.chdir(r'../../FLEX_UAT_7_4.107') # cd vào FLEX_UAT
+        cwd = os.getcwd()
+        os.chdir(r'../../FLEX_PROD') # cd vào FLEX_PROD
         if existing:
             self.app = self.app.connect(title_re='^\.::.*Flex.*',**kwargs)
         else:
             self.app = self.app.start(cmd_line='@DIRECT.exe')
         self.mainWindow = self.app.window(title_re='.*Flex.*')
         self.loginWindow = self.app.window(title='Login')
+        os.chdir(cwd)
 
     def login( # tested
         self,
@@ -81,12 +84,13 @@ class Flex:
         xLoc = np.median(locTuple[1]).astype(np.uint8)
         funcBox.click_input(coords=(xLoc,yLoc))
         funcBox.type_keys('^a{DELETE}')
-        funcBox.type_keys(funcCode.replace('func', '')+'{ENTER}')
-        if not re.search(r'\d+', funcCode):
-            self.funcWindow = self.app.window(title_re=f".*{re.sub('[A-Z]*', '', funcCode)}.*")
-        else:
-            self.funcWindow = self.app.window(title_re=f".*Thông tin khách hàng.*")
-        self.funcWindow.maximize()
+        beforeWindowSet = set(self.app.windows())
+        funcBox.type_keys(funcCode+'{ENTER}')
+        while True: # chờ cửa số mới
+            afterWindowSet = set(self.app.windows())
+            if len(afterWindowSet) > len(beforeWindowSet):
+                break
+            time.sleep(0.5)
         self.setFuncCode(funcCode)
 
     def exitAllWindows(self):

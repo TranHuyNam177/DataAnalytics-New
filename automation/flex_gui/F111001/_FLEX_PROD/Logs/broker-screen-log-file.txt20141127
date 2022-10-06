@@ -1,0 +1,20 @@
+﻿2014-11-27 16:25:43,910 INFO  [10432] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-11-27 16:25:43,948 DEBUG [5956] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-11-27 16:25:44,050 DEBUG [10432] ::GetAllSymbolShortList:: Get all symbol list at 27/11/2014 4:25:44 CH BrokerScreen.BrokerScreen [(null)] - 
+2014-11-27 16:25:46,752 DEBUG [10432] ::GetAllDefErrorAsync:: Get all error define at 27/11/2014 4:25:46 CH BrokerScreen.BrokerScreen [(null)] - 
+2014-11-27 16:25:46,959 ERROR [10432] ::GetLookUpEditSymbol:: BrokerScreen.BrokerScreen [(null)] - 
+System.IndexOutOfRangeException: Cannot find table 0.
+   at System.Data.DataTableCollection.get_Item(Int32 index)
+   at BrokerScreen.BrokerScreen.GetLookUpEditSymbol()
+2014-11-27 16:25:46,965 ERROR [10432] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2014-11-27 16:25:47,015 DEBUG [10432] ::GetSignatureAsynchronous::  BrokerScreen.BrokerScreen [(null)] - 
+2014-11-27 16:25:47,047 DEBUG [10432] ::InitializeTimer:: 4:25 CH BrokerScreen.BrokerScreen [(null)] - 
+2014-11-27 16:25:47,089 DEBUG [10432] ::GetTradePolicy:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,TELLERID,LEADERID,ADMINID,][BOData,BD_TRADER_POLICY_GETALL,0001,0001,0001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-11-27 16:25:47,089 DEBUG [10432] ::GetTradePolicy:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-11-27 16:25:48,522 DEBUG [10432] ::GetTradePolicy:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-11-27 16:26:00,197 DEBUG [10432] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C100014,0001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-11-27 16:26:00,197 DEBUG [10432] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-11-27 16:26:00,222 DEBUG [10432] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-11-27 16:26:01,367 DEBUG [10432] ::GetPortfolios:: Module BOData - Function BD_GET_PORTFOLIO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_PORTFOLIO,022C100014,0001000014,%%,]  BrokerScreen.BrokerScreen [(null)] - 

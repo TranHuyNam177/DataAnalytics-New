@@ -260,16 +260,16 @@ def run(
     worksheet.write_row('C12',[None]*12,value_format)
     dvt = 'mil'
     if dvt=='bil':
-        div = 1e9;
+        div = 1e9
         dvt_text = 'Đơn vị tính: tỷ đồng'
     elif dvt=='mil':
-        div = 1e6;
+        div = 1e6
         dvt_text = 'Đơn vị tính: triệu đồng'
     elif dvt=='k':
-        div = 1e3;
+        div = 1e3
         dvt_text = 'Đơn vị tính: nghìn đồng'
     elif dvt=='unit':
-        div = 1;
+        div = 1
         dvt_text = 'Đơn vị tính: đồng'
     else:
         raise ValueError("dvt must be either 'bil', 'mil', 'k', 'unit'")

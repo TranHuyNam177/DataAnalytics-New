@@ -21,7 +21,7 @@ TableNames_RMD = pd.read_sql(
     connect_RMD,
 )
 
-# # DWH-Base Database Information
+# DWH-Base Database Information
 # driver_DWH_Base = '{SQL Server}'
 # server_DWH_Base = 'SRV-RPT'
 # db_DWH_Base = 'DWH-Base'

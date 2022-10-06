@@ -7,7 +7,6 @@ import datetime as dt
 from datawarehouse import SYNC, BDATE, connect_DWH_CoSo
 from automation.risk_management import dept_folder, get_info
 
-
 def generateTempData():
 
     """
@@ -254,9 +253,9 @@ def run(
     worksheet.set_column('E:F',20)
     worksheet.set_column('G:R',14)
 
-    def NaN2NA(worksheet,row,col,number,format_=None):
+    def NaN2NA(work_sheet,row,col,number,format_=None):
         if number != number: # np.NaN
-            return worksheet.write(row,col,'#N/A',format_)
+            return work_sheet.write(row,col,'#N/A',format_)
     worksheet.add_write_handler(float,NaN2NA)
 
     worksheet.write_row('A1',header_1,header_1_format)

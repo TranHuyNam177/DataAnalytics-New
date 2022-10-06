@@ -1,0 +1,71 @@
+03/10/2022 1:33:47 PM -- UPDATE TIME:03/10/2022 1:33:47 PM
+03/10/2022 1:33:47 PM -- Starting Online-Update  version 1.0.0.1
+03/10/2022 1:33:47 PM -- OS:      Microsoft Windows NT 6.2.9200.0
+03/10/2022 1:33:47 PM -- Machine: RM-DT-DVHIEP.PHS
+03/10/2022 1:33:47 PM -- User:    hiepdang
+03/10/2022 1:33:47 PM -- Waiting for Parent-Application to exit ( 1sec )...
+03/10/2022 1:33:48 PM -- Killing Process after waiting
+03/10/2022 1:33:48 PM -- Begin clearAttributes
+03/10/2022 1:33:48 PM -- Begin clearAttributes with path: C:\Users\hiepdang\PycharmProjects\DataAnalytics\automation\flex_gui\F111001\FLEX_PROD
+03/10/2022 1:33:48 PM -- Begin remove FileAttributes.ReadOnly
+03/10/2022 1:33:48 PM -- ...
+03/10/2022 1:33:48 PM -- End remove FileAttributes.ReadOnly
+03/10/2022 1:33:48 PM -- Begin Add Full Permission
+03/10/2022 1:33:48 PM -- End Add Full Permission
+03/10/2022 1:33:48 PM -- Downloading... 
+03/10/2022 1:33:48 PM -- Update Path: http://192.168.10.111/Deployment/Report/rpt.6705090.0033.zip
+03/10/2022 1:33:48 PM -- done in 0.204 seconds
+
+03/10/2022 1:33:48 PM -- unpacking ...
+03/10/2022 1:33:48 PM -- unpacking ... x.Name:REPORTS/
+03/10/2022 1:33:48 PM -- Create temp directory: C:\Users\hiepdang\AppData\Local\Temp\dir1622556796\REPORTS
+03/10/2022 1:33:48 PM -- unpacking ... Copy file:1
+03/10/2022 1:33:48 PM -- unpacking ... Copy file:
+03/10/2022 1:33:48 PM -- unpacking ... x.Name:REPORTS/CF2001.rpt
+03/10/2022 1:33:48 PM -- unpacking ... Copy file:1
+03/10/2022 1:33:48 PM -- unpacking ... Copy file:CF2001.rpt
+03/10/2022 1:33:48 PM -- Stream: CF2001.rpt
+03/10/2022 1:33:48 PM -- unpacking ... x.Name:REPORTS/OD0001.rpt
+03/10/2022 1:33:48 PM -- unpacking ... Copy file:1
+03/10/2022 1:33:48 PM -- unpacking ... Copy file:OD0001.rpt
+03/10/2022 1:33:48 PM -- Stream: OD0001.rpt
+03/10/2022 1:33:48 PM -- unpacking ... x.Name:REPORTS/OD0001_1.rpt
+03/10/2022 1:33:48 PM -- unpacking ... Copy file:1
+03/10/2022 1:33:48 PM -- unpacking ... Copy file:OD0001_1.rpt
+03/10/2022 1:33:48 PM -- Stream: OD0001_1.rpt
+03/10/2022 1:33:48 PM -- unpacking ... x.Name:REPORTS/SE0008.rpt
+03/10/2022 1:33:48 PM -- unpacking ... Copy file:1
+03/10/2022 1:33:48 PM -- unpacking ... Copy file:SE0008.rpt
+03/10/2022 1:33:48 PM -- Stream: SE0008.rpt
+03/10/2022 1:33:48 PM -- unpacking ... x.Name:REPORTS/SE0008_1.rpt
+03/10/2022 1:33:48 PM -- unpacking ... Copy file:1
+03/10/2022 1:33:48 PM -- unpacking ... Copy file:SE0008_1.rpt
+03/10/2022 1:33:48 PM -- Stream: SE0008_1.rpt
+03/10/2022 1:33:48 PM -- unpacking ... x.Name:REPORTS/SE0094.rpt
+03/10/2022 1:33:48 PM -- unpacking ... Copy file:1
+03/10/2022 1:33:48 PM -- unpacking ... Copy file:SE0094.rpt
+03/10/2022 1:33:48 PM -- Stream: SE0094.rpt
+03/10/2022 1:33:48 PM -- unpacking ... x.Name:REPORTS/SE0094_1.rpt
+03/10/2022 1:33:48 PM -- unpacking ... Copy file:1
+03/10/2022 1:33:48 PM -- unpacking ... Copy file:SE0094_1.rpt
+03/10/2022 1:33:48 PM -- Stream: SE0094_1.rpt
+03/10/2022 1:33:48 PM -- unpacking ... x.Name:REPORTS/SE0095.rpt
+03/10/2022 1:33:48 PM -- unpacking ... Copy file:1
+03/10/2022 1:33:48 PM -- unpacking ... Copy file:SE0095.rpt
+03/10/2022 1:33:49 PM -- Stream: SE0095.rpt
+Unpacked.03/10/2022 1:33:49 PM -- unpacked to C:\Users\hiepdang\AppData\Local\Temp\dir1622556796
+03/10/2022 1:33:49 PM -- copying files ...
+03/10/2022 1:33:49 PM -- Update report:
+03/10/2022 1:33:49 PM -- Update Report Directory
+03/10/2022 1:33:49 PM -- List File in folder C:\Users\hiepdang\PycharmProjects\DataAnalytics\automation\flex_gui\F111001\FLEX_PROD\REPORTS Update: CF2001.rpt
+03/10/2022 1:33:49 PM -- List File in folder C:\Users\hiepdang\PycharmProjects\DataAnalytics\automation\flex_gui\F111001\FLEX_PROD\REPORTS Update: OD0001.rpt
+03/10/2022 1:33:49 PM -- List File in folder C:\Users\hiepdang\PycharmProjects\DataAnalytics\automation\flex_gui\F111001\FLEX_PROD\REPORTS Update: OD0001_1.rpt
+03/10/2022 1:33:49 PM -- List File in folder C:\Users\hiepdang\PycharmProjects\DataAnalytics\automation\flex_gui\F111001\FLEX_PROD\REPORTS Update: SE0008.rpt
+03/10/2022 1:33:49 PM -- List File in folder C:\Users\hiepdang\PycharmProjects\DataAnalytics\automation\flex_gui\F111001\FLEX_PROD\REPORTS Update: SE0008_1.rpt
+03/10/2022 1:33:49 PM -- List File in folder C:\Users\hiepdang\PycharmProjects\DataAnalytics\automation\flex_gui\F111001\FLEX_PROD\REPORTS Update: SE0094.rpt
+03/10/2022 1:33:49 PM -- List File in folder C:\Users\hiepdang\PycharmProjects\DataAnalytics\automation\flex_gui\F111001\FLEX_PROD\REPORTS Update: SE0094_1.rpt
+03/10/2022 1:33:49 PM -- List File in folder C:\Users\hiepdang\PycharmProjects\DataAnalytics\automation\flex_gui\F111001\FLEX_PROD\REPORTS Update: SE0095.rpt
+03/10/2022 1:33:49 PM -- copied!
+03/10/2022 1:33:49 PM -- temp-files deleted
+Starting programme... started
+03/10/2022 1:33:49 PM -- Update successful and finished. Exiting Update-Process now.

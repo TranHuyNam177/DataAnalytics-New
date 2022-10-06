@@ -1,0 +1,19 @@
+﻿2016-08-28 22:03:19,258 INFO  [4220] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2016-08-28 22:03:19,353 DEBUG [4848] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2016-08-28 22:03:19,694 DEBUG [4220] ::GetAllSymbolShortList:: Get all symbol list at 28/08/2016 10:03:19 CH BrokerScreen.BrokerScreen [(null)] - 
+2016-08-28 22:03:20,399 DEBUG [4220] ::GetAllDefErrorAsync:: Get all error define at 28/08/2016 10:03:20 CH BrokerScreen.BrokerScreen [(null)] - 
+2016-08-28 22:03:20,690 ERROR [4220] ::GetLookUpEditSymbol:: BrokerScreen.BrokerScreen [(null)] - 
+System.IndexOutOfRangeException: Cannot find table 0.
+   at System.Data.DataTableCollection.get_Item(Int32 index)
+   at BrokerScreen.BrokerScreen.GetLookUpEditSymbol()
+2016-08-28 22:03:20,742 ERROR [4220] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2016-08-28 22:03:20,912 DEBUG [4220] ::GetSignatureAsynchronous::  BrokerScreen.BrokerScreen [(null)] - 
+2016-08-28 22:03:20,991 DEBUG [4220] ::InitializeTimer:: 10:03 CH BrokerScreen.BrokerScreen [(null)] - 
+2016-08-28 22:03:21,059 DEBUG [4220] ::GetTradePolicy:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,TELLERID,LEADERID,ADMINID,][BOData,BD_TRADER_POLICY_GETALL,7979,7979,7979,]  BrokerScreen.BrokerScreen [(null)] - 
+2016-08-28 22:03:21,059 DEBUG [4220] ::GetTradePolicy:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2016-08-28 22:03:22,999 DEBUG [4220] ::GetTradePolicy:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2016-08-28 22:03:23,083 INFO  [4220] ::GetDataFromSysvar:: Module BOData - Function GETDATAFROMSYSVAR - Parameter count [MODULE,FUNCTION,GRNAME,VARNAME,][BOData,GETDATAFROMSYSVAR,OD,CLEARDAY,]  BrokerScreen.BrokerScreen [(null)] - 
+2016-08-28 22:03:23,149 INFO  [4220] ::GetDataFromSysvar:: Module BOData - Function GETDATAFROMSYSVAR - Parameter count [MODULE,FUNCTION,GRNAME,VARNAME,][BOData,GETDATAFROMSYSVAR,OD,RCVSECTIME,]  BrokerScreen.BrokerScreen [(null)] - 
+2016-08-28 22:03:23,213 INFO  [4220] ::GetDataFromSysvar:: Module BOData - Function GETDATAFROMSYSVAR - Parameter count [MODULE,FUNCTION,GRNAME,VARNAME,][BOData,GETDATAFROMSYSVAR,OD,RCVCASHTIME,]  BrokerScreen.BrokerScreen [(null)] - 

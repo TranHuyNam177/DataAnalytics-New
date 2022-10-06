@@ -1,0 +1,153 @@
+﻿2015-03-02 09:33:59,123 INFO  [988] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:33:59,154 DEBUG [1208] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:33:59,216 DEBUG [988] ::GetAllSymbolShortList:: Get all symbol list at 02/03/2015 9:33:59 SA BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:34:00,818 DEBUG [988] ::GetAllDefErrorAsync:: Get all error define at 02/03/2015 9:34:00 SA BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:34:01,107 ERROR [988] ::GetLookUpEditSymbol:: BrokerScreen.BrokerScreen [(null)] - 
+System.IndexOutOfRangeException: Cannot find table 0.
+   at System.Data.DataTableCollection.get_Item(Int32 index)
+   at BrokerScreen.BrokerScreen.GetLookUpEditSymbol()
+2015-03-02 09:34:01,115 ERROR [988] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2015-03-02 09:34:01,169 DEBUG [988] ::GetSignatureAsynchronous::  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:34:01,193 DEBUG [988] ::InitializeTimer:: 9:34 SA BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:34:01,216 DEBUG [988] ::GetTradePolicy:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,TELLERID,LEADERID,ADMINID,][BOData,BD_TRADER_POLICY_GETALL,0141,0141,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:34:01,216 DEBUG [988] ::GetTradePolicy:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:34:02,951 DEBUG [988] ::GetTradePolicy:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:01,216 INFO  [2976] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:01,216 DEBUG [1208] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:14,829 DEBUG [988] ::GetDataByCustodyCode:: PreviousCustodyCode , CurrentCustodyCode 022C500001  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:14,829 DEBUG [988] ::GetCustomerInformationAsynchronous:: Module BOData - Function BD_CUSTOMER_INFO_BY_CUSTODY_CODE - Parameter count [MODULE,FUNCTION,CUSTODYCD,][BOData,BD_CUSTOMER_INFO_BY_CUSTODY_CODE,022C500001,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:14,860 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:14,860 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,360 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,375 DEBUG [988] ::lueSubAccount_EditValueChanged:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,383 DEBUG [988] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000077,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,383 INFO  [988] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500001,0077000077,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,383 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,383 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,500 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,500 ERROR [988] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.ArchorQueryAccount(Object sender)
+   at BrokerScreen.BrokerScreen.lueQueryOrderAccount_EditValueChanged(Object sender, EventArgs e)
+   at DevExpress.XtraEditors.Repository.RepositoryItem.RaiseEditValueChangedCore(EventArgs e)
+   at DevExpress.XtraEditors.Repository.RepositoryItem.RaiseEditValueChanged(EventArgs e)
+   at DevExpress.XtraEditors.BaseEdit.RaiseEditValueChanged()
+   at DevExpress.XtraEditors.BaseEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.TextEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.LookUpEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.BaseEdit.OnEditValueChanging(ChangingEventArgs e)
+   at DevExpress.XtraEditors.LookUpEdit.OnEditValueChanging(ChangingEventArgs e)
+   at DevExpress.XtraEditors.BaseEdit.set_EditValue(Object value)
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2015-03-02 09:35:15,524 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,524 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,547 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,555 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,555 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,579 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,579 ERROR [988] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.ArchorQueryAccount(Object sender)
+   at BrokerScreen.BrokerScreen.lueCashTabAccount_EditValueChanged(Object sender, EventArgs e)
+   at DevExpress.XtraEditors.Repository.RepositoryItem.RaiseEditValueChangedCore(EventArgs e)
+   at DevExpress.XtraEditors.Repository.RepositoryItem.RaiseEditValueChanged(EventArgs e)
+   at DevExpress.XtraEditors.BaseEdit.RaiseEditValueChanged()
+   at DevExpress.XtraEditors.BaseEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.TextEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.LookUpEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.BaseEdit.OnEditValueChanging(ChangingEventArgs e)
+   at DevExpress.XtraEditors.LookUpEdit.OnEditValueChanging(ChangingEventArgs e)
+   at DevExpress.XtraEditors.BaseEdit.set_EditValue(Object value)
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2015-03-02 09:35:15,579 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,579 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,602 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,602 ERROR [988] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.ArchorQueryAccount(Object sender)
+   at BrokerScreen.BrokerScreen.lueLoanTabAccount_EditValueChanged(Object sender, EventArgs e)
+   at DevExpress.XtraEditors.Repository.RepositoryItem.RaiseEditValueChangedCore(EventArgs e)
+   at DevExpress.XtraEditors.Repository.RepositoryItem.RaiseEditValueChanged(EventArgs e)
+   at DevExpress.XtraEditors.BaseEdit.RaiseEditValueChanged()
+   at DevExpress.XtraEditors.BaseEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.TextEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.LookUpEdit.OnEditValueChanged()
+   at DevExpress.XtraEditors.BaseEdit.OnEditValueChanging(ChangingEventArgs e)
+   at DevExpress.XtraEditors.LookUpEdit.OnEditValueChanging(ChangingEventArgs e)
+   at DevExpress.XtraEditors.BaseEdit.set_EditValue(Object value)
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2015-03-02 09:35:15,602 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,602 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,625 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,625 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,625 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,649 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,649 DEBUG [988] ::GetSignatureAsynchronous:: 022C500001 BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,704 DEBUG [988] ::GetDataByCustodyCode:: PreviousCustodyCode 022C500001, CurrentCustodyCode 022C500001  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,704 DEBUG [988] ::GetCustomerInformationAsynchronous:: Module BOData - Function BD_CUSTOMER_INFO_BY_CUSTODY_CODE - Parameter count [MODULE,FUNCTION,CUSTODYCD,][BOData,BD_CUSTOMER_INFO_BY_CUSTODY_CODE,022C500001,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,704 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,704 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,891 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,907 DEBUG [988] ::lueSubAccount_EditValueChanged:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,907 DEBUG [988] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000077,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,907 INFO  [988] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500001,0077000077,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,915 DEBUG [988] ::GetDataByCustodyCode:: ActionFlag , CurrentAccount 0077000077  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,915 DEBUG [988] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000077,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,915 INFO  [988] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500001,0077000077,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,915 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:15,922 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,391 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,391 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,391 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,407 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,422 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,422 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,438 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,438 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,438 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,461 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,461 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,461 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,524 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,524 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,524 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,540 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,547 DEBUG [988] ::GetSignatureAsynchronous:: 022C500001 BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,649 DEBUG [988] ::GetImage:: Data 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 BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:16,680 DEBUG [988] ::GetImage:: Data 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 BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,805 DEBUG [988] ::GetDataByCustodyCode:: PreviousCustodyCode 022C500001, CurrentCustodyCode 022C500001  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,805 DEBUG [988] ::GetCustomerInformationAsynchronous:: Module BOData - Function BD_CUSTOMER_INFO_BY_CUSTODY_CODE - Parameter count [MODULE,FUNCTION,CUSTODYCD,][BOData,BD_CUSTOMER_INFO_BY_CUSTODY_CODE,022C500001,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,805 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,805 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,829 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,844 DEBUG [988] ::lueSubAccount_EditValueChanged:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,852 DEBUG [988] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000077,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,852 INFO  [988] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500001,0077000077,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,852 DEBUG [988] ::GetDataByCustodyCode:: ActionFlag , CurrentAccount 0077000077  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,852 DEBUG [988] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000077,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,852 INFO  [988] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500001,0077000077,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,852 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,852 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,875 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,875 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,883 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,899 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,915 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,915 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,930 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,930 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,930 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,946 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,954 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,954 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,969 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,969 DEBUG [988] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,969 DEBUG [988] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:19,993 DEBUG [988] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:21,500 DEBUG [988] ::lueSubAccount_EditValueChanged:: BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:21,508 DEBUG [988] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000009,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:35:21,508 INFO  [988] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500001,0077000009,0141,]  BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:36:01,196 INFO  [1208] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2015-03-02 09:36:01,196 DEBUG [2976] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 

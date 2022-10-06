@@ -1,9 +1,6 @@
-/venv
 /.vscode
 /.idea
 /.git
-/dependency/tesseract/
-/dependency/Tesseract-OCR/
 /credit_rating/result/
 /automation/flex_gui/VCI1104/build/
 /automation/flex_gui/VCI1104/dist/
@@ -14,8 +11,10 @@
 /automation/flex_gui/F220001/dist/
 /automation/flex_gui/F220001/FLEX_PROD/
 /automation/flex_gui/F220001/tesseract/
+/automation/flex_gui/F111001/_FLEX_PROD
 /automation/product/dist/
 /automation/FLEX_UAT_7_4.107
+/automation/trading_service/giaodichluukyRework/exeFile
 *.png
 *.jpg
 *.xlsx

@@ -169,10 +169,6 @@ def SYNC(
     else:
         raise ValueError('Invalid Connection Object')
 
-    with open(r'C:\Users\hiepdang\Desktop\Passwords\DataBase\DataBase.txt') as file:
-        _, _, key = file.readlines()
-        key = key.replace('\n','')
-
     URL = 'http://192.168.6.103/RunStoreDWH/RunStore.asmx'
     hostName = '192.168.6.103'
     body = f"""<?xml version="1.0" encoding="utf-8"?>
@@ -183,7 +179,7 @@ def SYNC(
                 <FrDate>{FrDate}</FrDate>
                 <ToDate>{ToDate}</ToDate>
                 <SoLanLui>{str(SoLanLui)}</SoLanLui>
-                <Key>{key}</Key>
+                <Key>abcdef123456</Key>
             </{action}>
             </soap:Body>
         </soap:Envelope>"""

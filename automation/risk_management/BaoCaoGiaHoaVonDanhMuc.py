@@ -9,6 +9,7 @@ from request import connect_DWH_CoSo
 from automation.risk_management import dept_folder, get_info
 from info import CompanyName, CompanyAddress, CompanyPhoneNumber
 
+
 # DONE
 def run(  # chạy daily sau batch cuối ngày
     run_time=dt.datetime.now(),

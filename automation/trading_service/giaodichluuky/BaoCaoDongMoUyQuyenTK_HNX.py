@@ -8,7 +8,6 @@ from automation.trading_service import get_info
 from request import connect_DWH_CoSo
 from info import CompanyName, CompanyAddress, CompanyCode
 
-
 def run(
     run_time=None
 ):

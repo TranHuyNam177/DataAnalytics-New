@@ -6,7 +6,6 @@ from news_collector import scrape_ticker_by_exchange
 from automation.trading_service import get_info
 from automation.trading_service.giaodichluuky import dept_folder
 
-
 def run():
 
     start = time.time()

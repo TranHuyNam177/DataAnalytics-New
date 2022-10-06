@@ -24,13 +24,6 @@ class AbstractTable(ABC):
         self.folder_name = 'EmailHoTroMoiGioi'
         self.resultTable = None
 
-        # đọc từ file cố định, phải cập nhật định kỳ
-        self.emailTable = pd.read_excel(
-            join(dirname(__file__),'file','DanhSachNhanVien.xlsx'),
-            dtype={'employeeCode':str,'email':str}
-        )
-        self.emailTable['email'] = self.emailTable['email'].str.replace('[^a-z@phs\.vn]','',regex=True)
-
         # create folder
         self.exportPath = join(dept_folder,self.folder_name,self.period)
         if not os.path.isdir(self.exportPath):

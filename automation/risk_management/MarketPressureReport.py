@@ -10,7 +10,6 @@ from datawarehouse import connect_DWH_CoSo
 from function import iterable_to_sqlstring
 from automation.risk_management import dept_folder, get_info
 
-
 def run(  # chạy hàng ngày
     run_time = dt.datetime.now()
 ):

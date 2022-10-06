@@ -5,7 +5,7 @@ from os.path import join
 import time
 from automation.trading_service import get_info
 from automation.trading_service.thanhtoanbutru import dept_folder
-from datawarehouse.DWH_CoSo import connect_DWH_PhaiSinh
+from request import connect_DWH_PhaiSinh
 from datawarehouse import BDATE
 
 # DONE

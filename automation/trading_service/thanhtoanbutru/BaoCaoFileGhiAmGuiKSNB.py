@@ -3,7 +3,8 @@ import pandas as pd
 import os
 from os.path import join
 import time
-from automation.trading_service import get_info, get_bank_name
+from automation.trading_service import get_info
+from automation import get_bank_name
 from automation.trading_service.thanhtoanbutru import dept_folder
 from datawarehouse.DWH_CoSo import connect_DWH_CoSo
 

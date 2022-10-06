@@ -1,0 +1,279 @@
+﻿2014-12-12 14:28:44,495 INFO  [4080] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:28:44,533 DEBUG [2988] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:28:44,635 DEBUG [4080] ::GetAllSymbolShortList:: Get all symbol list at 12/12/2014 2:28:44 CH BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:28:44,731 DEBUG [4080] ::GetAllDefErrorAsync:: Get all error define at 12/12/2014 2:28:44 CH BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:28:44,924 ERROR [4080] ::GetLookUpEditSymbol:: BrokerScreen.BrokerScreen [(null)] - 
+System.IndexOutOfRangeException: Cannot find table 0.
+   at System.Data.DataTableCollection.get_Item(Int32 index)
+   at BrokerScreen.BrokerScreen.GetLookUpEditSymbol()
+2014-12-12 14:28:44,930 ERROR [4080] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2014-12-12 14:28:44,982 DEBUG [4080] ::GetSignatureAsynchronous::  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:28:45,016 DEBUG [4080] ::InitializeTimer:: 2:28 CH BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:28:45,052 DEBUG [4080] ::GetTradePolicy:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,TELLERID,LEADERID,ADMINID,][BOData,BD_TRADER_POLICY_GETALL,0060,0060,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:28:45,052 DEBUG [4080] ::GetTradePolicy:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:28:46,357 DEBUG [4080] ::GetTradePolicy:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:03,742 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:03,742 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:03,758 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:11,878 DEBUG [4080] ::GetPortfolios:: Module BOData - Function BD_GET_PORTFOLIO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_PORTFOLIO,022C500001,0077000003,%%,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:14,082 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:14,082 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:14,096 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:17,852 DEBUG [4080] ::GetPortfolios:: Module BOData - Function BD_GET_PORTFOLIO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_PORTFOLIO,022C500001,0077000001,%%,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,737 DEBUG [4080] ::GetDataByCustodyCode:: PreviousCustodyCode , CurrentCustodyCode 022C500001  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,740 DEBUG [4080] ::GetCustomerInformationAsynchronous:: Module BOData - Function BD_CUSTOMER_INFO_BY_CUSTODY_CODE - Parameter count [MODULE,FUNCTION,CUSTODYCD,][BOData,BD_CUSTOMER_INFO_BY_CUSTODY_CODE,022C500001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,743 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,743 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,757 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,766 DEBUG [4080] ::lueSubAccount_EditValueChanged:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,769 DEBUG [4080] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000003,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,773 INFO  [4080] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500001,0077000003,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,774 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,774 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,789 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,790 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,790 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,802 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,810 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,810 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,822 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,824 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,824 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,836 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,837 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,837 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,850 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,851 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,851 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,863 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:32,866 DEBUG [4080] ::GetSignatureAsynchronous:: 022C500001 BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:33,780 DEBUG [4080] ::lueSubAccount_EditValueChanged:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:33,780 DEBUG [4080] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:33,780 INFO  [4080] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500001,0077000001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:35,737 DEBUG [4080] ::GetStockInfoAsynchronous:: Symbol ACB - Parameter count [SYMBOL,][ACB,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:35,738 DEBUG [2988] ::ThreadGetStockInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:38,326 INFO  [4080] ::GetPpSe:: Parameter count [MODULE,FUNCTION,p_afacctno,p_symbol,p_quoteprice,p_via,][BOData,BD_SP_GET_PPSE,0077000001,ACB,17000,F,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:39,287 DEBUG [4080] ::GetSecuritiesQuantity:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_SECURITIES_INFO,022C500001,0077000001,ACB,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:39,308 DEBUG [4080] ::ShowSecuritiesQuantity:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,459 DEBUG [4080] ::GetDataByCustodyCode:: PreviousCustodyCode 022C500001, CurrentCustodyCode 022C500001  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,459 DEBUG [4080] ::GetCustomerInformationAsynchronous:: Module BOData - Function BD_CUSTOMER_INFO_BY_CUSTODY_CODE - Parameter count [MODULE,FUNCTION,CUSTODYCD,][BOData,BD_CUSTOMER_INFO_BY_CUSTODY_CODE,022C500001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,459 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,459 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,480 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,485 DEBUG [4080] ::lueSubAccount_EditValueChanged:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,485 DEBUG [4080] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000003,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,487 INFO  [4080] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500001,0077000003,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,488 DEBUG [4080] ::GetSecuritiesQuantity:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_SECURITIES_INFO,022C500001,0077000003,ACB,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,488 DEBUG [4080] ::GetDataByCustodyCode:: ActionFlag , CurrentAccount 0077000003  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,488 DEBUG [4080] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000003,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,488 INFO  [4080] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500001,0077000003,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,488 DEBUG [4080] ::GetSecuritiesQuantity:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_SECURITIES_INFO,022C500001,0077000003,ACB,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,488 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,488 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,500 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,501 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,501 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,657 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,661 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,661 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,672 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,673 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,673 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,683 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,684 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,684 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,696 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,697 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,697 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,710 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,712 DEBUG [4080] ::GetSignatureAsynchronous:: 022C500001 BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,714 DEBUG [4080] ::ShowSecuritiesQuantity:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:40,718 DEBUG [4080] ::ShowSecuritiesQuantity:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:42,291 DEBUG [4080] ::GetStockInfoAsynchronous:: Symbol ACB - Parameter count [SYMBOL,][ACB,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:42,291 DEBUG [4080] ::GetSecuritiesQuantity:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_SECURITIES_INFO,022C500001,0077000003,ACB,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:42,291 DEBUG [2988] ::ThreadGetStockInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:42,314 DEBUG [4080] ::ShowSecuritiesQuantity:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:43,773 INFO  [4080] ::GetPpSe:: Parameter count [MODULE,FUNCTION,p_afacctno,p_symbol,p_quoteprice,p_via,][BOData,BD_SP_GET_PPSE,0077000003,ACB,17000,F,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:44,064 DEBUG [4080] ::GetSecuritiesQuantity:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_SECURITIES_INFO,022C500001,0077000003,ACB,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:44,082 DEBUG [4080] ::ShowSecuritiesQuantity:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:44,709 DEBUG [4080] ::lueSubAccount_EditValueChanged:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:44,709 DEBUG [4080] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:44,709 INFO  [4080] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500001,0077000001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:44,710 DEBUG [4080] ::GetSecuritiesQuantity:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_SECURITIES_INFO,022C500001,0077000001,ACB,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:44,742 DEBUG [4080] ::ShowSecuritiesQuantity:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:45,049 INFO  [2988] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:45,049 DEBUG [2988] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:54,197 DEBUG [4080] ::GetStockInfoAsynchronous:: Symbol BMP - Parameter count [SYMBOL,][BMP,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:54,197 DEBUG [3352] ::ThreadGetStockInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:54,197 DEBUG [4080] ::GetSecuritiesQuantity:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_SECURITIES_INFO,022C500001,0077000001,BMP,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:54,457 DEBUG [4080] ::ShowSecuritiesQuantity:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:55,637 INFO  [4080] ::GetPpSe:: Parameter count [MODULE,FUNCTION,p_afacctno,p_symbol,p_quoteprice,p_via,][BOData,BD_SP_GET_PPSE,0077000001,BMP,75000,F,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:55,668 DEBUG [4080] ::GetSecuritiesQuantity:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_SECURITIES_INFO,022C500001,0077000001,BMP,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:55,683 DEBUG [4080] ::ShowSecuritiesQuantity:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:57,708 DEBUG [4080] ::GetStockInfoAsynchronous:: Symbol BMP - Parameter count [SYMBOL,][BMP,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:57,709 DEBUG [3352] ::ThreadGetStockInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:57,709 DEBUG [4080] ::GetSecuritiesQuantity:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_SECURITIES_INFO,022C500001,0077000001,BMP,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:29:57,729 DEBUG [4080] ::ShowSecuritiesQuantity:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:30:04,166 INFO  [4080] ::GetPpSe:: Parameter count [MODULE,FUNCTION,p_afacctno,p_symbol,p_quoteprice,p_via,][BOData,BD_SP_GET_PPSE,0077000001,BMP,75000,F,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:30:04,189 DEBUG [4080] ::GetSecuritiesQuantity:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_SECURITIES_INFO,022C500001,0077000001,BMP,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:30:04,213 DEBUG [4080] ::ShowSecuritiesQuantity:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:30:45,036 INFO  [3352] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:30:45,036 DEBUG [3352] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:31:45,048 INFO  [2988] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:31:45,048 DEBUG [2988] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:32:45,063 INFO  [3352] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:32:45,063 DEBUG [3352] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:33:45,076 INFO  [3352] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:33:45,076 DEBUG [3352] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:34:45,090 INFO  [3352] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:34:45,090 DEBUG [3352] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:35:45,104 INFO  [3352] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:35:45,104 DEBUG [3352] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:36:45,117 INFO  [2988] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:36:45,117 DEBUG [2988] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:37:45,130 INFO  [2988] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:37:45,130 DEBUG [2988] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:38:45,143 INFO  [2988] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:38:45,143 DEBUG [2988] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:39:45,158 INFO  [3352] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:39:45,158 DEBUG [3352] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:40:45,171 INFO  [3352] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:40:45,171 DEBUG [2988] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:41:45,184 INFO  [3352] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:41:45,184 DEBUG [3352] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:42:45,199 INFO  [2988] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:42:45,199 DEBUG [2988] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:43:45,212 INFO  [2988] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:43:45,212 DEBUG [2988] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:44:45,225 INFO  [2988] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:44:45,225 DEBUG [2988] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:45:45,239 INFO  [2988] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:45:45,239 DEBUG [2988] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:46:45,252 INFO  [3352] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:46:45,252 DEBUG [3352] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:47:45,265 INFO  [2988] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:47:45,265 DEBUG [2988] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:48:45,280 INFO  [3352] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:48:45,280 DEBUG [3352] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:12,254 INFO  [4080] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:12,254 DEBUG [3352] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:12,259 DEBUG [4080] ::GetAllSymbolShortList:: Get all symbol list at 12/12/2014 2:50:12 CH BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:12,263 DEBUG [4080] ::GetAllDefErrorAsync:: Get all error define at 12/12/2014 2:50:12 CH BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:12,283 ERROR [4080] ::GetLookUpEditSymbol:: BrokerScreen.BrokerScreen [(null)] - 
+System.IndexOutOfRangeException: Cannot find table 0.
+   at System.Data.DataTableCollection.get_Item(Int32 index)
+   at BrokerScreen.BrokerScreen.GetLookUpEditSymbol()
+2014-12-12 14:50:12,283 ERROR [4080] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2014-12-12 14:50:12,284 DEBUG [4080] ::GetSignatureAsynchronous::  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:12,285 DEBUG [4080] ::InitializeTimer:: 2:50 CH BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:12,294 DEBUG [4080] ::GetTradePolicy:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,TELLERID,LEADERID,ADMINID,][BOData,BD_TRADER_POLICY_GETALL,0060,0060,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:12,294 DEBUG [4080] ::GetTradePolicy:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:12,315 DEBUG [4080] ::GetTradePolicy:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:16,860 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:16,861 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:16,876 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:19,660 DEBUG [4080] ::GetPortfolios:: Module BOData - Function BD_GET_PORTFOLIO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_PORTFOLIO,022C500001,0077000001,%%,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,243 DEBUG [4080] ::GetDataByCustodyCode:: PreviousCustodyCode , CurrentCustodyCode 022C500001  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,243 DEBUG [4080] ::GetCustomerInformationAsynchronous:: Module BOData - Function BD_CUSTOMER_INFO_BY_CUSTODY_CODE - Parameter count [MODULE,FUNCTION,CUSTODYCD,][BOData,BD_CUSTOMER_INFO_BY_CUSTODY_CODE,022C500001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,243 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,243 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,256 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,262 DEBUG [4080] ::lueSubAccount_EditValueChanged:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,262 DEBUG [4080] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000003,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,262 INFO  [4080] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500001,0077000003,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,264 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,264 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,276 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,277 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,277 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,746 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,750 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,750 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,761 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,762 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,762 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,774 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,775 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,775 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,787 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,789 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,790 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,804 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:30,805 DEBUG [4080] ::GetSignatureAsynchronous:: 022C500001 BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:38,007 DEBUG [4080] ::GetStockInfoAsynchronous:: Symbol BMP - Parameter count [SYMBOL,][BMP,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:38,007 DEBUG [3352] ::ThreadGetStockInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:39,804 INFO  [4080] ::GetPpSe:: Parameter count [MODULE,FUNCTION,p_afacctno,p_symbol,p_quoteprice,p_via,][BOData,BD_SP_GET_PPSE,0077000003,BMP,75000,F,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:40,595 DEBUG [4080] ::GetSecuritiesQuantity:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_SECURITIES_INFO,022C500001,0077000003,BMP,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:40,611 DEBUG [4080] ::ShowSecuritiesQuantity:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,218 DEBUG [4080] ::GetDataByCustodyCode:: PreviousCustodyCode 022C500001, CurrentCustodyCode 022C500001  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,218 DEBUG [4080] ::GetCustomerInformationAsynchronous:: Module BOData - Function BD_CUSTOMER_INFO_BY_CUSTODY_CODE - Parameter count [MODULE,FUNCTION,CUSTODYCD,][BOData,BD_CUSTOMER_INFO_BY_CUSTODY_CODE,022C500001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,218 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,218 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,238 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,243 DEBUG [4080] ::lueSubAccount_EditValueChanged:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,243 DEBUG [4080] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000003,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,243 INFO  [4080] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500001,0077000003,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,243 DEBUG [4080] ::GetSecuritiesQuantity:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_SECURITIES_INFO,022C500001,0077000003,BMP,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,243 DEBUG [4080] ::GetDataByCustodyCode:: ActionFlag , CurrentAccount 0077000003  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,243 DEBUG [4080] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000003,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,243 INFO  [4080] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500001,0077000003,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,243 DEBUG [4080] ::GetSecuritiesQuantity:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_SECURITIES_INFO,022C500001,0077000003,BMP,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,243 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,243 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,264 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,265 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,265 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,280 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,284 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,284 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,296 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,297 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,297 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,309 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,310 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,310 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,322 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,323 DEBUG [4080] ::GetAccounts:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,TLID,][BOData,BD_GET_SUB_ACCOUNT_BY_CUSTODY_CODE,022C500001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,323 DEBUG [4080] ::GetAccounts:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,336 DEBUG [4080] ::GetAccounts:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,336 DEBUG [4080] ::GetSignatureAsynchronous:: 022C500001 BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,340 DEBUG [4080] ::ShowSecuritiesQuantity:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:41,341 DEBUG [4080] ::ShowSecuritiesQuantity:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:42,402 DEBUG [4080] ::GetStockInfoAsynchronous:: Symbol BMP - Parameter count [SYMBOL,][BMP,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:42,402 DEBUG [4080] ::GetSecuritiesQuantity:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_SECURITIES_INFO,022C500001,0077000003,BMP,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:42,402 DEBUG [3352] ::ThreadGetStockInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:42,419 DEBUG [4080] ::ShowSecuritiesQuantity:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:44,453 INFO  [4080] ::GetPpSe:: Parameter count [MODULE,FUNCTION,p_afacctno,p_symbol,p_quoteprice,p_via,][BOData,BD_SP_GET_PPSE,0077000003,BMP,75000,F,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:44,488 DEBUG [4080] ::GetSecuritiesQuantity:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_SECURITIES_INFO,022C500001,0077000003,BMP,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:44,506 DEBUG [4080] ::ShowSecuritiesQuantity:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:45,109 DEBUG [4080] ::lueSubAccount_EditValueChanged:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:45,109 DEBUG [4080] ::GetCustomerAuthorizedAsynchronous:: Module BOData - Function BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT - Parameter count [MODULE,FUNCTION,AFACCTNO,][BOData,BD_GET_AUTHORIZED_CUSTOMER_BY_ACCOUNT,0077000001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:45,109 INFO  [4080] ::GetAccountInfoAsynchronous:: Module BOData - Function BD_GET_ACCOUNT_INFO - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,TLID,][BOData,BD_GET_ACCOUNT_INFO,022C500001,0077000001,0060,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:45,109 DEBUG [4080] ::GetSecuritiesQuantity:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,CUSTODYCD,AFACCTNO,SYMBOL,][BOData,BD_GET_SECURITIES_INFO,022C500001,0077000001,BMP,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:50:45,129 DEBUG [4080] ::ShowSecuritiesQuantity:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:51:12,295 INFO  [3352] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:51:12,295 DEBUG [3352] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:52:12,310 INFO  [2988] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:52:12,310 DEBUG [2988] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:53:12,323 INFO  [2988] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:53:12,323 DEBUG [2988] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:54:12,336 INFO  [3352] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:54:12,336 DEBUG [3352] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:55:12,350 INFO  [3352] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:55:12,350 DEBUG [3352] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:56:12,362 INFO  [3352] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:56:12,362 DEBUG [2988] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:57:12,376 INFO  [2988] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:57:12,376 DEBUG [3352] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:58:12,390 INFO  [3352] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:58:12,390 DEBUG [2988] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:59:12,404 INFO  [3352] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 14:59:12,404 DEBUG [3352] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 15:00:12,417 INFO  [3352] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 15:00:12,417 DEBUG [3352] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 15:01:12,432 INFO  [2988] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-12-12 15:01:12,432 DEBUG [2988] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 

@@ -10,7 +10,6 @@ import re
 from datawarehouse import BDATE, connect_DWH_CoSo
 from automation.risk_management import dept_folder, get_info
 
-
 def run(  # chạy hàng ngày
     run_time=dt.datetime.now()
 ):

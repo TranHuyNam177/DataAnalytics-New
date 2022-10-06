@@ -1,0 +1,51 @@
+﻿2014-02-28 10:04:12,828 INFO  [6780] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:04:12,875 DEBUG [3108] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:04:13,046 DEBUG [6780] ::GetAllSymbolShortList:: Get all symbol list at 28/02/2014 10:04:13 SA BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:04:13,531 ERROR [6780] ::GetLookUpEditSymbol:: BrokerScreen.BrokerScreen [(null)] - 
+System.IndexOutOfRangeException: Cannot find table 0.
+   at System.Data.DataTableCollection.get_Item(Int32 index)
+   at BrokerScreen.BrokerScreen.GetLookUpEditSymbol()
+2014-02-28 10:04:13,546 ERROR [6780] ::SetLookUpEditDefaultValue:: BrokerScreen.BrokerScreen [(null)] - 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BrokerScreen.BrokerScreen.SetLookUpEditDefaultValue(LookUpEdit lookUpEdit, RepositoryItemLookUpEdit respositoryItemLookUpEdit, String lookUpField, Object lookUpValue)
+2014-02-28 10:04:13,609 DEBUG [6780] ::GetSignatureAsynchronous::  BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:04:13,671 DEBUG [6780] ::InitializeTimer:: 10:04 SA BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:04:13,734 DEBUG [6780] ::GetTradePolicy:: Module BOData - Function BrokerScreen.ObjectMessageObjDataEntry - Parameter count [MODULE,FUNCTION,TELLERID,LEADERID,ADMINID,][BOData,BD_TRADER_POLICY_GETALL,0001,0001,0001,]  BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:04:13,734 DEBUG [6780] ::GetTradePolicy:: Send data BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:04:14,203 DEBUG [6780] ::GetTradePolicy:: Received data BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:05:13,703 INFO  [6764] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:05:13,703 DEBUG [3108] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:06:13,703 INFO  [3108] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:06:13,703 DEBUG [6176] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:07:13,718 INFO  [3108] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:07:13,718 DEBUG [3108] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:08:13,718 INFO  [3108] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:08:13,718 DEBUG [3108] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:09:13,718 INFO  [3108] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:09:13,718 DEBUG [3108] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:10:13,718 INFO  [3108] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:10:13,718 DEBUG [3108] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:11:13,718 INFO  [3108] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:11:13,718 DEBUG [3108] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:12:13,718 INFO  [3108] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:12:13,718 DEBUG [3108] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:13:13,718 INFO  [6176] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:13:13,718 DEBUG [6176] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:14:13,718 INFO  [3108] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:14:13,718 DEBUG [3108] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:15:13,718 INFO  [7008] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:15:13,718 DEBUG [7008] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:16:13,718 INFO  [6176] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:16:13,718 DEBUG [6176] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:17:13,718 INFO  [7008] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:17:13,718 DEBUG [7008] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:18:13,718 INFO  [7008] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:18:13,718 DEBUG [7008] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:19:13,718 INFO  [6176] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:19:13,718 DEBUG [6176] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:20:13,718 INFO  [6764] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:20:13,718 DEBUG [6764] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:21:13,718 INFO  [7008] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:21:13,718 DEBUG [7008] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:23:13,718 INFO  [6176] ::GetMarketInfoAsynchronous:: Parameter count [MARKETID,][,] BrokerScreen.BrokerScreen [(null)] - 
+2014-02-28 10:23:13,718 DEBUG [6176] ::ThreadGetMarketInfoAsynchronous:: BrokerScreen.BrokerScreen [(null)] - 
