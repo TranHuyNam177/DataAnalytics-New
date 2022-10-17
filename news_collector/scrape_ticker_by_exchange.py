@@ -18,6 +18,7 @@ def run(
     hide_window=True
 ) -> pd.DataFrame:
 
+
     PATH = join(dirname(dirname(realpath(__file__))),'dependency','chromedriver')
     ignored_exceptions = (
         ValueError,

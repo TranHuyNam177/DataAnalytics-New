@@ -1,8 +1,24 @@
+from os.path import join, dirname, realpath
+import numpy as np
+import pandas as pd
+import re
+import time
 import requests
+import warnings
+import datetime as dt
+from bs4 import BeautifulSoup
+from request import connect_DWH_ThiTruong
 
-from request.stock import *
-from request import *
-
+from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import ElementNotInteractableException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 
 def PotentialRequestRefused(hours):
 
@@ -54,6 +70,12 @@ class __Base__:
         if ' phút trước' in x:
             minutes = int(x.split()[0])
             result = bmkTime - dt.timedelta(minutes=minutes)
+        elif 'm trước' in x:
+            minutes = int(x.split('m')[0])
+            result = bmkTime - dt.timedelta(minutes=minutes)
+        elif 'h trước' in x:
+            hours = int(x.split('h')[0])
+            result = bmkTime - dt.timedelta(minutes=hours)
         elif ' giờ trước' in x:
             hours = int(x.split()[0])
             result = bmkTime - dt.timedelta(hours=hours)
@@ -61,6 +83,8 @@ class __Base__:
             result = np.nan
         elif x == 'Vừa xong':
             result = now
+        elif str(now.year) not in x:
+            result = dt.datetime.strptime(x,'%d/%m %H:%M').replace(year=now.year)
         else:
             result = dt.datetime.strptime(x,'%d/%m/%Y %H:%M')
         return result
@@ -341,7 +365,7 @@ class vietstock(__Base__):
             driver.get(u)
             pageURLs = []
             while True:
-                pageElems = wait.until(EC.presence_of_all_elements_located((By.XPATH,"//*[@class='thumb']/a")))[:10]
+                pageElems = wait.until(EC.presence_of_all_elements_located((By.XPATH,"//*[@class='fontbold']")))[:10]
                 pageURLs.extend(elem.get_attribute('href') for elem in pageElems)
                 if len(pageURLs) > self.hours: # break khi đủ tin
                     break
@@ -531,4 +555,3 @@ class tinnhanhchungkhoan(__Base__):
         print(f'Total Run Time ::: {np.round(time.time()-start,1)}s')
 
         return result
-

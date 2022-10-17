@@ -10,15 +10,9 @@ from selenium.common.exceptions import ElementNotInteractableException, TimeoutE
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
 from function import first
 
 ###############################################################################
-
-
-###############################################################################
-
-
 
 def runBIDV(bankObject):
 
@@ -161,7 +155,7 @@ def runVTB(bankObject):
     )
     downloadTable = downloadTable.dropna(subset=['AccountNumber'])
     downloadTable[['IssueDate','ExpireDate']] = downloadTable[['IssueDate','ExpireDate']].applymap(lambda x: dt.datetime.strptime(x,'%d-%m-%Y'))
-    downloadTable['TermMonths']  = np.int64(downloadTable['TermMonths'].str.replace('D','').str.split('M').str.get(0))
+    downloadTable['TermMonths'] = np.int64(downloadTable['TermMonths'].str.replace('D','').str.split('M').str.get(0))
     downloadTable['TermDays'] = (downloadTable['ExpireDate']-downloadTable['IssueDate']).dt.days
     downloadTable['InterestRate'] /= 100
     downloadTable['Bank'] = bankObject.bank
@@ -319,7 +313,7 @@ def runOCB(bankObject):
         if 'DSHDTG' in file:
             os.remove(join(bankObject.downloadFolder,file))
     # Click main menu
-    bankObject.wait.until(EC.visibility_of_element_located((By.ID,'main-menu-icon'))).click()
+    bankObject.wait.until(EC.presence_of_element_located((By.ID,'main-menu-icon'))).click()
     # Click Hợp đồng tiền gửi -> Danh sách hợp đồng tiền gửi
     xpath = '//*[@class="ahref"]/*[@class="deposits-icon"]'
     _, accountButton = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH,xpath)))
@@ -508,28 +502,26 @@ def runFIRST(bankObject):
     time.sleep(2)
     xpath = '//*[contains(text(),"Time Deposit Detail")]'
     bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,xpath))).click()
-    # Chọn từng tài khoản từ dropdown list
+    # Lấy danh sách tài khoản (option đầu tiên chỉ là placeholder)
     bankObject.driver.switch_to.frame('mainFrame')
     xpath = '//*[contains(text(),"Deposit certificate number")]/following-sibling::td/*//select'
-    selectObject = bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))
-    select = Select(selectObject)
-    listOptions = [option.text for option in select.options[1:]]
+    options = Select(bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath)))).options[1:]
+    accounts = [option.text for option in options]
     frames = []
-    for option in listOptions:
-        # bấm vào chỗ chọn tài khoản
+    for account in accounts:
+        # Click xổ danh sách tài khoản
         xpath = '//*[contains(text(),"Deposit certificate number")]/following-sibling::td/*/div/span'
-        selectAccount = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
-        selectAccount.click()
-        xpath = '//*[@id="form:tdNoCombo_panel"]/div/input'
-        inputBoxAccount = bankObject.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
-        inputBoxAccount.send_keys(option)
-        inputBoxAccount.send_keys(Keys.RETURN)
+        bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        # Click chọn tài khoản
+        xpath = f'//*[contains(@data-label,"{account}")]'
+        bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,xpath))).click()
+        # Click "Inquiry"
         xpath = '//*[text()="Inquiry"]'
         bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
-        time.sleep(5) # chờ load dữ liệu
+        time.sleep(5) # chờ load data
         # Download file (.csv)
         xpath = '//*[@class="dl_icons download_csv"]'
-        bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+        bankObject.wait.until(EC.visibility_of_element_located((By.XPATH,xpath))).click()
         # Đọc file
         while True:
             checkFunc = lambda x: (re.search(r'\bCOSDATDQU\d+\b',x) is not None) and ('download' not in x)
@@ -565,8 +557,9 @@ def runFIRST(bankObject):
         downloadTable['InterestAmount'] = downloadTable['TermDays'] * downloadTable['InterestRate'] * downloadTable['Balance'] / 365
         # Append
         frames.append(downloadTable)
-        # Xóa file download
-        os.remove(join(bankObject.downloadFolder, downloadFile))
+        # Xóa file
+        os.remove(join(bankObject.downloadFolder,downloadFile))
+
     # Catch trường hợp không có data
     if not frames:
         return pd.DataFrame()
@@ -603,7 +596,7 @@ def runTCB(bankObject):
         else:
             d = (now-dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
         elementString = element.text
-        if not elementString: # ko có dữ liệu
+        if not elementString: # ko có dữ liệu sẽ luôn return ra 1 dòng trắng
             return pd.DataFrame()
         # Số tài khoản
         account = re.search(r'\b[A-Z]{2}\d{10}|\d{14}\b',elementString).group()
@@ -971,5 +964,64 @@ def runHUANAN(bankObject):
     balanceTable.insert(0,'Date',d)
     # Bank
     balanceTable.insert(1,'Bank',bankObject.bank)
+
+    return balanceTable
+
+
+def runSCSB(bankObject):
+
+    """
+    :param bankObject: Bank Object (đã login)
+    """
+
+    now = dt.datetime.now()
+    time.sleep(3)  # nghỉ 3s giữa mỗi hàm để bankObject kịp update
+    # Click Time Deposit Service
+    xpath = "//*[contains(text(),'Time Deposit Service')]"
+    bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+    time.sleep(5)  # chờ thời gian load trang
+    # Lấy dữ liệu
+    xpath = "//*[@class='bea-portal-window-content']//*/table[2]/tbody/tr"
+    recordElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH, xpath)))[1:]  # Bỏ dòng header đầu tiên
+    recordStrings = [element.text for element in recordElements]
+    records = []
+    for rowString in recordStrings:
+        # Account Number
+        accountNumber = re.search(r'\d{14}', rowString).group()
+        # Currency
+        currency = re.search(r'\bVND|USD\b', rowString).group()
+        # Balance
+        balanceString = re.search(r'\b\d+,[\d,]+\b', rowString).group()
+        balance = float(balanceString.replace(',', ''))
+        # Issue Date, Expire Date
+        dateStrings = re.findall(r'\b\d{4}/\d{2}/\d{2}', rowString)
+        dates = sorted([dt.datetime.strptime(dateString, '%Y/%m/%d') for dateString in dateStrings])
+        issueDate, expireDate = dates[-2:]
+        # Term Days
+        termDays = (expireDate - issueDate).days
+        # Term Months
+        termMonths = round(termDays / 30)
+
+        # Interest rate
+        interestRateString = re.search(r'\b\d{1,2}\.\d+\b', rowString).group()
+        interestRate = float(interestRateString) / 100
+        # Interest amount
+        interestAmount = termDays * interestRate * balance / 365
+        # Append
+        records.append((accountNumber,termDays,termMonths,interestRate,issueDate,expireDate,balance,interestAmount,currency))
+
+    balanceTable = pd.DataFrame(
+        records,
+        columns=['AccountNumber','TermDays','TermMonths','InterestRate','IssueDate','ExpireDate','Balance','InterestAmount','Currency']
+    )
+    # Date
+    if now.hour >= 8:
+        d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
+    else:
+        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
+                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+    balanceTable.insert(0, 'Date', d)
+    # Bank
+    balanceTable.insert(1, 'Bank', bankObject.bank)
 
     return balanceTable

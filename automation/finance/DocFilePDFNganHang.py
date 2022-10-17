@@ -174,6 +174,8 @@ def _findCoords(pdfImage, name, bank):
         fileName = 'values.png'
     elif bank == 'FUBON' and name in ('issueDate', 'expireDate', 'amount', 'interestRate', 'paid', 'contractNumber'):
         fileName = 'values.png'
+    elif bank == 'SHHK' and name in ('issueDate', 'expireDate', 'amount', 'interestRate', 'contractNumber', 'date'):
+        fileName = 'values.png'
     elif name == 'amount':
         fileName = 'amount.png'
     elif name == 'interestRate':
@@ -253,19 +255,30 @@ def _findCoords(pdfImage, name, bank):
             bottom = None
         return pdfImage[left:right, top:bottom]
     elif bank == 'SHHK':
-        if name == 'date':
-            bottom = top + w * 2
-            right = left + h * 2 + 5
+        if name == 'contractNumber':
+            bottom = int(top + 0.22 * w)
+            right = int(left + 1.8 * h - 5)
             left = left + h
-        elif name == 'paid':
-            top = top + w
-            right = left + h
-            bottom = None
-        else:
-            top = top - 5
+        elif name == 'amount':
+            bottom = int(top + 0.42 * w)
+            top = int(top + 0.21 * w)
+            right = int(left + 1.8 * h)
+            left = left + h
+        elif name == 'date':
+            bottom = int(top + 0.75 * w)
+            top = int(top + 0.4 * w)
+            right = int(left + 1.8 * h)
+            left = left + h
+        elif name == 'interestRate':
             bottom = top + w
-            right = left + h * 2 + 5
-            left = left + h
+            top = int(top + 0.82 * w)
+            right = int(left + 1.7 * h + 3)
+            left = left + h + 10
+        else:
+            top = top + w
+            bottom = top + w
+            right = int(left + 0.54 * h)
+            left = int(left + 0.25 * h)
         return pdfImage[left:right, top:bottom]
     elif bank == 'SINOPAC':
         if name in ('contractNumber', 'paid'):
@@ -651,7 +664,7 @@ def runSHINKONG(bank, listImages):
 
     return balanceTable
 
-# chưa thấy file PDF có phần trả khoản vay nên tạm để paid = 0
+# Done
 def runYUANTA(bank, listImages):
     now = dt.datetime.now()
     records = []
@@ -659,7 +672,8 @@ def runYUANTA(bank, listImages):
         'amount': r'(\d+,[\d,]+\d{3})',
         'interestRate': r'(\d+[,.]\d+%)',
         'date': r'(\d{4}/\d{2}/\d{2}-\d{4}/\d{2}/\d{2})',
-        'contractNumber': r'(\d{4}[A-Z]{2}\d{5})'
+        'contractNumber': r'(\d{4}[A-Z]{2}\d{5})',
+        'paid': r'(\d+,[\d,]+\d{3})',
     }
     for img in listImages:
         # grayscale full image
@@ -672,6 +686,7 @@ def runYUANTA(bank, listImages):
         # detect table in image
         tables = detect_table(fullImageScale)
         table = tables[0]  # vì chỉ có 1 bảng trong hình nên phần tử đầu tiên luôn là bảng đó
+
         # amount
         imgAmount = _findCoords(np.array(table), 'amount', bank)
         dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
@@ -682,8 +697,8 @@ def runYUANTA(bank, listImages):
         amount = float(amountText.replace(',', ''))
         # interest rate
         imgInterestRate = _findCoords(np.array(table), 'interestRate', bank)
-        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 4)
-        dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
+        dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 0)
         if dfInterestRate.empty:
             continue
         interestRateText = dfInterestRate.loc[dfInterestRate.index[0], 'regex']
@@ -707,13 +722,21 @@ def runYUANTA(bank, listImages):
         # contract number
         imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
         dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 6)
-        dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
+        dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 5)
         if dfContractNumber.empty:
             continue
         contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
         contractNumber = 'AOBU' + contractNumber
         # paid
-        paid = 0
+        imgPaid = _findCoords(np.array(fullImageScale), 'paid', bank)
+        dfPaid = readImgPytesseractToDataframe(imgPaid, 6)
+        dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 5)
+        if dfPaid.empty:
+            paid = 0
+        else:
+            paidText = dfPaid.loc[dfPaid.index[0], 'regex']
+            paid = float(paidText.replace(',', ''))
+
         # remaining
         remaining = amount - paid
         # interest amount
@@ -766,15 +789,17 @@ def runSHHK(bank, listImages):
         Image.fromarray(fullImageScale).show()
         # amount
         imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
-        dfAmount = readImgPytesseractToDataframe(imgAmount, 4)
-        dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
+        Image.fromarray(imgAmount).show()
+        dfAmount = readImgPytesseractToDataframe(imgAmount, 6)
+        dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 0)
         if dfAmount.empty:
             continue
         amountText = dfAmount.loc[dfAmount.index[0], 'regex']
         amount = float(amountText.replace(',', ''))
         # interest rate
         imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
-        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 4)
+        Image.fromarray(imgInterestRate).show()
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 6)
         dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
         if dfInterestRate.empty:
             continue
@@ -782,6 +807,7 @@ def runSHHK(bank, listImages):
         interestRate = float(interestRateText.replace(',', '.').replace('%', '')) / 100
         # ngày hiệu lực, ngày đáo hạn
         imgDate = _findCoords(np.array(fullImageScale), 'date', bank)
+        Image.fromarray(imgDate).show()
         dfDate = readImgPytesseractToDataframe(imgDate, 6)
         dfDate = checkPatternRegexInDataFrame(dfDate, patternDict['date'], 10)
         if dfDate.empty:
@@ -807,7 +833,8 @@ def runSHHK(bank, listImages):
         termMonths = round(termDays / 30)
         # contract number
         imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
-        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 11)
+        Image.fromarray(imgContractNumber).show()
+        dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 6)
         dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
         if dfContractNumber.empty:
             continue
@@ -815,7 +842,8 @@ def runSHHK(bank, listImages):
         contractNumber = contractNumber.replace(contractNumber[0:2], '888LN')
         # paid
         imgPaid = _findCoords(np.array(fullImageScale), 'paid', bank)
-        dfPaid = readImgPytesseractToDataframe(imgPaid, 4)
+        Image.fromarray(imgPaid).show()
+        dfPaid = readImgPytesseractToDataframe(imgPaid, 6)
         dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 10)
         if dfPaid.empty:
             paid = 0
@@ -882,7 +910,7 @@ def runSINOPAC(bank, listImages):
         amount = float(amountText.replace(',', ''))
         # interest rate
         imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
-        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
+        dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 6)
         dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
         if dfInterestRate.empty:
             continue
@@ -1217,7 +1245,7 @@ def runESUN(bank, listImages):
         # contract number
         imgContractNumber = _findCoords(np.array(fullImageScale), 'contractNumber', bank)
         dfContractNumber = readImgPytesseractToDataframe(imgContractNumber, 6)
-        dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 10)
+        dfContractNumber = checkPatternRegexInDataFrame(dfContractNumber, patternDict['contractNumber'], 5)
         if dfContractNumber.empty:
             continue
         contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
@@ -1512,6 +1540,7 @@ def runFIRST(bank, listImages):
         # amount
         imgAmount = _findCoords(np.array(fullImageScale), 'amount', bank)
         dfAmount = readImgPytesseractToDataframe(imgAmount, 11)
+        dfAmount = groupByDataFrame(dfAmount)
         dfAmount = checkPatternRegexInDataFrame(dfAmount, patternDict['amount'], 10)
         if dfAmount.empty:
             continue
@@ -1520,6 +1549,7 @@ def runFIRST(bank, listImages):
         # interest rate
         imgInterestRate = _findCoords(np.array(fullImageScale), 'interestRate', bank)
         dfInterestRate = readImgPytesseractToDataframe(imgInterestRate, 11)
+        dfInterestRate = groupByDataFrame(dfInterestRate)
         dfInterestRate = checkPatternRegexInDataFrame(dfInterestRate, patternDict['interestRate'], 10)
         if dfInterestRate.empty:
             continue
@@ -1551,8 +1581,9 @@ def runFIRST(bank, listImages):
         contractNumber = dfContractNumber.loc[dfContractNumber.index[0], 'regex']
         # paid
         imgPaid = _findCoords(fullImageScale, 'paid', bank)
-        dfPaid = readImgPytesseractToDataframe(imgPaid, 4)
-        dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 10)
+        dfPaid = readImgPytesseractToDataframe(imgPaid, 11)
+        dfPaid = groupByDataFrame(dfPaid)
+        dfPaid = checkPatternRegexInDataFrame(dfPaid, patternDict['paid'], 5)
         if dfPaid.empty:
             paid = 0
         else:
@@ -2113,61 +2144,64 @@ def runBank(month: int):
     frames = []
     directory = join(realpath(dirname(__file__)), 'bank', f'THÁNG {month}')
     for fileName in os.listdir(directory):
-        if (not fileName.endswith('.pdf')) or 'VAY SINO' in fileName:
+        try:
+            if (not fileName.endswith('.pdf')) or 'VAY SINO' in fileName:
+                continue
+            filePDFPath = os.path.join(directory, fileName)
+            listImages = convertPDFtoImage(filePDFPath)
+            if 'BOP' in fileName:
+                bank = 'BOP'
+                df = runBOP(bank, listImages)
+            elif 'CATHAY' in fileName:
+                bank = 'CATHAY'
+                df = runCATHAY(bank, listImages)
+            elif 'CHANG HWA' in fileName:
+                bank = 'CHANG HWA'
+                df = runCHANGHWA(bank, listImages)
+            elif 'ENTIE' in fileName:
+                bank = 'ENTIE'
+                df = runENTIE(bank, listImages)
+            elif 'ESUN' in fileName:
+                bank = 'ESUN'
+                df = runESUN(bank, listImages)
+            elif 'FIRST' in fileName:
+                bank = 'FIRST'
+                df = runFIRST(bank, listImages)
+            elif 'FUBON' in fileName:
+                bank = 'FUBON'
+                df = runFUBON(bank, listImages)
+            elif 'KGI' in fileName:
+                bank = 'KGI'
+                df = runKGI(bank, listImages)
+            elif 'MEGA' in fileName:
+                bank = 'MEGA'
+                df = runMEGA(bank, listImages)
+            elif 'SHHK' in fileName:
+                bank = 'SHHK'
+                df = runSHHK(bank, listImages)
+            elif 'SHINKONG' in fileName:
+                bank = 'SHINKONG'
+                df = runSHINKONG(bank, listImages)
+            elif 'SINOPAC' in fileName:
+                bank = 'SINOPAC'
+                df = runSINOPAC(bank, listImages)
+            elif 'TCB' in fileName:
+                bank = 'TCB'
+                df = runTCB(bank, listImages)
+            elif 'TAISHIN' in fileName:
+                bank = 'TAISHIN'
+                df = runTAISHIN(bank, listImages)
+            elif 'UBOT' in fileName:
+                bank = 'UBOT'
+                df = runUBOT(bank, listImages)
+            elif 'YUANTA' in fileName:
+                bank = 'YUANTA'
+                df = runYUANTA(bank, listImages)
+            else:
+                continue
+            frames.append(df)
+        except (Exception, ):
             continue
-        filePDFPath = os.path.join(directory, fileName)
-        listImages = convertPDFtoImage(filePDFPath)
-        if 'BOP' in fileName:
-            bank = 'BOP'
-            df = runBOP(bank, listImages)
-        elif 'CATHAY' in fileName:
-            bank = 'CATHAY'
-            df = runCATHAY(bank, listImages)
-        elif 'CHANG HWA' in fileName:
-            bank = 'CHANG HWA'
-            df = runCHANGHWA(bank, listImages)
-        elif 'ENTIE' in fileName:
-            bank = 'ENTIE'
-            df = runENTIE(bank, listImages)
-        elif 'ESUN' in fileName:
-            bank = 'ESUN'
-            df = runESUN(bank, listImages)
-        elif 'FIRST' in fileName:
-            bank = 'FIRST'
-            df = runFIRST(bank, listImages)
-        elif 'FUBON' in fileName:
-            bank = 'FUBON'
-            df = runFUBON(bank, listImages)
-        elif 'KGI' in fileName:
-            bank = 'KGI'
-            df = runKGI(bank, listImages)
-        elif 'MEGA' in fileName:
-            bank = 'MEGA'
-            df = runMEGA(bank, listImages)
-        elif 'SHHK' in fileName:
-            bank = 'SHHK'
-            df = runSHHK(bank, listImages)
-        elif 'SHINKONG' in fileName:
-            bank = 'SHINKONG'
-            df = runSHINKONG(bank, listImages)
-        elif 'SINOPAC' in fileName:
-            bank = 'SINOPAC'
-            df = runSINOPAC(bank, listImages)
-        elif 'TCB' in fileName:
-            bank = 'TCB'
-            df = runTCB(bank, listImages)
-        elif 'TAISHIN' in fileName:
-            bank = 'TAISHIN'
-            df = runTAISHIN(bank, listImages)
-        elif 'UBOT' in fileName:
-            bank = 'UBOT'
-            df = runUBOT(bank, listImages)
-        elif 'YUANTA' in fileName:
-            bank = 'YUANTA'
-            df = runYUANTA(bank, listImages)
-        else:
-            continue
-        frames.append(df)
     balanceTable = pd.concat(frames, ignore_index=True)
     return balanceTable
 

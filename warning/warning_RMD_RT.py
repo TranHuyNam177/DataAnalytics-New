@@ -1,11 +1,29 @@
 """
 Cú pháp: run(True) hoặc run(False)  |  True: Ẩn browser window, False Không ẩn browser window
 """
-import time
 
-from request.stock import *
+import time
+import numpy as np
+import pandas as pd
+import datetime as dt
+from os.path import join, dirname, realpath, isfile
+from os import listdir, remove
+from win32com.client import Dispatch
+from function import bdate
 from request import connect_DWH_CoSo
+from request.stock import internal, ta
 from news_collector import scrape_ticker_by_exchange
+
+from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import ElementNotInteractableException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
+
 
 def __getForceSell__(d):
     return pd.read_sql(
@@ -74,7 +92,7 @@ def __SendMailRetry__(func): # Decorator
                 tempFiles = listdir(join(dirname(__file__),'TempFiles'))
                 trashFiles = [f for f in tempFiles if not f.startswith('README')]
                 for file in trashFiles:
-                    os.remove(join(dirname(__file__),'TempFiles',file))
+                    remove(join(dirname(__file__),'TempFiles',file))
                 break
             if dt.time(11,30,0) < now.time() < dt.time(13,0,0):
                 break

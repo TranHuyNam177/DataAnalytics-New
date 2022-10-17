@@ -1,4 +1,17 @@
-from request.stock import *
+from os.path import join, dirname, realpath
+from os import listdir, remove
+import pandas as pd
+import time
+
+from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import ElementNotInteractableException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait,Select
+from selenium.webdriver.support import expected_conditions as EC
+
 
 PATH = join(dirname(dirname(realpath(__file__))),'dependency','chromedriver')
 ignored_exceptions = (
@@ -95,7 +108,7 @@ def run(  # this function can't go headless
         tables.append(frame)
 
         # delete downloaded files
-        os.remove(join(download_folder,file))
+        remove(join(download_folder,file))
 
     result = pd.concat(tables)
 

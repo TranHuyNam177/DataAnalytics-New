@@ -10,6 +10,7 @@ from automation.trading_service import get_info
 from request import connect_DWH_CoSo
 from datawarehouse import BDATE
 
+
 def run(
     run_time=None
 ):

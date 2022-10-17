@@ -1,5 +1,12 @@
-from request.stock import *
-from request import *
+from os import mkdir
+from os.path import join, dirname, isdir
+import datetime as dt
+import numpy as np
+import pandas as pd
+import itertools
+from request.stock import internal
+from request import connect_DWH_ThiTruong
+import time
 from automation.risk_management import get_info, dept_folder
 
 
@@ -97,8 +104,8 @@ def FilterNewsByKeywords(
     folder_name = info['folder_name']
 
     # create folder
-    if not os.path.isdir(join(dept_folder,folder_name,period)):
-        os.mkdir((join(dept_folder,folder_name,period)))
+    if not isdir(join(dept_folder,folder_name,period)):
+        mkdir((join(dept_folder,folder_name,period)))
 
     if dt.datetime.now().time() < dt.time(hour=12):
         session = 'Buổi Sáng'
@@ -195,7 +202,6 @@ def FilterNewsByKeywords(
     else:
         print(f"{__name__.split('.')[-1]} ::: Finished")
     print(f'Total Run Time ::: {np.round(time.time()-start,1)}s')
-
 
 
 

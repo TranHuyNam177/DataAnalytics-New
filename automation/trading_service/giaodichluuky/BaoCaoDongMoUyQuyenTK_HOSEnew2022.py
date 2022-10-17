@@ -9,7 +9,6 @@ from request import connect_DWH_CoSo
 from info import CompanyName, CompanyAddress, CompanyEmail, CompanyPhoneNumber
 from function import convertNaTtoSpaceString
 
-
 def run(
     run_time=None
 ):

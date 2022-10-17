@@ -14,24 +14,26 @@ def run():
         # Note: thêm 1 phút để tránh bug (do cài sleep)
         return False
 
-    
+    sentSet = set()
     while __checkRun(dt.datetime.now()):
 
         now = dt.datetime.now()
-        orderTable = pd.read_sql(
+        orderFullTable = pd.read_sql(
             """
             SELECT 
-                [TenKhachHang], 
-                [SoTienChuyen], 
+                [TenKhachHang],
+                [SoTienChuyen],
                 [NganHangThuHuong]
             FROM [VCI1104] 
-            -- quét 15s/lần, check trong 10s gần nhất
-            WHERE [ThoiGianGhiNhan] >= DATEADD(SECOND,-10,GETDATE())
+            -- quét 15s/lần, check trong 60s gần nhất
+            WHERE [ThoiGianGhiNhan] >= DATEADD(SECOND,-60,GETDATE())
                 AND [SoTienChuyen] >= 10e9
             """,
-        connect_DWH_CoSo
+            connect_DWH_CoSo
         )
-        orderTable['SoTienChuyen'] = orderTable['SoTienChuyen'].map(lambda num: f"{int(num):,}")
+        orderFullTable['SoTienChuyen'] = orderFullTable['SoTienChuyen'].map(lambda num: f"{int(num):,}")
+        orderSet = set(map(tuple,orderFullTable.values)).difference(sentSet)
+        orderTable = pd.DataFrame(list(orderSet),columns=['TenKhachHang','SoTienChuyen','NganHangThuHuong'])
 
         outlook = Dispatch('outlook.application')
         mail = outlook.CreateItem(0)
@@ -56,6 +58,7 @@ def run():
         else:
             print(f"{now.strftime('%H:%M:%S %d.%m.%Y')}\nKhông có lệnh lớn\n=====================")
 
+        sentSet = orderSet.union(sentSet)
         time.sleep(15)
 
 if __name__ == '__main__':

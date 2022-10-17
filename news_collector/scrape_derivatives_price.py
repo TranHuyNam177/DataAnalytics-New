@@ -1,5 +1,17 @@
-from request.stock import *
+from os.path import join, dirname, realpath
+import datetime as dt
+import numpy as np
+import pandas as pd
 
+from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import ElementNotInteractableException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 
 PATH = join(dirname(dirname(realpath(__file__))),'dependency','chromedriver')
 ignored_exceptions = (
