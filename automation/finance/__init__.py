@@ -217,8 +217,7 @@ class Base:
         outlook = Dispatch('outlook.application')
         # Dọn dẹp folder mail
         mapi = outlook.GetNamespace("MAPI")
-        # inbox = mapi.Folders.Item(1).Folders['Inbox'].Folders['CAPTCHA']
-        inbox = mapi.Folders.Item(1).Folders['Inbox']
+        inbox = mapi.Folders.Item(1).Folders['Inbox'].Folders['CAPTCHA']
         email_ids = []
         for i in range(len(inbox.Items)):
             if f're: captcha required: {self.bank.lower()}' in inbox.Items[i].Subject.lower():
@@ -266,8 +265,7 @@ class Base:
         mail.Send()
         # Chờ phản hồi để nhận CAPTCHA
         while True:
-            # inbox = mapi.Folders.Item(1).Folders['Inbox'].Folders['CAPTCHA']
-            inbox = mapi.Folders.Item(1).Folders['Inbox']
+            inbox = mapi.Folders.Item(1).Folders['Inbox'].Folders['CAPTCHA']
             messages = inbox.Items
             for message in messages:
                 if f're: captcha required: {self.bank.lower()}' in message.Subject.lower():
@@ -858,6 +856,10 @@ class FIRST(Base):
                 pandas_config={'dtype':{'text':str}}
             )
             outputTable = outputTable.loc[outputTable['conf']!=-1]
+            if outputTable.empty: # refresh khi không thể đọc được CAPTCHA
+                xpath = '//*[@class="refresh"]'
+                self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
+                continue
             outputSeries = outputTable.loc[outputTable.index[-1],['conf','text']]
             confidenceLevel = outputSeries['conf']
             predictedCAPTCHA = re.sub('\D','',outputSeries['text'])
@@ -865,7 +867,7 @@ class FIRST(Base):
             condition2 = len(predictedCAPTCHA) == 5
             if condition1 and condition2: # case không cần refresh
                 break
-            else: # case cần refresh
+            else: # refresh khi đọc CAPTCHA sai format
                 xpath = '//*[@class="refresh"]'
                 self.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
 
@@ -895,8 +897,8 @@ class FIRST(Base):
         # Đóng popup window báo repeated login nếu có
         time.sleep(2)
         self.driver.switch_to.default_content()
-        self.driver.switch_to.frame(self.driver.find_element_by_tag_name("iframe"))
-        self.driver.switch_to.frame(self.driver.find_element_by_tag_name("iframe"))
+        self.driver.switch_to.frame(self.driver.find_element(By.TAG_NAME("iframe")))
+        self.driver.switch_to.frame(self.driver.find_element(By.TAG_NAME("iframe")))
         xpath = '//*[text()="Confirm"]'
         confirmButtons = self.driver.find_elements(By.XPATH,xpath)
         if confirmButtons:

@@ -9,6 +9,7 @@ import re
 from selenium.common.exceptions import ElementNotInteractableException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from function import first
 
@@ -155,7 +156,7 @@ def runVTB(bankObject):
     )
     downloadTable = downloadTable.dropna(subset=['AccountNumber'])
     downloadTable[['IssueDate','ExpireDate']] = downloadTable[['IssueDate','ExpireDate']].applymap(lambda x: dt.datetime.strptime(x,'%d-%m-%Y'))
-    downloadTable['TermMonths'] = np.int64(downloadTable['TermMonths'].str.replace('D','').str.split('M').str.get(0))
+    downloadTable['TermMonths']  = np.int64(downloadTable['TermMonths'].str.replace('D','').str.split('M').str.get(0))
     downloadTable['TermDays'] = (downloadTable['ExpireDate']-downloadTable['IssueDate']).dt.days
     downloadTable['InterestRate'] /= 100
     downloadTable['Bank'] = bankObject.bank
@@ -216,14 +217,13 @@ def runIVB(bankObject):
         # Số tài khoản
         account = re.search('^\d{7}-\d{3}',elementString).group()
         # Ngày hiệu lực, Ngày đáo hạn
-        issueDateText, expireDateText = re.findall('\d{2}.\d{2}.\d{4}',elementString)
+        issueDateText, expireDateText = re.findall('\d{2}/\d{2}/\d{4}',elementString)
         issueDate = dt.datetime.strptime(issueDateText,'%d/%m/%Y')
         expireDate = dt.datetime.strptime(expireDateText,'%d/%m/%Y')
         # Term Days
-        termDays = (expireDate - issueDate).days
+        termDays = (expireDate-issueDate).days
         # Term Months
-        termString = re.search('\d* Tháng',elementString).group().replace(' Tháng','')
-        term = float(termString) # Số tháng
+        term = (expireDate.year-issueDate.year)*12 + expireDate.month-issueDate.month  # Số tháng
         # Lãi suất
         iText = elementString.split(issueDateText)[0].split()[-1]
         iRate = round(float(iText)/100,5)
@@ -980,6 +980,12 @@ def runSCSB(bankObject):
     xpath = "//*[contains(text(),'Time Deposit Service')]"
     bankObject.wait.until(EC.presence_of_element_located((By.XPATH,xpath))).click()
     time.sleep(5)  # chờ thời gian load trang
+    # Không có dữ liệu
+    xpath = "//*[contains(@class, 'errtxt')]"
+    noDataElement = bankObject.driver.find_elements(By.XPATH, xpath)
+    if noDataElement:
+        return pd.DataFrame()
+
     # Lấy dữ liệu
     xpath = "//*[@class='bea-portal-window-content']//*/table[2]/tbody/tr"
     recordElements = bankObject.wait.until(EC.presence_of_all_elements_located((By.XPATH, xpath)))[1:]  # Bỏ dòng header đầu tiên
@@ -1016,10 +1022,9 @@ def runSCSB(bankObject):
     )
     # Date
     if now.hour >= 8:
-        d = now.replace(hour=0, minute=0, second=0, microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
+        d = now.replace(hour=0,minute=0,second=0,microsecond=0)  # chạy trong ngày -> xem là số ngày hôm nay
     else:
-        d = (now - dt.timedelta(days=1)).replace(hour=0, minute=0, second=0,
-                                                 microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
+        d = (now - dt.timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)  # chạy đầu ngày -> xem là số ngày hôm trước
     balanceTable.insert(0, 'Date', d)
     # Bank
     balanceTable.insert(1, 'Bank', bankObject.bank)
